@@ -13,20 +13,24 @@ const allowedOrigins = [
   'http://lapnomba.org',
   'https://lapnomba.org',
   'https://admin.lapnomba.org',
-  'http://localhost:3000' 
+  'http://localhost:3000'
 ];
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Autorise les requêtes sans origin (ex: curl, Postman)
-    if (!origin) return callback(null, true);
+    if (!origin) return callback(null, true); // permet aux requêtes type curl/postman de passer
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
     return callback(new Error('Not allowed by CORS'));
-  }
-})); 
+  },
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+
 app.use(express.json());
+
 app.use('/api/users', usersRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/menu', menuRouter);
