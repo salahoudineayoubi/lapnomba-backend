@@ -10,15 +10,15 @@ import projetsRouter from './routes/projet';
 const app = express();
 
 const allowedOrigins = [
+  'http://localhost:3000',        // dev local
   'http://lapnomba.org',
   'https://lapnomba.org',
-  'https://admin.lapnomba.org',
-  'http://localhost:3000'
+  'https://admin.lapnomba.org'
 ];
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin) return callback(null, true); // permet aux requêtes type curl/postman de passer
+    if (!origin) return callback(null, true); // curl/postman ou extension navigateur
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
@@ -29,8 +29,12 @@ app.use(cors({
   credentials: true
 }));
 
+// Middleware pour gérer toutes les requêtes OPTIONS (preflight)
+app.options('*', cors());
+
 app.use(express.json());
 
+// Routes
 app.use('/api/users', usersRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/menu', menuRouter);
@@ -38,7 +42,6 @@ app.use('/api/dashboard', dashboardRouter);
 app.use('/api/projets', projetsRouter);
 
 const PORT = process.env.PORT || 4000;
-
 app.listen(PORT, () => {
   console.log(`Server started on http://localhost:${PORT}`);
 });
