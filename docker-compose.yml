@@ -1,0 +1,33 @@
+version: "3.8"
+services:
+  db:
+    image: postgres:15
+    container_name: lapnomba-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: lapnomba
+    ports:
+      - "5432:5432"
+
+  backend:
+    image: salahoudinea/lapnomba-backend:latest
+    container_name: lapnomba-backend
+    restart: always
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: 4000
+      DB_PROTOCOL: postgres
+      DB_HOST: lapnomba-db
+      DB_PORT: 5432
+      DB_NAME: lapnomba
+      DB_USER: postgres
+      DB_PASSWORD: password
+      SALT_ROUNDS: 10
+      JWT_SECRET: your_jwt_secret
+      ADMIN_EMAIL: admin@lapnomba.org
+      ADMIN_PASSWORD: admin
+    depends_on:
+      - db
