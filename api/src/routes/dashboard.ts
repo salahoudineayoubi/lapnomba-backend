@@ -9,9 +9,7 @@ import { ContactMessage } from '../models/contact_message';
 import { EquipeMembre } from '../models/equipe_membre';
 import { Partenaires } from '../models/partenaires';
 import { Formation } from '../models/formation';
-
 const router = Router();
-
 router.get('/stats', async (req, res) => {
   try {
     const userCount = await User.count();
@@ -24,7 +22,6 @@ const newsletterCount = await NewsletterSubscriber.count();
     const contactCount = await ContactMessage.count();
     const equipeCount = await EquipeMembre.count();
     const partenairesCount = await Partenaires.count();
-
     res.json({
       users: userCount,
       menus: menuCount,
@@ -40,6 +37,5 @@ const newsletterCount = await NewsletterSubscriber.count();
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch stats.' });
   }
-});
-
+})
 export default router;

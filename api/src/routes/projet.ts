@@ -13,7 +13,6 @@ router.post('/', async (req, res) => {
     res.status(500).json({ error: "Server error." });
   }
 });
-
 router.get('/', async (req, res) => {
   try {
     const projets = await Projet.findAll({ order: [['createdAt', 'DESC']] });
@@ -22,5 +21,4 @@ router.get('/', async (req, res) => {
     res.status(500).json({ error: "Server error." });
   }
 });
-
 export default router;
