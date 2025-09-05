@@ -13,12 +13,14 @@ const allowedOrigins = [
   'http://lapnomba.org',
   'https://lapnomba.org',
   'https://admin.lapnomba.org',
-  'http://localhost:3000'
+  'http://localhost:3000',
+  'https://lapnomba-frontend.up.railway.app', // ✅ frontend Railway
+  'https://lapnomba-backend.up.railway.app'   // ✅ backend Railway (utile pour tests)
 ];
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin) return callback(null, true); // permet aux requêtes type curl/postman de passer
+    if (!origin) return callback(null, true); // permet curl/postman
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
@@ -31,19 +33,21 @@ app.use(cors({
 
 app.use(express.json());
 
+// Routes
 app.use('/api/users', usersRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/menu', menuRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/projets', projetsRouter);
 
-const PORT = process.env.PORT || 4000;
+// Port Railway ou fallback 8080
+const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
-  console.log(`Server started on http://localhost:${PORT}`);
+  console.log(`✅ Server started on http://localhost:${PORT}`);
 });
 
-// Gestion globale des erreurs non gérées
+// Gestion globale des erreurs
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err);
 });
