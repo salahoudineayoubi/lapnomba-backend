@@ -8,7 +8,16 @@ import dashboardRouter from './routes/dashboard';
 import projetsRouter from './routes/projet';
 
 const app = express();
-app.use(cors()); 
+
+const allowedOrigins = [
+  'http://lapnomba.org',
+  'https://lapnomba.org',
+  'https://admin.lapnomba.org',
+  'http://localhost:3000' 
+];
+app.use(cors({
+  origin: allowedOrigins
+})); 
 app.use(express.json());
 app.use('/api/users', usersRouter);
 app.use('/api/auth', authRouter);
