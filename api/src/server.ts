@@ -24,8 +24,10 @@ app.use(cors({
       return callback(null, true);
     }
     return callback(new Error('Not allowed by CORS'));
-  }
+  },
+  credentials: true, // Ajoute ceci si tu utilises des cookies ou des headers d'auth
 })); 
+app.options('*', cors());
 app.use(express.json());
 app.use('/api/users', usersRouter);
 app.use('/api/auth', authRouter);
