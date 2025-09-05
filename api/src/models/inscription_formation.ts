@@ -22,8 +22,6 @@ export function initializeInscriptionFormation(sequelize: Sequelize) {
     formationId: { type: DataTypes.BIGINT.UNSIGNED, allowNull: false, field: 'formation_id' },
     statut: { type: DataTypes.STRING, allowNull: false },
     dateInscription: { type: DataTypes.DATE, allowNull: false, field: 'date_inscription' },
-    createdAt: { type: DataTypes.DATE, allowNull: false, field: 'created_at' },
-    updatedAt: { type: DataTypes.DATE, allowNull: false, field: 'updated_at' },
     ...timestampAttributes,
   }, { sequelize, ...defaultOptions });
 
