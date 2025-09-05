@@ -15,8 +15,16 @@ const allowedOrigins = [
   'https://admin.lapnomba.org',
   'http://localhost:3000' 
 ];
+
 app.use(cors({
-  origin: allowedOrigins
+  origin: (origin, callback) => {
+    // Autorise les requêtes sans origin (ex: curl, Postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  }
 })); 
 app.use(express.json());
 app.use('/api/users', usersRouter);
