@@ -6,9 +6,7 @@ import authRouter from './routes/auth';
 import menuRouter from './routes/menu';
 import dashboardRouter from './routes/dashboard';
 import projetsRouter from './routes/projet';
-
 const app = express();
-
 const allowedOrigins = [
   'http://lapnomba.org',
   'https://lapnomba.org',
@@ -18,7 +16,6 @@ const allowedOrigins = [
   'https://lapnomba-backend.up.railway.app'  
 ];
 
-// Ajout explicite pour les requêtes OPTIONS (préflight)
 app.options('*', cors({
   origin: (origin, callback) => {
     console.log('CORS preflight origin:', origin);
