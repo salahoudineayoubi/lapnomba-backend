@@ -10,7 +10,6 @@ services:
       POSTGRES_DB: lapnomba
     ports:
       - "5432:5432"
-
   backend:
     image: salahoudinea/lapnomba-backend:latest
     container_name: lapnomba-backend

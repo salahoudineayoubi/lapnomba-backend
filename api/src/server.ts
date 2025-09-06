@@ -14,13 +14,14 @@ const allowedOrigins = [
   'https://lapnomba.org',
   'https://admin.lapnomba.org',
   'http://localhost:3000',
-  'https://lapnomba-frontend.up.railway.app', // ✅ frontend Railway
-  'https://lapnomba-backend.up.railway.app'   // ✅ backend Railway (utile pour tests)
+  'https://lapnomba-frontend.up.railway.app', 
+  'https://lapnomba-backend.up.railway.app'  
 ];
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin) return callback(null, true); // permet curl/postman
+ console.log('CORS origin:', origin);
+    if (!origin) return callback(null, true); 
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
