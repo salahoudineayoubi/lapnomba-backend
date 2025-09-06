@@ -18,9 +18,24 @@ const allowedOrigins = [
   'https://lapnomba-backend.up.railway.app'  
 ];
 
+// Ajout explicite pour les requêtes OPTIONS (préflight)
+app.options('*', cors({
+  origin: (origin, callback) => {
+    console.log('CORS preflight origin:', origin);
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+
 app.use(cors({
   origin: (origin, callback) => {
- console.log('CORS origin:', origin);
+    console.log('CORS origin:', origin);
     if (!origin) return callback(null, true); 
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
