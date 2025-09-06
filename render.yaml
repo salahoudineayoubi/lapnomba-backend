@@ -14,15 +14,15 @@ services:
       - key: DB_PROTOCOL
         value: postgres
       - key: DB_HOST
-        value: lapnomba-db
+        value: dpg-d2u8dondiees73cmrpag-a
       - key: DB_PORT
         value: 5432
       - key: DB_NAME
-        value: postgres
+        value: lapnomba_db
       - key: DB_USER
-        value: postgres
+        value: lapnomba_db_user
       - key: DB_PASSWORD
-        value: password
+        value: PDgActxIWskxQDkybwtmM4pBLsARhvGr
       - key: SALT_ROUNDS
         value: "10"
       - key: JWT_SECRET

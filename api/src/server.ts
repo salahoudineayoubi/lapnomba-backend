@@ -5,34 +5,17 @@ import usersRouter from './routes/users';
 import authRouter from './routes/auth';
 import menuRouter from './routes/menu';
 import dashboardRouter from './routes/dashboard';
-import projetsRouter from './routes/projet';
+import projetsRouter from './routes/projet'
 const app = express();
 const allowedOrigins = [
   'http://lapnomba.org',
   'https://lapnomba.org',
   'https://admin.lapnomba.org',
-  'http://localhost:3000',
-  'https://lapnomba-frontend.up.railway.app', 
-  'https://lapnomba-backend.up.railway.app'  
+  'http://localhost:3000'
 ];
-
-app.options('*', cors({
-  origin: (origin, callback) => {
-    console.log('CORS preflight origin:', origin);
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    return callback(new Error('Not allowed by CORS'));
-  },
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-}));
-
 app.use(cors({
   origin: (origin, callback) => {
-    console.log('CORS origin:', origin);
+ console.log('CORS origin:', origin);
     if (!origin) return callback(null, true); 
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
@@ -46,16 +29,13 @@ app.use(cors({
 
 app.use(express.json());
 
-// Routes
 app.use('/api/users', usersRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/menu', menuRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/projets', projetsRouter);
 
-// Port Railway ou fallback 8080
 const PORT = process.env.PORT || 8080;
-
 app.listen(PORT, () => {
   console.log(`✅ Server started on http://localhost:${PORT}`);
 });
