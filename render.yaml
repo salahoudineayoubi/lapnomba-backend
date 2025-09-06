@@ -3,6 +3,7 @@ services:
     name: lapnomba-backend
     env: node
     plan: free
+    rootDir: api        
     buildCommand: pnpm install && pnpm run build
     startCommand: pnpm start
     envVars:
