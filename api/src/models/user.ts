@@ -46,9 +46,10 @@ export function initializeUser(sequelize: Sequelize) {
     }
   );
 
-  User.addHook('beforeDestroy', (user, options) => {
-    if (user.email === process.env.ADMIN_EMAIL) {
-      throw new Error("❌ L'admin ne peut pas être supprimé !");
-    }
-  });
+ User.addHook('beforeDestroy', (user, options) => {
+  const u = user as User; // cast pour TypeScript
+  if (u.email === process.env.ADMIN_EMAIL) {
+    throw new Error("❌ L'admin ne peut pas être supprimé !");
+  }
+});
 }
