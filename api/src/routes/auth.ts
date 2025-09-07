@@ -27,7 +27,11 @@ router.post('/login', async (req, res) => {
       }
     });
   } catch (err) {
-    res.status(500).json({ error: 'Server error. Please try again later.' });
+    console.error("Login error:", err);
+    res.status(500).json({ 
+      error: 'Server error. Please try again later.',
+      details: err instanceof Error ? err.message : err 
+    });
   }
 });
 
