@@ -1,12 +1,15 @@
 import express from 'express';
 import cors from 'cors';
-import { sequelize } from './config/db'; 
+import { initDatabase } from './config/db';
 import usersRouter from './routes/users';
 import authRouter from './routes/auth';
 import menuRouter from './routes/menu';
 import dashboardRouter from './routes/dashboard';
-import projetsRouter from './routes/projet'
+import projetsRouter from './routes/projet';
+
 const app = express();
+
+// CORS
 const allowedOrigins = [
   'http://lapnomba.org',
   'https://lapnomba.org',
@@ -15,38 +18,33 @@ const allowedOrigins = [
 ];
 app.use(cors({
   origin: (origin, callback) => {
- console.log('CORS origin:', origin);
-    if (!origin) return callback(null, true); 
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
     return callback(new Error('Not allowed by CORS'));
   },
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization'],
   credentials: true
 }));
 
 app.use(express.json());
 
+// Routes
 app.use('/api/users', usersRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/menu', menuRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/projets', projetsRouter);
-app.get('/health', (req, res) => {
-  res.status(200).send('OK');
+
+// Health check
+app.get('/health', (req, res) => res.status(200).send('OK'));
+
+// Initialisation DB puis lancement du serveur
+initDatabase().then(() => {
+  const PORT = process.env.PORT || 8080;
+  app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
 });
 
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`✅ Server started on http://localhost:${PORT}`);
-});
-
-// Gestion globale des erreurs
-process.on('uncaughtException', (err) => {
-  console.error('Uncaught Exception:', err);
-});
-process.on('unhandledRejection', (reason) => {
-  console.error('Unhandled Rejection:', reason);
-});
+// Gestion des erreurs globales
+process.on('uncaughtException', (err) => console.error('Uncaught Exception:', err));
+process.on('unhandledRejection', (reason) => console.error('Unhandled Rejection:', reason));

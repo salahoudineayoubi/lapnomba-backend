@@ -3,7 +3,7 @@ services:
     name: lapnomba-backend
     env: node
     plan: free
-    rootDir: api        
+    rootDir: api        # dossier contenant server.ts / package.json
     buildCommand: pnpm install && pnpm run build
     startCommand: pnpm start
     envVars:
@@ -28,4 +28,9 @@ services:
       - key: ADMIN_EMAIL
         value: admin@lapnomba.org
       - key: ADMIN_PASSWORD
-        value: admin
+        value: admin123
+
+databases:
+  - name: lapnomba-db
+    plan: free
+    region: oregon
