@@ -12,9 +12,6 @@ import { initializeEquipeMembre } from '../models/equipe_membre';
 import { initializePartenaires } from '../models/partenaires';
 const dbUrl = `${envConfig.DB_PROTOCOL}://${envConfig.DB_USER}:${envConfig.DB_PASSWORD}@${envConfig.DB_HOST}:${envConfig.DB_PORT}/${envConfig.DB_NAME}`;
 export const sequelize = new Sequelize(dbUrl, {});
-sequelize.authenticate()
-  .then(() => console.log('Connexion à la base de données réussie !'))
-  .catch((err) => console.error('Erreur de connexion à la base de données :', err));
 
 // Initialize all models BEFORE sync
 initializeUser(sequelize);
