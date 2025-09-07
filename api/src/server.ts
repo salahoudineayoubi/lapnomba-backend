@@ -15,7 +15,6 @@ const allowedOrigins = [
   'https://lapnomba.org',
   'https://admin.lapnomba.org',
   'http://localhost:3000',
-  'http://localhost:3001'
 ];
 app.use(cors({
   origin: (origin, callback) => {
@@ -36,7 +35,6 @@ app.use('/api/auth', authRouter);
 app.use('/api/menu', menuRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/projets', projetsRouter);
-
 // Health check
 app.get('/health', (req, res) => res.status(200).send('OK'));
 
@@ -45,7 +43,6 @@ initDatabase().then(() => {
   const PORT = process.env.PORT || 8080;
   app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
 });
-
 // Gestion des erreurs globales
 process.on('uncaughtException', (err) => console.error('Uncaught Exception:', err));
 process.on('unhandledRejection', (reason) => console.error('Unhandled Rejection:', reason));

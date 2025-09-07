@@ -7,6 +7,7 @@ import {
   Model,
 } from 'sequelize';
 import { defaultOptions, timestampAttributes } from './base-model';
+
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare id: CreationOptional<number>;
   declare nom: string;
@@ -21,10 +22,11 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 }
+
 export function initializeUser(sequelize: Sequelize) {
   User.init(
     {
-      id: { type: DataTypes.BIGINT.UNSIGNED, autoIncrement: true, primaryKey: true },
+      id: { type: DataTypes.BIGINT, autoIncrement: true, primaryKey: true }, // PostgreSQL ignore UNSIGNED
       nom: { type: DataTypes.STRING, allowNull: false },
       prenom: { type: DataTypes.STRING, allowNull: false },
       email: { type: DataTypes.STRING, allowNull: false, unique: true },
@@ -43,4 +45,10 @@ export function initializeUser(sequelize: Sequelize) {
       ...defaultOptions 
     }
   );
+
+  User.addHook('beforeDestroy', (user, options) => {
+    if (user.email === process.env.ADMIN_EMAIL) {
+      throw new Error("❌ L'admin ne peut pas être supprimé !");
+    }
+  });
 }
