@@ -14,7 +14,8 @@ const allowedOrigins = [
   'http://lapnomba.org',
   'https://lapnomba.org',
   'https://admin.lapnomba.org',
-  'http://localhost:3000'
+  'http://localhost:3000',
+  'http://localhost:3001'
 ];
 app.use(cors({
   origin: (origin, callback) => {
