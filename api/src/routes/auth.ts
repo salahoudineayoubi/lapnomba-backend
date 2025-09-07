@@ -17,7 +17,6 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Incorrect password. Please try again.' });
     }
 
-    // You can generate a JWT token here if needed
     res.json({
       message: 'Login successful',
       user: {

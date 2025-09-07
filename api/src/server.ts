@@ -34,6 +34,9 @@ app.use('/api/auth', authRouter);
 app.use('/api/menu', menuRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/projets', projetsRouter);
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
