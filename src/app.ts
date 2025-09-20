@@ -50,8 +50,6 @@ async function startServer() {
       }
       next(err);
     });
-
-
     app.use("/api/newsletter-subscribe", (
       err: any,
       req: Request,
@@ -72,6 +70,5 @@ async function startServer() {
     process.exit(1);
   }
 }
-
 startServer();
 export {};

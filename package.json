@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "description": "Lap nomba backend using Node.js, GraphQL, Apollo, Docker, and Kubernetes.",
   "main": "src/app.ts",
-  "scripts": {
-    "start": "ts-node src/app.ts",
-    "build": "tsc",
-    "dev": "ts-node-dev src/app.ts",
-    "test": "jest"
-  },
+"scripts": {
+  "start": "node dist/app.js",
+  "build": "tsc",
+  "dev": "ts-node-dev src/app.ts",
+  "test": "jest"
+},
   "dependencies": {
     "apollo-server": "^3.6.7",
     "bcrypt": "^6.0.0",
