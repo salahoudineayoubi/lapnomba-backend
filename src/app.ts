@@ -17,7 +17,6 @@ async function startServer() {
     if (!process.env.DB_URI) {
       throw new Error("DB_URI non défini dans .env");
     }
-
     await mongoose.connect(process.env.DB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -30,10 +29,7 @@ async function startServer() {
       origin: "http://localhost:3000", 
       credentials: true
     }));
-
     app.use(express.json());
-
-    // Routes REST
     app.use("/api/students", studentRoutes);
     app.use("/api/admin", adminRoutes);
     app.use("/api/join-team-request", joinTeamRequestRoutes);
@@ -67,9 +63,6 @@ async function startServer() {
       }
       next(err);
     });
-
-
-
     const port = process.env.PORT || 4000;
     app.listen(port, () => {
       logger.info(`🚀 Serveur lancé sur le port ${port}`);
