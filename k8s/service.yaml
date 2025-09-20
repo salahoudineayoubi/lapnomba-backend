@@ -1,12 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: lapnomba-backend-service
+  name: marketplace-service
+  labels:
+    app: marketplace
 spec:
-  type: LoadBalancer
-  selector:
-    app: lapnomba-backend
+  type: ClusterIP
   ports:
-    - protocol: TCP
-      port: 80
+    - port: 4000
       targetPort: 4000
+  selector:
+    app: marketplace

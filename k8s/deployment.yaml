@@ -1,24 +1,36 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: lapnomba-backend
+  name: marketplace-backend
+  labels:
+    app: marketplace-backend
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
-      app: lapnomba-backend
+      app: marketplace-backend
   template:
     metadata:
       labels:
-        app: lapnomba-backend
+        app: marketplace-backend
     spec:
       containers:
-        - name: backend
-          image: salahoudinea/lapnomba-backend:latest
+        - name: marketplace-backend
+          image: your-docker-image:latest
           ports:
             - containerPort: 4000
           env:
             - name: NODE_ENV
-              value: "production"
+              value: production
             - name: DATABASE_URL
-              value: "postgres://postgres:password@lapnomba-db:5432/postgres"
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: url
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
