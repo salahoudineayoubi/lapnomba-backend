@@ -9,16 +9,25 @@ services:
       - "4000:4000"
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=mongodb://mongo:27017/marketplace
+      - DB_PROTOCOL=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASS=your_mysql_password
+      - DB_NAME=lapnomba
     depends_on:
-      - mongo
+      - mysql
 
-  mongo:
-    image: mongo:latest
+  mysql:
+    image: mysql:8
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: your_mysql_password
+      MYSQL_DATABASE: your_db_name
     ports:
-      - "27017:27017"
+      - "3306:3306"
     volumes:
-      - mongo_data:/data/db
+      - mysql_data:/var/lib/mysql
 
 volumes:
-  mongo_data:
+  mysql_data:

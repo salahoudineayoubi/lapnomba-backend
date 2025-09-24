@@ -1,7 +1,7 @@
 {
   "name": "lapnomba-backend",
   "version": "1.0.0",
-  "description": "Lap Nomba backend using Node.js, Express, GraphQL, Apollo, Docker, and Kubernetes.",
+  "description": "Lap nomba backend using Node.js, GraphQL, Apollo, Docker, and Kubernetes.",
   "main": "src/app.ts",
   "scripts": {
     "start": "node dist/app.js",
@@ -35,11 +35,10 @@
     "typescript": "^5.9.2"
   },
   "keywords": [
-    "lapnomba",
+    "lapnommba",
     "graphql",
     "apollo",
     "nodejs",
-    "express",
     "docker",
     "kubernetes"
   ],
