@@ -1,21 +1,25 @@
-import mongoose, { Schema, Document } from "mongoose";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
 
-export interface ProjectSummitDocument extends Document {
+@Entity("project_summit")
+export class ProjectSummit {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
   nomComplet: string;
+
+  @Column()
   email: string;
+
+  @Column()
   nomProjet: string;
+
+  @Column()
   description: string;
-  numeroWhatsapp: string; 
+
+  @Column()
+  numeroWhatsapp: string;
+
+  @CreateDateColumn()
   dateSoumission: Date;
 }
-
-const ProjectSummitSchema = new Schema<ProjectSummitDocument>({
-  nomComplet: { type: String, required: true },
-  email: { type: String, required: true },
-  nomProjet: { type: String, required: true },
-  description: { type: String, required: true },
-  numeroWhatsapp: { type: String, required: true }, 
-  dateSoumission: { type: Date, default: Date.now }
-});
-
-export default mongoose.model<ProjectSummitDocument>("ProjectSummit", ProjectSummitSchema);

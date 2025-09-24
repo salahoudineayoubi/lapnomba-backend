@@ -1,25 +1,31 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
 
-export interface IStudent extends Document {
+@Entity("students")
+export class Student {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
   name: string;
+
+  @Column()
   prenom: string;
+
+  @Column({ unique: true })
   email: string;
+
+  @Column()
   niveauEtude: string;
+
+  @Column({ type: "date" })
   dateNaissance: Date;
+
+  @Column()
   ville: string;
+
+  @Column()
   numeroWhatsapp: string;
+
+  @CreateDateColumn()
   dateInscription: Date;
 }
-
-const StudentSchema: Schema = new Schema({
-  name: { type: String, required: true },
-  prenom: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  niveauEtude: { type: String, required: true },
-  dateNaissance: { type: Date, required: true },
-  ville: { type: String, required: true },
-  numeroWhatsapp: { type: String, required: true },
-  dateInscription: { type: Date, required: true }
-});
-
-export default mongoose.model<IStudent>('Student', StudentSchema);

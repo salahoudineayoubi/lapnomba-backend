@@ -1,14 +1,14 @@
 {
-  "name": "marketplace-backend",
+  "name": "lapnomba-backend",
   "version": "1.0.0",
-  "description": "Lap nomba backend using Node.js, GraphQL, Apollo, Docker, and Kubernetes.",
+  "description": "Lap Nomba backend using Node.js, Express, GraphQL, Apollo, Docker, and Kubernetes.",
   "main": "src/app.ts",
-"scripts": {
-  "start": "node dist/app.js",
-  "build": "tsc",
-  "dev": "ts-node-dev src/app.ts",
-  "test": "jest"
-},
+  "scripts": {
+    "start": "node dist/app.js",
+    "build": "tsc",
+    "dev": "ts-node-dev src/app.ts",
+    "test": "jest"
+  },
   "dependencies": {
     "apollo-server": "^3.6.7",
     "bcrypt": "^6.0.0",
@@ -18,7 +18,9 @@
     "graphql": "^15.5.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^6.0.12",
+    "mysql2": "^3.15.0",
     "twilio": "^5.9.0",
+    "typeorm": "^0.3.27",
     "winston": "^3.17.0"
   },
   "devDependencies": {
@@ -33,10 +35,11 @@
     "typescript": "^5.9.2"
   },
   "keywords": [
-    "marketplace",
+    "lapnomba",
     "graphql",
     "apollo",
     "nodejs",
+    "express",
     "docker",
     "kubernetes"
   ],

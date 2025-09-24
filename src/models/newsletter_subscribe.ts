@@ -1,14 +1,13 @@
-import mongoose, { Schema, Document } from "mongoose";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
 
-export interface NewsletterSubscribeDocument extends Document {
+@Entity("newsletter_subscribe")
+export class NewsletterSubscribe {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ unique: true })
   email: string;
-  createdAt?: Date; // Ajouté pour la date de souscription
+
+  @CreateDateColumn()
+  createdAt: Date;
 }
-
-const NewsletterSubscribeSchema = new Schema<NewsletterSubscribeDocument>({
-  email: { type: String, required: true }
-}, { timestamps: true }); // Ajoute les timestamps
-
-NewsletterSubscribeSchema.index({ email: 1 }, { unique: true });
-
-export default mongoose.model<NewsletterSubscribeDocument>("NewsletterSubscribe", NewsletterSubscribeSchema);

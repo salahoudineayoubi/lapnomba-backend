@@ -3,7 +3,7 @@ import mongoose, { Document, Schema, Types } from 'mongoose';
 export interface IAdmin extends Document {
   userId: Types.ObjectId; // Référence à User
   role: 'superadmin' | 'moderator'; // Tu peux gérer plusieurs niveaux
-  permissions?: string[]; // Ex: ['manageUsers', 'manageOrders', 'managePayments']
+  permissions?: string[]; // Ex: ['manageUsers', 'manageOrders', 'managePayments'
   createdAt?: Date;
   updatedAt?: Date;
 }

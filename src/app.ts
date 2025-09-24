@@ -1,32 +1,22 @@
 import express, { Request, Response, NextFunction } from "express";
-import mongoose from "mongoose";
 import cors from "cors";
 import "dotenv/config";
 import logger from "./utils/logger";
+import { AppDataSource } from "./data-source";
 import studentRoutes from "./routes/students";
 import adminRoutes from "./routes/admin";
 import joinTeamRequestRoutes from "./routes/joint_team_request";
 import projectSummitRoutes from "./routes/projet_summit";
 import newsletterSubscribeRoutes from "./routes/newsletter";
 import donateurRoutes from "./routes/donateur";
-
 async function startServer() {
   try {
-    mongoose.set('strictQuery', true);
-
-    if (!process.env.DB_URI) {
-      throw new Error("DB_URI non défini dans .env");
-    }
-    await mongoose.connect(process.env.DB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    } as any);
-    logger.info("✅ Connecté à MongoDB");
-
+    await AppDataSource.initialize();
+    logger.info("✅ Connecté à MySQL");
     const app = express();
 
     app.use(cors({
-      origin: "http://localhost:3000", 
+      origin: "http://localhost:3000",
       credentials: true
     }));
     app.use(express.json());
@@ -37,30 +27,21 @@ async function startServer() {
     app.use("/api/newsletter-subscribe", newsletterSubscribeRoutes);
     app.use("/api/donateurs", donateurRoutes);
 
-    app.use("/api/join-team-request", (
-      err: any,
-      req: Request,
-      res: Response,
-      next: NextFunction
-    ) => {
-      if (err && err.code === 11000) {
-        return res.status(409).json({
-          error: "Vous avez déjà soumis une demande avec ces informations."
-        });
+    // Gestion des erreurs de duplication (MySQL/TypeORM)
+    app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+      if (err && err.code === "ER_DUP_ENTRY") {
+        if (req.path.startsWith("/api/join-team-request")) {
+          return res.status(409).json({
+            error: "Vous avez déjà soumis une demande avec ces informations."
+          });
+        }
+        if (req.path.startsWith("/api/newsletter-subscribe")) {
+          return res.status(409).json({ error: "Cet email est déjà inscrit à la newsletter." });
+        }
       }
       next(err);
     });
-    app.use("/api/newsletter-subscribe", (
-      err: any,
-      req: Request,
-      res: Response,
-      next: NextFunction
-    ) => {
-      if (err && err.code === 11000) {
-        return res.status(409).json({ error: "Cet email est déjà inscrit à la newsletter." });
-      }
-      next(err);
-    });
+
     const port = process.env.PORT || 4000;
     app.listen(port, () => {
       logger.info(`🚀 Serveur lancé sur le port ${port}`);

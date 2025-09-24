@@ -1,45 +1,45 @@
 import express from 'express';
-import Donateur from '../../models/donor';
+import { AppDataSource } from '../../data-source';
+import { Donateur } from '../../models/donor';
 
 const router = express.Router();
-
+const donateurRepo = AppDataSource.getRepository(Donateur);
 
 router.post('/', async (req, res, next) => {
   try {
     const { nom, email, montant, typePaiement } = req.body;
-    const donateur = new Donateur({ nom, email, montant, typePaiement });
-    await donateur.save();
+    const donateur = donateurRepo.create({ nom, email, montant, typePaiement });
+    await donateurRepo.save(donateur);
     res.status(201).json(donateur);
   } catch (err) {
     next(err);
   }
 });
 
-
 router.get('/', async (req, res) => {
   try {
-    const donateurs = await Donateur.find();
+    const donateurs = await donateurRepo.find();
     res.json(donateurs);
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
   }
 });
 
-
-
 router.get('/stats', async (req, res) => {
   try {
-    const result = await Donateur.aggregate([
-      { $group: { _id: null, totalMontant: { $sum: "$montant" }, count: { $sum: 1 } } }
-    ]);
+    const [result] = await donateurRepo
+      .createQueryBuilder("donateur")
+      .select("SUM(donateur.montant)", "totalMontant")
+      .addSelect("COUNT(donateur.id)", "nombreDonateurs")
+      .getRawMany();
+
     res.json({
-      totalMontant: result[0]?.totalMontant || 0,
-      nombreDonateurs: result[0]?.count || 0
+      totalMontant: Number(result?.totalMontant) || 0,
+      nombreDonateurs: Number(result?.nombreDonateurs) || 0
     });
   } catch (err) {
     res.status(500).json({ error: (err as Error).message });
   }
 });
-
 
 export default router;
