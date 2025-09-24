@@ -15,8 +15,12 @@ async function startServer() {
     logger.info("✅ Connecté à MySQL");
     const app = express();
 
-    app.use(cors({
-      origin: "http://localhost:3000",
+  app.use(cors({
+      origin: [
+        "http://localhost:3000",
+        "https://lapnomba.org",
+        "https://lapnomba-backend-production.up.railway.app"
+      ],
       credentials: true
     }));
     app.use(express.json());
