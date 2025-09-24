@@ -11,7 +11,7 @@ RUN pnpm install
 
 COPY . .
 
-# Ajoute cette ligne pour compiler TypeScript
+
 RUN pnpm run build
 
 EXPOSE 4000
