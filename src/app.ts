@@ -14,7 +14,6 @@ async function startServer() {
     await AppDataSource.initialize();
     logger.info("✅ Connecté à MySQL");
     const app = express();
-
 app.use(cors({
   origin: [
     "http://localhost:3000",
@@ -32,7 +31,6 @@ app.use(cors({
     app.use("/api/newsletter-subscribe", newsletterSubscribeRoutes);
     app.use("/api/donateurs", donateurRoutes);
 
-    // Gestion des erreurs de duplication (MySQL/TypeORM)
     app.use((err: any, req: Request, res: Response, next: NextFunction) => {
       if (err && err.code === "ER_DUP_ENTRY") {
         if (req.path.startsWith("/api/join-team-request")) {
