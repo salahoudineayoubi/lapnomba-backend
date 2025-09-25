@@ -1,25 +1,28 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
-@Entity("project_summit")
+@Entity()
 export class ProjectSummit {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column()
-  nomComplet: string;
+  nomComplet!: string;
 
   @Column()
-  email: string;
+  email!: string;
 
   @Column()
-  nomProjet: string;
+  nomProjet!: string;
+
+  @Column('text')
+  description!: string;
 
   @Column()
-  description: string;
-
-  @Column()
-  numeroWhatsapp: string;
+  numeroWhatsapp!: string;
 
   @CreateDateColumn()
-  dateSoumission: Date;
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
 }

@@ -9,7 +9,7 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASS || "",
   database: process.env.DB_NAME || "lapnomba",
   synchronize: true, 
-  logging: false,
+  logging: true,
   entities: [
     __dirname + "/models/*.{js,ts}"
   ],
