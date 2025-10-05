@@ -1,16 +1,19 @@
-import { createLogger, format, transports } from 'winston';
+import winston from "winston";
 
-const logger = createLogger({
-  level: 'info',
-  format: format.combine(
-    format.timestamp(),
-    format.json()
+const logger = winston.createLogger({
+  level: "info",
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.simple()
   ),
   transports: [
-    new transports.Console(),
-    new transports.File({ filename: 'error.log', level: 'error' }),
-    new transports.File({ filename: 'combined.log' })
+    new winston.transports.File({ filename: "logs/error.log", level: "error" }),
+    new winston.transports.File({ filename: "logs/combined.log" }),
   ],
 });
+
+if (process.env.NODE_ENV !== "production") {
+  logger.add(new winston.transports.Console({ format: winston.format.simple() }));
+}
 
 export default logger;
