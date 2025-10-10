@@ -20,6 +20,9 @@ export class ProjectSummit {
   @Column()
   numeroWhatsapp!: string;
 
+  @Column({ type: "text", nullable: true })
+  message?: string; 
+
   @CreateDateColumn()
   createdAt!: Date;
 

@@ -14,6 +14,7 @@ async function startServer() {
       cors({
         origin: [
           "http://localhost:3000",
+              "http://localhost:3001",
           "https://lapnomba.org",
           "https://admin.lapnomba.org",
           "https://lapnomba-backend-production.up.railway.app"

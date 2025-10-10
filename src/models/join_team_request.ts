@@ -15,7 +15,7 @@ export class JoinTeamRequest {
   @Column()
   numeroWhatsapp: string;
 
-  @Column()
+  @Column({ type: "text" }) // <-- Change ici pour accepter les longs messages
   message: string;
 
   @Column()
