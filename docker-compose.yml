@@ -9,25 +9,17 @@ services:
       - "4000:4000"
     environment:
       - NODE_ENV=development
-      - DB_PROTOCOL=mysql
-      - DB_HOST=mysql
-      - DB_PORT=3306
-      - DB_USER=root
-      - DB_PASS=your_mysql_password
-      - DB_NAME=lapnomba
+      - MONGO_URI=mongodb://mongo:27017/lapnomba
     depends_on:
-      - mysql
+      - mongo
 
-  mysql:
-    image: mysql:8
+  mongo:
+    image: mongo:6
     restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: your_mysql_password
-      MYSQL_DATABASE: your_db_name
     ports:
-      - "3306:3306"
+      - "27017:27017"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mongo_data:/data/db
 
 volumes:
-  mysql_data:
+  mongo_data:

@@ -1,31 +1,26 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import mongoose, { Document, Schema } from "mongoose";
 
-@Entity()
-export class ProjectSummit {
-  @PrimaryGeneratedColumn()
-  id!: number;
-
-  @Column()
-  nomComplet!: string;
-
-  @Column()
-  email!: string;
-
-  @Column()
-  nomProjet!: string;
-
-  @Column('text')
-  description!: string;
-
-  @Column()
-  numeroWhatsapp!: string;
-
-  @Column({ type: "text", nullable: true })
-  message?: string; 
-
-  @CreateDateColumn()
-  createdAt!: Date;
-
-  @UpdateDateColumn()
-  updatedAt!: Date;
+export interface IProjectSummit extends Document {
+  nomComplet: string;
+  email: string;
+  nomProjet: string;
+  description: string;
+  numeroWhatsapp: string;
+  message?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
+
+const ProjectSummitSchema = new Schema<IProjectSummit>(
+  {
+    nomComplet: { type: String, required: true },
+    email: { type: String, required: true },
+    nomProjet: { type: String, required: true },
+    description: { type: String, required: true },
+    numeroWhatsapp: { type: String, required: true },
+    message: { type: String }
+  },
+  { timestamps: true }
+);
+
+export const ProjectSummitModel = mongoose.model<IProjectSummit>("ProjectSummit", ProjectSummitSchema);

@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: Deploy to Railway
 
 on:
   push:
@@ -6,35 +6,27 @@ on:
       - main
 
 jobs:
-  build-and-test:
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
-
-      - name: Install pnpm
-        run: npm install -g pnpm
+          node-version: 20
 
       - name: Install dependencies
-        run: pnpm install
-        working-directory: ./api
+        run: npm install
 
       - name: Build
-        run: pnpm run build
-        working-directory: ./api
+        run: npm run build
 
-      # - name: Run tests
-      #   run: pnpm test
-      #   working-directory: ./api
-
-      # Optionnel : Build Docker image (pour Docker Hub, Railway, etc.)
-      # - name: Build Docker image
-      #   run: docker build -t my-backend:latest .
-      #   working-directory: ./api
-
-      # Ajoute ici le déploiement Railway/Render/Cloud si tu veux automatiser
+      - name: Deploy to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          npm install -g railway
+          railway up --service=lapnomba-backend

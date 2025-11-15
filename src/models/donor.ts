@@ -1,43 +1,34 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
+import mongoose, { Document, Schema } from "mongoose";
 
-@Entity("donateur")
-export class Donateur {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
+export interface IDonor extends Document {
   nom: string;
-
-  @Column()
   email: string;
-
-  @Column("decimal", { precision: 10, scale: 2 })
   montant: number;
-
-  @Column({ type: "varchar", length: 32 })
-  typePaiement: string; // "visa", "orange_money", "mtn_money", "bank_transfer", etc.
-
-  // Pour Mobile Money (optionnel)
-  @Column({ nullable: true })
+  typePaiement: string;
   numeroMobileMoney?: string;
-
-  // Pour virement bancaire (optionnel)
-  @Column({ nullable: true })
   bankName?: string;
-
-  @Column({ nullable: true })
   bankAccount?: string;
-
-  @Column({ nullable: true })
   bankSwift?: string;
-
-  // Pour commentaire ou message du donateur (optionnel)
-  @Column({ nullable: true, type: "text" })
   commentaire?: string;
-
-  @Column({ default: false })
   futureContact: boolean;
-
-  @CreateDateColumn()
-  date: Date;
+  date?: Date;
 }
+
+const DonorSchema = new Schema<IDonor>(
+  {
+    nom: { type: String, required: true },
+    email: { type: String, required: true },
+    montant: { type: Number, required: true },
+    typePaiement: { type: String, required: true },
+    numeroMobileMoney: { type: String },
+    bankName: { type: String },
+    bankAccount: { type: String },
+    bankSwift: { type: String },
+    commentaire: { type: String },
+    futureContact: { type: Boolean, default: false },
+    date: { type: Date, default: Date.now }
+  },
+  { timestamps: false }
+);
+
+export const DonorModel = mongoose.model<IDonor>("Donor", DonorSchema);

@@ -12,6 +12,8 @@ import { donateurTypeDefs } from "./donateur/graphql";
 import { donateurResolvers } from "./donateur/resolvers";
 import { testimonialResolvers } from "./testimonials/resolvers";
 import { testimonialTypeDefs } from "./testimonials/graphql";
+import { chatbotTypeDefs } from "./chat_bot/graphql";
+import { chatbotResolvers } from "./chat_bot/resolvers";
 
 export const typeDefs = [
   studentTypeDefs,
@@ -20,9 +22,10 @@ export const typeDefs = [
   newsletterTypeDefs,
   joinTeamRequestTypeDefs,
   donateurTypeDefs,
-  testimonialTypeDefs
+  testimonialTypeDefs,
+    chatbotTypeDefs
 
-  // ...autres typeDefs
+
 ];
 
 export const resolvers = [
@@ -32,6 +35,7 @@ export const resolvers = [
   newsletterResolvers,
   joinTeamRequestResolvers,
   donateurResolvers,
-  testimonialResolvers
-  // ...autres resolvers
+  testimonialResolvers,
+  chatbotResolvers 
+
 ];

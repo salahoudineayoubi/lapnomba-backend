@@ -1,36 +1,32 @@
-import { AppDataSource } from "../../../data-source";
-import { Testimonial } from "../../../models/testimonial";
-
-const testimonialRepo = AppDataSource.getRepository(Testimonial);
+import { TestimonialModel } from "../../../models/testimonial";
 
 export const testimonialResolvers = {
   Query: {
-    testimonials: async () => testimonialRepo.find(),
-    testimonial: async (_: any, { id }: { id: number }) =>
-      testimonialRepo.findOne({ where: { id } }),
+    testimonials: async () => TestimonialModel.find().lean(),
+    testimonial: async (_: any, { id }: { id: string }) =>
+      TestimonialModel.findById(id).lean(),
   },
   Mutation: {
     createTestimonial: async (
       _: any,
       { titre, description, video }: any
     ) => {
-      const testimonial = testimonialRepo.create({ titre, description, video });
-      return testimonialRepo.save(testimonial);
+      const testimonial = new TestimonialModel({ titre, description, video });
+      return (await testimonial.save()).toObject();
     },
 
     updateTestimonial: async (
       _: any,
       { id, ...fields }: any
     ) => {
-      const testimonial = await testimonialRepo.findOne({ where: { id } });
+      const testimonial = await TestimonialModel.findByIdAndUpdate(id, fields, { new: true });
       if (!testimonial) throw new Error("Témoignage non trouvé");
-      Object.assign(testimonial, fields);
-      return testimonialRepo.save(testimonial);
+      return testimonial.toObject();
     },
 
-    deleteTestimonial: async (_: any, { id }: { id: number }) => {
-      const result = await testimonialRepo.delete(id);
-      return result.affected !== 0;
+    deleteTestimonial: async (_: any, { id }: { id: string }) => {
+      const result = await TestimonialModel.deleteOne({ _id: id });
+      return result.deletedCount !== 0;
     },
   },
 };

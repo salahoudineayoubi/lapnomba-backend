@@ -1,14 +1,11 @@
-import { AppDataSource } from "../../../data-source";
-import { ProjectSummit } from "../../../models/project_summit";
-import { sendMail } from "../../../utils/sendMail"; // <-- Ajoute cet import
-
-const projectRepo = AppDataSource.getRepository(ProjectSummit);
+import { ProjectSummitModel } from "../../../models/project_summit";
+import { sendMail } from "../../../utils/sendMail";
 
 export const projectSummitResolvers = {
   Query: {
-    projectSummits: async () => projectRepo.find(),
-    projectSummit: async (_: any, { id }: { id: number }) =>
-      projectRepo.findOne({ where: { id } }),
+    projectSummits: async () => ProjectSummitModel.find().lean(),
+    projectSummit: async (_: any, { id }: { id: string }) =>
+      ProjectSummitModel.findById(id).lean(),
   },
   Mutation: {
     createProjectSummit: async (
@@ -18,20 +15,20 @@ export const projectSummitResolvers = {
       if (!nomComplet || !email || !nomProjet || !description || !numeroWhatsapp) {
         throw new Error("Tous les champs sont requis");
       }
-      const project = projectRepo.create({
+      const project = new ProjectSummitModel({
         nomComplet,
         email,
         nomProjet,
         description,
         numeroWhatsapp,
       });
-      const savedProject = await projectRepo.save(project);
+      const savedProject = await project.save();
 
       // Envoi du mail de confirmation
-await sendMail(
-  email,
-  "Votre projet a bien été soumis !",
-  `Bonjour ${nomComplet},
+      await sendMail(
+        email,
+        "Votre projet a bien été soumis !",
+        `Bonjour ${nomComplet},
 
 Merci pour la soumission de votre projet "${nomProjet}" à la Fondation Lap Nomba.
 Notre équipe va analyser votre proposition et vous contactera très prochainement
@@ -42,7 +39,7 @@ des actualités, formations et opportunités offertes par Lap Nomba.
 
 À très bientôt,
 L’équipe Lap Nomba.`,
-  `<div style="text-align:center; font-family:Arial, sans-serif; color:#333;">
+        `<div style="text-align:center; font-family:Arial, sans-serif; color:#333;">
     <img src="https://lapnomba.org/static/media/logo.4f1b14335757132cdcb2.png"
          alt="LapNomba"
          style="height:90px; margin-bottom:20px;" />
@@ -60,7 +57,7 @@ L’équipe Lap Nomba.`,
       suivre les actualités, les formations et les initiatives inspirantes de Lap Nomba.
     </p>
 
-    <a href="https://chat.whatsapp.com/VOTRE-LIEN-GROUPE"
+    <a href="https://chat.whatsapp.com/Dl9g1SbyjR5JG0qa8Z5LbM?mode=wwt"
        style="display:inline-block; margin:25px 0; padding:12px 24px;
        background:#25D366; color:#fff; text-decoration:none;
        border-radius:6px; font-weight:bold;">
@@ -75,23 +72,22 @@ L’équipe Lap Nomba.`,
       Ce message est automatique, merci de ne pas répondre.
     </small>
   </div>`
-);
-      return savedProject;
+      );
+      return savedProject.toObject();
     },
 
     updateProjectSummit: async (
       _: any,
       { id, ...fields }: any
     ) => {
-      const project = await projectRepo.findOne({ where: { id } });
+      const project = await ProjectSummitModel.findByIdAndUpdate(id, fields, { new: true });
       if (!project) throw new Error("Projet non trouvé");
-      Object.assign(project, fields);
-      return projectRepo.save(project);
+      return project.toObject();
     },
 
-    deleteProjectSummit: async (_: any, { id }: { id: number }) => {
-      const result = await projectRepo.delete(id);
-      return result.affected !== 0;
+    deleteProjectSummit: async (_: any, { id }: { id: string }) => {
+      const result = await ProjectSummitModel.deleteOne({ _id: id });
+      return result.deletedCount !== 0;
     },
   },
 };

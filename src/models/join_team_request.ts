@@ -1,29 +1,34 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Unique } from "typeorm";
+import mongoose, { Document, Schema } from "mongoose";
 
-@Entity("join_team_request")
-@Unique(["nomComplet", "email", "numeroWhatsapp"])
-export class JoinTeamRequest {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
+export interface IJoinTeamRequest extends Document {
   nomComplet: string;
-
-  @Column()
   email: string;
-
-  @Column()
   numeroWhatsapp: string;
-
-  @Column({ type: "text" }) // <-- Change ici pour accepter les longs messages
   message: string;
-
-  @Column()
   profession: string;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
+
+const JoinTeamRequestSchema = new Schema<IJoinTeamRequest>(
+  {
+    nomComplet: { type: String, required: true },
+    email: { type: String, required: true },
+    numeroWhatsapp: { type: String, required: true },
+    message: { type: String, required: true },
+    profession: { type: String, required: true }
+  },
+  { 
+    timestamps: true 
+  }
+);
+
+JoinTeamRequestSchema.index(
+  { nomComplet: 1, email: 1, numeroWhatsapp: 1 },
+  { unique: true }
+);
+
+export const JoinTeamRequestModel = mongoose.model<IJoinTeamRequest>(
+  "JoinTeamRequest",
+  JoinTeamRequestSchema
+);

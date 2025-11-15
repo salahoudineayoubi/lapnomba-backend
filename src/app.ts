@@ -2,19 +2,20 @@ import express, { Application } from "express";
 import cors from "cors";
 import "dotenv/config";
 import logger from "./utils/logger";
-import { AppDataSource } from "./data-source";
+import { connectMongo } from "./data-source";
 import { ApolloServer } from "apollo-server-express";
 import { typeDefs, resolvers } from "./api/endpoints";
+
 async function startServer() {
   try {
-    await AppDataSource.initialize();
-    logger.info("✅ Connecté à MySQL");
+    await connectMongo();
+    logger.info("✅ Connecté à MongoDB");
     const app: Application = express();
     app.use(
       cors({
         origin: [
           "http://localhost:3000",
-              "http://localhost:3001",
+          "http://localhost:3001",
           "https://lapnomba.org",
           "https://admin.lapnomba.org",
           "https://lapnomba-backend-production.up.railway.app"

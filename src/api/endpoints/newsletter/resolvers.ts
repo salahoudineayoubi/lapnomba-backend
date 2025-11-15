@@ -1,28 +1,28 @@
-import { AppDataSource } from "../../../data-source";
-import { NewsletterSubscribe } from "../../../models/newsletter_subscribe";
-
-const newsletterRepo = AppDataSource.getRepository(NewsletterSubscribe);
+import { NewsletterSubscribeModel } from "../../../models/newsletter_subscribe";
 
 export const newsletterResolvers = {
   Query: {
-    newsletterSubscribers: async () => newsletterRepo.find(),
-    newsletterSubscriber: async (_: any, { id }: { id: number }) =>
-      newsletterRepo.findOne({ where: { id } }),
+    newsletterSubscribers: async () => NewsletterSubscribeModel.find().lean(),
+    newsletterSubscriber: async (_: any, { id }: { id: string }) =>
+      NewsletterSubscribeModel.findById(id).lean(),
   },
   Mutation: {
     createNewsletterSubscriber: async (_: any, { email }: { email: string }) => {
-      const subscription = newsletterRepo.create({ email });
-      return newsletterRepo.save(subscription);
+      const subscription = new NewsletterSubscribeModel({ email });
+      return (await subscription.save()).toObject();
     },
-    updateNewsletterSubscriber: async (_: any, { id, email }: { id: number; email: string }) => {
-      const subscriber = await newsletterRepo.findOne({ where: { id } });
+    updateNewsletterSubscriber: async (_: any, { id, email }: { id: string; email: string }) => {
+      const subscriber = await NewsletterSubscribeModel.findByIdAndUpdate(
+        id,
+        { email },
+        { new: true }
+      );
       if (!subscriber) throw new Error("Abonné non trouvé");
-      subscriber.email = email;
-      return newsletterRepo.save(subscriber);
+      return subscriber.toObject();
     },
-    deleteNewsletterSubscriber: async (_: any, { id }: { id: number }) => {
-      const result = await newsletterRepo.delete(id);
-      return result.affected !== 0;
+    deleteNewsletterSubscriber: async (_: any, { id }: { id: string }) => {
+      const result = await NewsletterSubscribeModel.deleteOne({ _id: id });
+      return result.deletedCount !== 0;
     },
   },
 };

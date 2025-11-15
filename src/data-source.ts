@@ -1,18 +1,16 @@
-import "reflect-metadata";
-import { DataSource } from "typeorm";
+import mongoose from "mongoose";
+import config from "./config";
 
-export const AppDataSource = new DataSource({
-  type: "mysql",
-  host: process.env.DB_HOST || "localhost",
-  port: Number(process.env.DB_PORT) || 3306,
-  username: process.env.DB_USER || "root",
-  password: process.env.DB_PASS || "",
-  database: process.env.DB_NAME || "lapnomba",
-  synchronize: true, 
-  logging: true,
-  entities: [
-    __dirname + "/models/*.{js,ts}"
-  ],
-  migrations: [],
-  subscribers: [],
-});
+export const connectMongo = async () => {
+  try {
+    await mongoose.connect(config.db.uri, {
+      user: config.db.user,
+      pass: config.db.pass,
+      ...config.db.options,
+    } as any);
+    console.log("MongoDB connected");
+  } catch (error) {
+    console.error("MongoDB connection error:", error);
+    process.exit(1);
+  }
+};

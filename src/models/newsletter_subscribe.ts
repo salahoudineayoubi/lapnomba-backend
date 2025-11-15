@@ -1,13 +1,18 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
+import mongoose, { Document, Schema } from "mongoose";
 
-@Entity("newsletter_subscribe")
-export class NewsletterSubscribe {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column({ unique: true })
+export interface INewsletterSubscribe extends Document {
   email: string;
-
-  @CreateDateColumn()
-  createdAt: Date;
+  createdAt?: Date;
 }
+
+const NewsletterSubscribeSchema = new Schema<INewsletterSubscribe>(
+  {
+    email: { type: String, required: true, unique: true }
+  },
+  { timestamps: { createdAt: true, updatedAt: false } }
+);
+
+export const NewsletterSubscribeModel = mongoose.model<INewsletterSubscribe>(
+  "NewsletterSubscribe",
+  NewsletterSubscribeSchema
+);

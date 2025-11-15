@@ -1,22 +1,20 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import mongoose, { Document, Schema } from "mongoose";
 
-@Entity("testimonial")
-export class Testimonial {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
+export interface ITestimonial extends Document {
   titre: string;
-
-  @Column({ type: "text" })
   description: string;
-
-  @Column()
-  video: string; // URL ou identifiant de la vidéo
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
+  video: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
+
+const TestimonialSchema = new Schema<ITestimonial>(
+  {
+    titre: { type: String, required: true },
+    description: { type: String, required: true },
+    video: { type: String, required: true }
+  },
+  { timestamps: true }
+);
+
+export const TestimonialModel = mongoose.model<ITestimonial>("Testimonial", TestimonialSchema);

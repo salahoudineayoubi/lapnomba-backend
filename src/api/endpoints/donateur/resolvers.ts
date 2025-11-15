@@ -1,25 +1,26 @@
-import { AppDataSource } from "../../../data-source";
-import { Donateur } from "../../../models/donor";
+import { DonorModel } from "../../../models/donor";
 import { getOrangeToken } from "../../../utils/orange_token";
 import { bcAuthorize } from "../../../utils/mtn_token";
-import { sendMail } from "../../../utils/sendMail"; 
-const donateurRepo = AppDataSource.getRepository(Donateur);
+import { sendMail } from "../../../utils/sendMail";
 
 export const donateurResolvers = {
   Query: {
-    donateurs: async () => donateurRepo.find(),
-    donateur: async (_: any, { id }: { id: number }) =>
-      donateurRepo.findOne({ where: { id } }),
+    donateurs: async () => DonorModel.find().lean(),
+    donateur: async (_: any, { id }: { id: string }) =>
+      DonorModel.findById(id).lean(),
     donateurStats: async () => {
-      const [result] = await donateurRepo
-        .createQueryBuilder("donateur")
-        .select("SUM(donateur.montant)", "totalMontant")
-        .addSelect("COUNT(donateur.id)", "nombreDonateurs")
-        .getRawMany();
-
+      const [result] = await DonorModel.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalMontant: { $sum: "$montant" },
+            nombreDonateurs: { $sum: 1 }
+          }
+        }
+      ]);
       return {
-        totalMontant: Number(result?.totalMontant) || 0,
-        nombreDonateurs: Number(result?.nombreDonateurs) || 0,
+        totalMontant: result?.totalMontant || 0,
+        nombreDonateurs: result?.nombreDonateurs || 0,
       };
     },
   },
@@ -55,7 +56,7 @@ export const donateurResolvers = {
         }
       }
 
-      const donateur = donateurRepo.create({
+      const donateur = new DonorModel({
         nom,
         email,
         montant,
@@ -67,12 +68,12 @@ export const donateurResolvers = {
         commentaire,
         futureContact,
       });
-      const savedDonateur = await donateurRepo.save(donateur);
+      const savedDonateur = await donateur.save();
 
-await sendMail(
-  email,
-  "🙏 Merci pour votre don — Vous soutenez la mission Lap Nomba !",
-  `Bonjour ${nom},
+      await sendMail(
+        email,
+        "🙏 Merci pour votre don — Vous soutenez la mission Lap Nomba !",
+        `Bonjour ${nom},
 
 Toute l’équipe de la Fondation Lap Nomba vous remercie sincèrement pour votre don de ${montant} XAF.
 
@@ -81,12 +82,12 @@ Votre contribution renforce nos actions pour l’éducation numérique, la forma
 Grâce à votre générosité, nous pouvons continuer à inspirer, former et accompagner une nouvelle génération de jeunes Camerounais vers l’autonomie et l’innovation.
 
 Rejoignez notre communauté WhatsApp pour suivre nos actions, nos formations et les projets que vous rendez possibles :
-➡ https://chat.whatsapp.com/VOTRE-LIEN-GROUPE
+➡ https://chat.whatsapp.com/Dl9g1SbyjR5JG0qa8Z5LbM?mode=wwt
 
 Avec toute notre gratitude,
 L’équipe Lap Nomba.
 `,
-  `<div style="text-align:center; font-family:Arial, sans-serif; color:#333;">
+        `<div style="text-align:center; font-family:Arial, sans-serif; color:#333;">
     <img src="https://lapnomba.org/static/media/logo.4f1b14335757132cdcb2.png" 
          alt="LapNomba" 
          style="height:90px; margin-bottom:20px;" />
@@ -104,7 +105,7 @@ L’équipe Lap Nomba.
     </p>
 
     <p style="margin-top:25px;">
-      <a href="https://chat.whatsapp.com/VOTRE-LIEN-GROUPE"
+      <a href="https://chat.whatsapp.com/Dl9g1SbyjR5JG0qa8Z5LbM?mode=wwt"
          style="display:inline-block; padding:12px 24px; background:#25D366;
          color:#fff; text-decoration:none; border-radius:6px; font-weight:bold;">
          👉 Rejoindre la communauté Lap Nomba
@@ -119,22 +120,20 @@ L’équipe Lap Nomba.
       Ce message est automatique, merci de ne pas répondre directement à cet e-mail.
     </small>
   </div>`
-);
+      );
 
-
-      return savedDonateur;
+      return savedDonateur.toObject();
     },
 
     updateDonateur: async (_: any, { id, ...fields }: any) => {
-      const donateur = await donateurRepo.findOne({ where: { id } });
+      const donateur = await DonorModel.findByIdAndUpdate(id, fields, { new: true });
       if (!donateur) throw new Error("Donateur non trouvé");
-      Object.assign(donateur, fields);
-      return donateurRepo.save(donateur);
+      return donateur.toObject();
     },
 
-    deleteDonateur: async (_: any, { id }: { id: number }) => {
-      const result = await donateurRepo.delete(id);
-      return result.affected !== 0;
+    deleteDonateur: async (_: any, { id }: { id: string }) => {
+      const result = await DonorModel.deleteOne({ _id: id });
+      return result.deletedCount !== 0;
     },
   },
 };
