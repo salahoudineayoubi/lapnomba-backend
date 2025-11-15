@@ -9,10 +9,11 @@ const config = {
       `mongodb://${process.env.DB_HOST || "localhost"}:${process.env.DB_PORT || "27017"}/${process.env.DB_NAME || "lapnomba"}`,
     user: process.env.DB_USER,
     pass: process.env.DB_PASS,
-    options: {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    },
+    // Les options suivantes sont dépréciées et peuvent être retirées
+    // options: {
+    //   useNewUrlParser: true,
+    //   useUnifiedTopology: true,
+    // },
   },
   jwtSecret: process.env.JWT_SECRET || "your_jwt_secret",
   environment: process.env.NODE_ENV || "development",
