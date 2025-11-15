@@ -1,0 +1,38 @@
+services:
+  - name: lapnomba-backend
+    startCommand: npm start
+    buildCommand: npm install && npm run build
+    installCommand: npm install
+    rootDirectory: .
+    dockerfilePath: Dockerfile
+    envVars:
+      - key: NODE_ENV
+        value: ${NODE_ENV}
+      - key: PORT
+        value: ${PORT}
+      - key: MONGO_URI
+        value: ${MONGO_URI}
+      - key: SALT_ROUNDS
+        value: ${SALT_ROUNDS}
+      - key: JWT_SECRET
+        value: ${JWT_SECRET}
+      - key: ADMIN_EMAIL
+        value: ${ADMIN_EMAIL}
+      - key: ADMIN_PASSWORD
+        value: ${ADMIN_PASSWORD}
+      - key: ORANGE_CLIENT_ID
+        value: ${ORANGE_CLIENT_ID}
+      - key: ORANGE_CLIENT_SECRET
+        value: ${ORANGE_CLIENT_SECRET}
+      - key: MTN_SUBSCRIPTION_KEY
+        value: ${MTN_SUBSCRIPTION_KEY}
+      - key: SMTP_HOST
+        value: ${SMTP_HOST}
+      - key: SMTP_PORT
+        value: ${SMTP_PORT}
+      - key: SMTP_USER
+        value: ${SMTP_USER}
+      - key: SMTP_PASS
+        value: ${SMTP_PASS}
+      - key: OPENAI_API_KEY
+        value: ${OPENAI_API_KEY}
