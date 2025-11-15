@@ -1,5 +1,10 @@
 import axios from "axios";
 
+type OrangeTokenResponse = {
+  access_token: string;
+  [key: string]: any;
+};
+
 export async function getOrangeToken() {
   const client_id = process.env.ORANGE_CLIENT_ID;
   const client_secret = process.env.ORANGE_CLIENT_SECRET;
@@ -10,7 +15,7 @@ export async function getOrangeToken() {
   params.append("grant_type", "client_credentials");
 
   try {
-    const res = await axios.post(url, params, {
+    const res = await axios.post<OrangeTokenResponse>(url, params, {
       headers: { "Content-Type": "application/x-www-form-urlencoded" }
     });
     return res.data.access_token;
