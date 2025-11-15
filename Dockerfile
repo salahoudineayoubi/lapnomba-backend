@@ -1,19 +1,17 @@
-FROM node:18
+FROM node:lts
 
 WORKDIR /usr/src/app
 
-RUN npm install -g pnpm
-
 COPY package*.json ./
-COPY pnpm-lock.yaml* ./
+RUN npm install
 
-RUN pnpm install
+# Installe netcat (version openbsd)
+RUN apt-get update && apt-get install -y netcat-openbsd
 
 COPY . .
 
-
-RUN pnpm run build
+RUN npm run build
 
 EXPOSE 4000
 
-CMD ["pnpm", "start"]
+CMD ["npm", "start"]

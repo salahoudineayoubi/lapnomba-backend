@@ -2,20 +2,13 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "commonjs",
+    "outDir": "./dist",
+    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "baseUrl": "./src",
-    "paths": {
-      "*": ["node_modules/*", "src/types/*"]
-    },
-    "strictPropertyInitialization": false,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*.ts", "src/models"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "**/*.spec.ts"]
 }

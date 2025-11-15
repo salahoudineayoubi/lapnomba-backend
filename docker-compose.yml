@@ -1,18 +1,4 @@
-version: '3.8'
-
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "4000:4000"
-    environment:
-      - NODE_ENV=development
-      - MONGO_URI=mongodb://mongo:27017/lapnomba
-    depends_on:
-      - mongo
-
   mongo:
     image: mongo:6
     restart: always
@@ -20,6 +6,19 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+
+  backend:
+    build: .
+    depends_on:
+      - mongo
+    ports:
+      - "4000:4000"
+    env_file:
+      - .env
+    environment:
+      MONGO_URI: mongodb://mongo:27017/lapnomba
+    restart: always
+    command: sh -c "until nc -z mongo 27017; do sleep 1; done && npm start"
 
 volumes:
   mongo_data:
