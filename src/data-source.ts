@@ -6,8 +6,7 @@ export const connectMongo = async () => {
     await mongoose.connect(config.db.uri, {
       user: config.db.user,
       pass: config.db.pass,
-      ...config.db.options,
-    } as any);
+    });
     console.log("MongoDB connected");
   } catch (error) {
     console.error("MongoDB connection error:", error);
