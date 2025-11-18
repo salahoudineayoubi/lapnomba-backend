@@ -9,8 +9,13 @@ import { typeDefs, resolvers } from "./api/endpoints";
 async function startServer() {
   try {
     await connectMongo();
-    logger.info("✅ Connecté à MongoDB");
+    logger.info("Connecté à MongoDB");
     const app: Application = express();
+
+    // Augmente la taille maximale du body pour supporter les fichiers en base64
+    app.use(express.json({ limit: "10mb" }));
+    app.use(express.urlencoded({ limit: "10mb", extended: true }));
+
     app.use(
       cors({
         origin: [
@@ -18,19 +23,23 @@ async function startServer() {
           "http://localhost:3001",
           "https://lapnomba.org",
           "https://admin.lapnomba.org",
+          "https://admissions.lapnomba.org",
         ],
         credentials: true,
       })
     );
-
-    app.use(express.json());
 
     const server = new ApolloServer({
       typeDefs,
       resolvers,
     });
     await server.start();
-    server.applyMiddleware({ app: app as any, path: "/graphql" });
+    server.applyMiddleware({
+      app: app as any,
+      path: "/graphql",
+      cors: false, // Désactive le CORS d'Apollo, on garde celui d'Express
+    });
+
     const port = process.env.PORT || 4000;
     app.listen(port, () => {
       logger.info(`🚀 Serveur GraphQL lancé sur le port ${port}`);
