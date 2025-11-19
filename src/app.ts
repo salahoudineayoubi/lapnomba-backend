@@ -37,7 +37,7 @@ async function startServer() {
     server.applyMiddleware({
       app: app as any,
       path: "/graphql",
-      cors: false, // Désactive le CORS d'Apollo, on garde celui d'Express
+      cors: false, 
     });
 
     const port = process.env.PORT || 4000;

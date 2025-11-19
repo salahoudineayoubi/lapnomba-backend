@@ -28,8 +28,17 @@ export const candidatureTypeDefs = gql`
     ancienZaguina: String
     experienceZaguina: String
     motivation: String
-    engagement: String
+    engagement: Boolean
     heuresParSemaine: String
+    typeFormation: String
+    disponible: String
+    contraintesDisponibilite: String
+    ordinateur: String
+    ordinateurComment: String
+    internet: String
+    internetComment: String
+    smartphone: String
+    smartphoneComment: String
     createdAt: String
     updatedAt: String
   }
@@ -60,8 +69,17 @@ export const candidatureTypeDefs = gql`
     ancienZaguina: String
     experienceZaguina: String
     motivation: String
-    engagement: String
+    engagement: Boolean
     heuresParSemaine: String
+    typeFormation: String
+    disponible: String
+    contraintesDisponibilite: String
+    ordinateur: String
+    ordinateurComment: String
+    internet: String
+    internetComment: String
+    smartphone: String
+    smartphoneComment: String
   }
 
   type Query {

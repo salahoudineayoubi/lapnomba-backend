@@ -26,8 +26,17 @@ export interface ICandidature extends Document {
   ancienZaguina?: string;
   experienceZaguina?: string;
   motivation?: string;
-  engagement?: string;
+  engagement?: boolean;
   heuresParSemaine?: string;
+  typeFormation?: string;
+  disponible?: string;
+  contraintesDisponibilite?: string;
+  ordinateur?: string;
+  ordinateurComment?: string;
+  internet?: string;
+  internetComment?: string;
+  smartphone?: string;
+  smartphoneComment?: string;
 }
 
 const CandidatureSchema = new Schema<ICandidature>({
@@ -56,8 +65,17 @@ const CandidatureSchema = new Schema<ICandidature>({
   ancienZaguina: String,
   experienceZaguina: String,
   motivation: String,
-  engagement: String,
+  engagement: Boolean,
   heuresParSemaine: String,
+  typeFormation: String,
+  disponible: String,
+  contraintesDisponibilite: String,
+  ordinateur: String,
+  ordinateurComment: String,
+  internet: String,
+  internetComment: String,
+  smartphone: String,
+  smartphoneComment: String,
 }, { timestamps: true });
 
 export default model<ICandidature>("Candidature", CandidatureSchema);
