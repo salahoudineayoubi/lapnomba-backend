@@ -5,6 +5,7 @@ import logger from "./utils/logger";
 import { connectMongo } from "./data-source";
 import { ApolloServer } from "apollo-server-express";
 import { typeDefs, resolvers } from "./api/endpoints";
+import exportExcelRouter from "./api/endpoints/candidature/exportExcel"; // <-- Ajoute cette ligne
 
 async function startServer() {
   try {
@@ -28,6 +29,8 @@ async function startServer() {
         credentials: true,
       })
     );
+
+    app.use("/api", exportExcelRouter); // <-- Ajoute cette ligne pour la route Excel
 
     const server = new ApolloServer({
       typeDefs,
