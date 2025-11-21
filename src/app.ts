@@ -40,7 +40,16 @@ async function startServer() {
     server.applyMiddleware({
       app: app as any,
       path: "/graphql",
-      cors: false, 
+      cors: {
+        origin: [
+          "http://localhost:3000",
+          "http://localhost:3001",
+          "https://lapnomba.org",
+          "https://admin.lapnomba.org",
+          "https://admissions.lapnomba.org",
+        ],
+        credentials: true,
+      },
     });
 
     const port = process.env.PORT || 4000;
