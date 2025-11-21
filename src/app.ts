@@ -13,11 +13,10 @@ async function startServer() {
     logger.info("Connecté à MongoDB");
     const app: Application = express();
 
-    // Augmente la taille maximale du body pour supporter les fichiers en base64
     app.use(express.json({ limit: "10mb" }));
     app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
-    // Middleware CORS global
+    // CORS global pour toutes les routes
     app.use(
       cors({
         origin: [
@@ -33,20 +32,8 @@ async function startServer() {
 
     app.use("/api", exportExcelRouter);
 
-    // OPTIONS pour /graphql (préflight)
-    app.options(
-      "/graphql",
-      cors({
-        origin: [
-          "http://localhost:3000",
-          "http://localhost:3001",
-          "https://lapnomba.org",
-          "https://admin.lapnomba.org",
-          "https://admissions.lapnomba.org",
-        ],
-        credentials: true,
-      })
-    );
+    // SUPPRIME cette partie :
+    // app.options("/graphql", cors(...));
 
     const server = new ApolloServer({
       typeDefs,
@@ -56,7 +43,7 @@ async function startServer() {
     server.applyMiddleware({
       app: app as any,
       path: "/graphql",
-      // Retire l'option cors ici
+      // PAS d'option cors ici !
     });
 
     const port = process.env.PORT || 4000;
