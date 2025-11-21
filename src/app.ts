@@ -13,7 +13,7 @@ async function startServer() {
     logger.info("Connecté à MongoDB");
     const app: Application = express();
 
-    // Augmente la taille maximale du body pour supporter les fichiers en base64
+
     app.use(express.json({ limit: "10mb" }));
     app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
