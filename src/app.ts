@@ -5,7 +5,7 @@ import logger from "./utils/logger";
 import { connectMongo } from "./data-source";
 import { ApolloServer } from "apollo-server-express";
 import { typeDefs, resolvers } from "./api/endpoints";
-import exportExcelRouter from "./api/endpoints/candidature/exportExcel";
+import exportExcelRouter from "./api/endpoints/candidature/exportExcel"; // <-- Ajoute cette ligne
 
 async function startServer() {
   try {
@@ -13,38 +13,24 @@ async function startServer() {
     logger.info("Connecté à MongoDB");
     const app: Application = express();
 
-    const allowedOrigins = process.env.CORS_ORIGIN
-      ? process.env.CORS_ORIGIN.split(",").map(origin => origin.trim())
-      : [
+    // Augmente la taille maximale du body pour supporter les fichiers en base64
+    app.use(express.json({ limit: "10mb" }));
+    app.use(express.urlencoded({ limit: "10mb", extended: true }));
+
+    app.use(
+      cors({
+        origin: [
           "http://localhost:3000",
           "http://localhost:3001",
           "https://lapnomba.org",
           "https://admin.lapnomba.org",
           "https://admissions.lapnomba.org",
-        ];
+        ],
+        credentials: true,
+      })
+    );
 
-    app.use(cors({
-      origin: function(origin, callback) {
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) return callback(null, true);
-        return callback(new Error("Not allowed by CORS"));
-      },
-      credentials: true,
-    }));
-
-    // Ajoute le header pour toutes les réponses
-    app.use((req, res, next) => {
-      res.header("Access-Control-Allow-Credentials", "true");
-      next();
-    });
-
-    app.use(express.json({ limit: "10mb" }));
-    app.use(express.urlencoded({ limit: "10mb", extended: true }));
-
-    // Gère les requêtes OPTIONS globalement
-    app.options("*", cors());
-
-    app.use("/api", exportExcelRouter);
+    app.use("/api", exportExcelRouter); // <-- Ajoute cette ligne pour la route Excel
 
     const server = new ApolloServer({
       typeDefs,
@@ -54,7 +40,7 @@ async function startServer() {
     server.applyMiddleware({
       app: app as any,
       path: "/graphql",
-      cors: false,
+      cors: false, 
     });
 
     const port = process.env.PORT || 4000;
