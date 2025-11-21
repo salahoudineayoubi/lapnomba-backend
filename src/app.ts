@@ -5,7 +5,7 @@ import logger from "./utils/logger";
 import { connectMongo } from "./data-source";
 import { ApolloServer } from "apollo-server-express";
 import { typeDefs, resolvers } from "./api/endpoints";
-import exportExcelRouter from "./api/endpoints/candidature/exportExcel"; // <-- Ajoute cette ligne
+import exportExcelRouter from "./api/endpoints/candidature/exportExcel";
 
 async function startServer() {
   try {
@@ -17,6 +17,7 @@ async function startServer() {
     app.use(express.json({ limit: "10mb" }));
     app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
+    // Middleware CORS global
     app.use(
       cors({
         origin: [
@@ -30,7 +31,22 @@ async function startServer() {
       })
     );
 
-    app.use("/api", exportExcelRouter); // <-- Ajoute cette ligne pour la route Excel
+    app.use("/api", exportExcelRouter);
+
+    // OPTIONS pour /graphql (préflight)
+    app.options(
+      "/graphql",
+      cors({
+        origin: [
+          "http://localhost:3000",
+          "http://localhost:3001",
+          "https://lapnomba.org",
+          "https://admin.lapnomba.org",
+          "https://admissions.lapnomba.org",
+        ],
+        credentials: true,
+      })
+    );
 
     const server = new ApolloServer({
       typeDefs,
@@ -40,16 +56,7 @@ async function startServer() {
     server.applyMiddleware({
       app: app as any,
       path: "/graphql",
-      cors: {
-        origin: [
-          "http://localhost:3000",
-          "http://localhost:3001",
-          "https://lapnomba.org",
-          "https://admin.lapnomba.org",
-          "https://admissions.lapnomba.org",
-        ],
-        credentials: true,
-      },
+      // Retire l'option cors ici
     });
 
     const port = process.env.PORT || 4000;
