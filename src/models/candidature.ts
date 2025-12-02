@@ -37,6 +37,7 @@ export interface ICandidature extends Document {
   internetComment?: string;
   smartphone?: string;
   smartphoneComment?: string;
+  statut?: string; // <-- Ajout du champ statut
 }
 
 const CandidatureSchema = new Schema<ICandidature>({
@@ -76,6 +77,7 @@ const CandidatureSchema = new Schema<ICandidature>({
   internetComment: String,
   smartphone: String,
   smartphoneComment: String,
+  statut: { type: String }, // <-- Ajout du champ statut
 }, { timestamps: true });
 
 export default model<ICandidature>("Candidature", CandidatureSchema);
