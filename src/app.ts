@@ -5,7 +5,7 @@ import logger from "./utils/logger";
 import { connectMongo } from "./data-source";
 import { ApolloServer } from "apollo-server-express";
 import { typeDefs, resolvers } from "./api/endpoints";
-import exportExcelRouter from "./api/endpoints/candidature/exportExcel"; // <-- Ajoute cette ligne
+import exportExcelRouter from "./api/endpoints/candidature/exportExcel"; 
 
 async function startServer() {
   try {
@@ -13,7 +13,7 @@ async function startServer() {
     logger.info("Connecté à MongoDB");
     const app: Application = express();
 
-    // Augmente la taille maximale du body pour supporter les fichiers en base64
+
     app.use(express.json({ limit: "10mb" }));
     app.use(express.urlencoded({ limit: "10mb", extended: true }));
 app.use(
@@ -32,7 +32,7 @@ app.use(
   })
 );
 
-    app.use("/api", exportExcelRouter); // <-- Ajoute cette ligne pour la route Excel
+    app.use("/api", exportExcelRouter); 
 
     const server = new ApolloServer({
       typeDefs,

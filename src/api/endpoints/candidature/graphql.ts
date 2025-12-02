@@ -41,6 +41,7 @@ export const candidatureTypeDefs = gql`
     smartphoneComment: String
     createdAt: String
     updatedAt: String
+    statut: String
   }
 
   input CandidatureInput {
@@ -90,5 +91,7 @@ export const candidatureTypeDefs = gql`
   type Mutation {
     createCandidature(input: CandidatureInput!): Candidature!
     deleteCandidature(id: ID!): Boolean!
+    approuverCandidature(id: ID!): Candidature!
+    refuserCandidature(id: ID!): Candidature!
   }
 `;
