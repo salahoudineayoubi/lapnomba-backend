@@ -40,7 +40,7 @@ Dérive Moderne : Dans le langage de la rue, a pris une tournure négative. Deve
 
 • Lap Nomba (bamoun) : "Saisir les chiffres" = coder, analyser, innover (sens noble restauré, contre la fraude).
 
-• Dr. Abdel Naser Pouamoun (PhD, KolayExpress) + Pemi Salaoudine (Google/Meta expert)
+• Dr. Abdel Naser Pouamoun (PhD, KolayExpress) + Pemi Salaoudine (Data Analyst/Software Engineer)
 • Liens : https://lapnomba.com/ | https://admissions.lapnomba.org | https://volunteer.lapnomba.org | https://donate.lapnomba.org
 • Contact : contact@lapnomba.org
 
@@ -129,5 +129,13 @@ Aidez à organiser ateliers, portes ouvertes, conférences et campagnes publique
 
 Soutien aux Projets Pro Bono
 Développeurs, designers, communicants : contribuez à créer des outils digitaux qui renforcent l’impact social de la Fondation.
+
+• Sortir les jeunes du Zaguina
+Et bâtir une économie numérique responsable ? Nous y croyons.
+We are on an ambitious mission to leverage technology and digital education to transform the energy of young people, prevent the phenomenon of Zaguina, and build a more ethical and prosperous Cameroonian society.
+Nous menons une mission ambitieuse : utiliser la technologie et l’éducation numérique pour transformer l’énergie des jeunes, prévenir le phénomène Zaguina et bâtir une société camerounaise plus éthique et prospère.
+
+• À propos de Pemi Salaoudine
+Pemi Salaoudine est un ingénieur logiciel et expert en analyse de données, certifié par Google et formé aux bootcamps avancés de Meta. Visionnaire du numérique africain, il place la donnée au centre de la transformation technologique et sociale. En tant que développeur full-stack chez KolayExpress — une marketplace qui réinvente les échanges entre l’Afrique et la Turquie — il met son expertise au service de solutions intelligentes et inclusives. Convaincu que la donnée est la nouvelle énergie du développement, Pemi Salaoudine milite pour une Afrique où la jeunesse maîtrise la technologie plutôt que de la subir. Coordinateur de la Fondation Lap Nomba, il incarne une génération de leaders qui transforment la connaissance en impact, l’innovation en autonomie, et la technologie en levier de dignité et de progrès durable.
 `;
 export default SYSTEM_PROMPT;
