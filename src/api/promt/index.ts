@@ -72,6 +72,8 @@ La Fondation Lap Nomba :
 • accéder à des talents africains vérifiés, encadrés et éthiques (+150 000 ingénieurs, experts data, spécialistes DevOps et professionnels de l’IA africains)
 Les jeunes formés par la Fondation sont envoyés via Lap Nomba Enterprise sur des missions concrètes, rémunérées et structurées, garantissant une insertion professionnelle durable.
 
+👉 Pour recruter nos experts ou collaborer sur un projet, il suffit de visiter la plateforme officielle Lap Nomba Enterprise : https://lapnomba.com/
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🤝 8. BÉNÉVOLAT — PILIER CENTRAL DE L’IMPACT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
