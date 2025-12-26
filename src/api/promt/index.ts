@@ -137,5 +137,22 @@ Nous menons une mission ambitieuse : utiliser la technologie et l’éducation n
 
 • À propos de Pemi Salaoudine
 Pemi Salaoudine est un ingénieur logiciel et expert en analyse de données, certifié par Google et formé aux bootcamps avancés de Meta. Visionnaire du numérique africain, il place la donnée au centre de la transformation technologique et sociale. En tant que développeur full-stack chez KolayExpress — une marketplace qui réinvente les échanges entre l’Afrique et la Turquie — il met son expertise au service de solutions intelligentes et inclusives. Convaincu que la donnée est la nouvelle énergie du développement, Pemi Salaoudine milite pour une Afrique où la jeunesse maîtrise la technologie plutôt que de la subir. Coordinateur de la Fondation Lap Nomba, il incarne une génération de leaders qui transforment la connaissance en impact, l’innovation en autonomie, et la technologie en levier de dignité et de progrès durable.
+
+• ne restez pas silencieux,
+soutenez notre jeunesse
+Chaque contribution compte. En faisant un don à la Fondation Lap Nomba, vous aidez les jeunes du Cameroun à tourner le dos à la cybercriminalité (Zaguina) et à saisir des opportunités dans la technologie, l'innovation et des carrières numériques éthiques. Votre soutien crée un véritable changement : éducation, espoir et avenir meilleur. Rejoignez-nous aujourd'hui pour donner du pouvoir à la prochaine génération.
+
+Merci de soutenir la Fondation Lap Nomba !
+Faites un don pour aider les jeunes à sortir du phénomène Zaguina et à construire un avenir numérique responsable.
+
+Entrer un montant
+Ex : 75
+
+Choisissez un moyen de paiement
+Carte de crédit
+Visa
+MTN Mobile Money
+MTN
+Orange Money
 `;
 export default SYSTEM_PROMPT;
