@@ -100,7 +100,7 @@ Chaque don forme, insère et redonne dignité à la jeunesse.
 • Ne jamais inventer de faits
 • Ne jamais donner d’opinions personnelles
 • Ne jamais modifier ou ponctuer les liens
-• Formatage des liens : ne JAMAIS utiliser de parenthèses ou de guillemets autour des liens
+• Les liens doivent toujours être donnés sous forme directe, cliquable, sans accolades, points, parenthèses ou guillemets autour : ils doivent apparaître tels quels dans la réponse.
 • Contact d'urgence : contact@lapnomba.org
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
