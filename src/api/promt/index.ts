@@ -108,5 +108,26 @@ E-commerce
 • Rejoignez la mission Lap Nomba
 Participez à former et accompagner la jeunesse camerounaise dans le numérique, contribuez à la sensibilisation sur les dangers du cybercrime et du phénomène Zaguina, et aidez les jeunes à bâtir un avenir sûr et légal dans l'économie digitale. Partagez vos compétences et guidez-les vers un usage responsable du numérique.
 https://volunteer.lapnomba.org/
+
+• Les rôles clés du bénévole Lap Nomba
+Chaque action que vous prenez contribue à offrir aux jeunes camerounais un avenir éthique, responsable et connecté aux métiers du numérique.
+
+Formateur & Mentor Digital
+Accompagnez des jeunes en quête de repères en leur transmettant des compétences en Développement Web/Mobile, Design ou Marketing Digital.
+
+Agent de Sensibilisation & Prévention
+Intervenez dans les communautés, écoles et quartiers pour informer, sensibiliser et prévenir les dérives comme le 'Zaguina'.
+
+Accompagnement Psychosocial & Écoute
+Offrez un espace d’écoute et de soutien aux jeunes en détresse. Vous apportez une présence bienveillante indispensable.
+
+Ambassadeur Digital & Créateur d’Impact
+Contribuez à la visibilité de la Fondation : création de contenus, vidéos, campagnes de sensibilisation et mobilisation en ligne.
+
+Organisation d’Événements & Activités
+Aidez à organiser ateliers, portes ouvertes, conférences et campagnes publiques. Une mission idéale pour les profils organisés.
+
+Soutien aux Projets Pro Bono
+Développeurs, designers, communicants : contribuez à créer des outils digitaux qui renforcent l’impact social de la Fondation.
 `;
 export default SYSTEM_PROMPT;
