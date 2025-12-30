@@ -14,7 +14,7 @@ import { testimonialResolvers } from "./testimonials/resolvers";
 import { testimonialTypeDefs } from "./testimonials/graphql";
 import { chatbotTypeDefs } from "./chat_bot/graphql";
 import { chatbotResolvers } from "./chat_bot/resolvers";
-import { candidatureTypeDefs } from "./candidature/graphql"; 
+import { candidatureTypeDefs } from "./candidature/graphql";
 import { candidatureResolvers } from "./candidature/resolvers";
 export const typeDefs = [
   studentTypeDefs,

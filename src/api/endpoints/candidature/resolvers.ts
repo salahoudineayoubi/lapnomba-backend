@@ -7,7 +7,6 @@ export const candidatureResolvers = {
     candidatures: async () => {
       return await Candidature.find().sort({ createdAt: -1 });
     },
-
     candidature: async (_: any, { id }: { id: string }) => {
       return await Candidature.findById(id);
     },
@@ -19,23 +18,48 @@ export const candidatureResolvers = {
         let photoUrl = input.photo;
         let cvUrl = input.cv;
 
-        // 1. Upload PHOTO si base64
+        // Upload photo si base64
         if (photoUrl && typeof photoUrl === "string" && photoUrl.startsWith("data:")) {
           const uploadRes = await uploadFromBase64(photoUrl, { folder: "candidatures/photos" });
           photoUrl = uploadRes.secure_url;
         }
 
-        // 2. Upload CV si base64
+        // Upload CV si base64
         if (cvUrl && typeof cvUrl === "string" && cvUrl.startsWith("data:")) {
           const uploadRes = await uploadFromBase64(cvUrl, { folder: "candidatures/cv" });
           cvUrl = uploadRes.secure_url;
         }
 
-        // 3. Sauvegarde candidature
+        // Création de la candidature (seulement les champs utilisés dans les steps)
         const candidature = new Candidature({
-          ...input,
+          nomComplet: input.nomComplet,
+          dateNaissance: input.dateNaissance,
+          sexe: input.sexe,
+          adresse: input.adresse,
+          ville: input.ville,
+          pays: input.pays,
+          numeroWhatsapp: input.numeroWhatsapp,
+          email: input.email,
           photo: photoUrl,
+
+          niveauScolaire: input.niveauScolaire,
+          filiere: input.filiere,
+          ecole: input.ecole,
+          competences: input.competences,
           cv: cvUrl,
+
+          choixFormation: input.choixFormation,
+          pourquoiFormation: input.pourquoiFormation,
+          ancienZaguina: input.ancienZaguina,
+          experienceZaguina: input.experienceZaguina,
+          typeFormation: input.typeFormation,
+
+          ordinateur: input.ordinateur,
+          niveauInformatique: input.niveauInformatique,
+          competencesCles: input.competencesCles,
+          accesInternet: input.accesInternet,
+          frequenceUtilisation: input.frequenceUtilisation,
+
           statut: "en attente",
         });
 
@@ -54,7 +78,6 @@ export const candidatureResolvers = {
       return !!res;
     },
 
-    // APPROBATION — EMAIL DE CONFIRMATION ULTRA PROFESSIONNEL
     approuverCandidature: async (_: any, { id }: { id: string }) => {
       const candidature = await Candidature.findByIdAndUpdate(
         id,
@@ -93,7 +116,6 @@ Cordialement,
       return candidature;
     },
 
-    // REFUS — SUPPRESSION + EMAIL
     refuserCandidature: async (_: any, { id }: { id: string }) => {
       const candidature = await Candidature.findById(id);
 
@@ -117,7 +139,7 @@ Cordialement,
 — LAP NOMBA FOUNDATION
         `;
         await sendMail(candidature.email, subject, message);
-        await Candidature.findByIdAndDelete(id); 
+        await Candidature.findByIdAndDelete(id);
       }
 
       return candidature;
