@@ -42,9 +42,13 @@ Nous vous remercions de votre patience durant cette phase d'étude.`
 
 Nous avons le plaisir de vous informer que votre candidature a été officiellement approuvée par le comité de sélection.
 
-Votre profil correspond aux standards d'excellence que nous recherchons. Pour finaliser votre intégration et recevoir le calendrier officiel de formation, vous devez rejoindre immédiatement le groupe de travail dédié :
+Votre profil correspond aux standards d'excellence que nous recherchons.  
+Pour finaliser votre intégration et recevoir le calendrier officiel de formation, veuillez laisser un message à notre assistant virtuel sur WhatsApp en cliquant sur le lien suivant :
 
-Lien d'intégration : https://chat.whatsapp.com/FV61Kh1lauV9TBBoUqOefA
+👉 https://wa.me/237672018999
+
+Notre équipe vous ajoutera ensuite dans nos différents forums et groupes de travail dédiés.
+
 
 Félicitations pour cette admission.`
     },
