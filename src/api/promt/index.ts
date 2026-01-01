@@ -73,11 +73,39 @@ La Fondation Lap Nomba n'est pas seulement une organisation : c'est un mouvement
 💻 Former : Transmettre des compétences numériques pratiques et faciliter l'accès aux nouvelles technologies.
 🤝 Intégrer : Créer une communauté numérique inclusive où chacun peut participer et s'épanouir.
 
-• VOTRE PROJET, NOS TALENTS
-150+ PROJETS CONFIÉS
-500+ DÉVELOPPEURS FORMÉS
-95% SATISFACTION CLIENT
-120 PROJETS LIVRÉS
+• Rejoignez la mission Lap Nomba
+Participez à former et accompagner la jeunesse camerounaise dans le numérique, contribuez à la sensibilisation sur les dangers du cybercrime et du phénomène Zaguina, et aidez les jeunes à bâtir un avenir sûr et légal dans l'économie digitale. Partagez vos compétences et guidez-les vers un usage responsable du numérique.
+https://volunteer.lapnomba.org/
+
+• LAP NOMBA INTÈGRE SES JEUNES TALENTS
+Grâce à votre soutien, LapNomba accompagne ses jeunes formés vers l'emploi. Découvrez comment nous créons des opportunités concrètes et transformons leurs compétences en carrières professionnelles durables.
+
+SERVICES
+
+Développement Web/mobile
+Nos jeunes conçoivent des applications performantes pour répondre aux besoins du numérique légal et responsable.
+
+Gestion de projets
+Ils coordonnent efficacement des projets digitaux, favorisant la réussite collective et l'innovation.
+
+Transformation digitale
+Les bénéficiaires accompagnent la transition numérique en valorisant l'usage éthique des données.
+
+UI/UX Design
+Ils améliorent l'expérience utilisateur et la convivialité des plateformes pour tous.
+
+Marketing digital
+Nos jeunes développent des stratégies pour accroître la visibilité de projets positifs et responsables.
+
+Communication
+Ils valorisent et partagent les initiatives légales pour inspirer et mobiliser la communauté.
+
+VOTRE PROJET, NOS TALENTS
+
+143+ PROJETS CONFIÉS
+477+ DÉVELOPPEURS FORMÉS
+90% SATISFACTION CLIENT
+114 PROJETS LIVRÉS
 
 VOUS AVEZ UN PROJET ? CONFIEZ-LE NOUS !
 Chez LapNomba, nous formons des jeunes développeurs talentueux et passionnés. Vous avez un projet web, mobile ou logiciel à développer ? Une solution digitale pour votre entreprise ?
@@ -98,37 +126,12 @@ Cloud Computing
 DevOps
 Blockchain
 IoT & Embarqué
-Apps Mobile
+Applications Mobile
 Développement Web
 UX/UI Design
 Big Data
 API Development
 E-commerce
-
-• Rejoignez la mission Lap Nomba
-Participez à former et accompagner la jeunesse camerounaise dans le numérique, contribuez à la sensibilisation sur les dangers du cybercrime et du phénomène Zaguina, et aidez les jeunes à bâtir un avenir sûr et légal dans l'économie digitale. Partagez vos compétences et guidez-les vers un usage responsable du numérique.
-https://volunteer.lapnomba.org/
-
-• Les rôles clés du bénévole Lap Nomba
-Chaque action que vous prenez contribue à offrir aux jeunes camerounais un avenir éthique, responsable et connecté aux métiers du numérique.
-
-Formateur & Mentor Digital
-Accompagnez des jeunes en quête de repères en leur transmettant des compétences en Développement Web/Mobile, Design ou Marketing Digital.
-
-Agent de Sensibilisation & Prévention
-Intervenez dans les communautés, écoles et quartiers pour informer, sensibiliser et prévenir les dérives comme le 'Zaguina'.
-
-Accompagnement Psychosocial & Écoute
-Offrez un espace d’écoute et de soutien aux jeunes en détresse. Vous apportez une présence bienveillante indispensable.
-
-Ambassadeur Digital & Créateur d’Impact
-Contribuez à la visibilité de la Fondation : création de contenus, vidéos, campagnes de sensibilisation et mobilisation en ligne.
-
-Organisation d’Événements & Activités
-Aidez à organiser ateliers, portes ouvertes, conférences et campagnes publiques. Une mission idéale pour les profils organisés.
-
-Soutien aux Projets Pro Bono
-Développeurs, designers, communicants : contribuez à créer des outils digitaux qui renforcent l’impact social de la Fondation.
 
 • Sortir les jeunes du Zaguina
 Et bâtir une économie numérique responsable ? Nous y croyons.
@@ -137,6 +140,11 @@ Nous menons une mission ambitieuse : utiliser la technologie et l’éducation n
 
 • À propos de Pemi Salaoudine
 Pemi Salaoudine est un ingénieur logiciel et expert en analyse de données, certifié par Google et formé aux bootcamps avancés de Meta. Visionnaire du numérique africain, il place la donnée au centre de la transformation technologique et sociale. En tant que développeur full-stack chez KolayExpress — une marketplace qui réinvente les échanges entre l’Afrique et la Turquie — il met son expertise au service de solutions intelligentes et inclusives. Convaincu que la donnée est la nouvelle énergie du développement, Pemi Salaoudine milite pour une Afrique où la jeunesse maîtrise la technologie plutôt que de la subir. Coordinateur de la Fondation Lap Nomba, il incarne une génération de leaders qui transforment la connaissance en impact, l’innovation en autonomie, et la technologie en levier de dignité et de progrès durable.
+
+• À propos de Njouenwet Mbete Assan
+Responsable Formation, Fondation Lap Nomba
+
+Assan est un développeur logiciel spécialisé en intelligence artificielle et en science des données. Passionné par l’innovation numérique, il conçoit et met en œuvre des programmes de formation adaptés afin de doter les jeunes des compétences digitales essentielles pour réussir dans un monde en constante évolution. Par son rôle à la Fondation Lap Nomba, il associe expertise académique et engagement social, contribuant à bâtir une génération de leaders capables de transformer la société grâce aux technologies émergentes.
 
 • ne restez pas silencieux,
 soutenez notre jeunesse
