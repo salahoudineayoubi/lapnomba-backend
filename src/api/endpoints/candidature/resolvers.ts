@@ -1,19 +1,15 @@
-
-import { createCandidature } from "./mutation/createCandidature";
-import { approuverCandidature } from "./mutation/approveCandidature";
-import { refuserCandidature } from "./mutation/refuseCandidature";
-import { deleteCandidature } from "./mutation/deleteCandidature";
-import Candidature from "../../../models/candidature";
+import * as CandidatureQueries from "./mutation/candidature.queries";
+import * as CandidatureMutations from "./mutation/candidature.mutations";
 
 export const candidatureResolvers = {
   Query: {
-    candidatures: async () => await Candidature.find().sort({ createdAt: -1 }),
-    candidature: async (_: any, { id }: any) => await Candidature.findById(id),
+    candidatures: CandidatureQueries.candidatures,
+    candidatureById: CandidatureQueries.candidatureById, // Doit être identique au nom dans TypeDefs
   },
   Mutation: {
-    createCandidature,
-    approuverCandidature,
-    refuserCandidature,
-    deleteCandidature
+    createCandidature: CandidatureMutations.createCandidature,
+    approuverCandidature: CandidatureMutations.approuverCandidature,
+    refuserCandidature: CandidatureMutations.refuserCandidature,
+    deleteCandidature: CandidatureMutations.deleteCandidature,
   }
 };

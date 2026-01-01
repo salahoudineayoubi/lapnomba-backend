@@ -12,25 +12,21 @@ export const candidatureTypeDefs = gql`
     numeroWhatsapp: String!
     email: String!
     photo: String
-
     niveauScolaire: String
     filiere: String
     ecole: String
     competences: String
     cv: String
-
     choixFormation: String!
     pourquoiFormation: String!
     ancienZaguina: String
     experienceZaguina: String
     typeFormation: String
-
     ordinateur: String
     niveauInformatique: String
     competencesCles: String
     accesInternet: String
     frequenceUtilisation: String
-
     createdAt: String
     updatedAt: String
     statut: String
@@ -46,19 +42,16 @@ export const candidatureTypeDefs = gql`
     numeroWhatsapp: String!
     email: String!
     photo: String
-
     niveauScolaire: String
     filiere: String
     ecole: String
     competences: String
     cv: String
-
     choixFormation: String!
     pourquoiFormation: String!
     ancienZaguina: String
     experienceZaguina: String
     typeFormation: String
-
     ordinateur: String
     niveauInformatique: String
     competencesCles: String
@@ -68,7 +61,7 @@ export const candidatureTypeDefs = gql`
 
   type Query {
     candidatures: [Candidature!]!
-    candidature(id: ID!): Candidature
+    candidatureById(id: ID!): Candidature
   }
 
   type Mutation {

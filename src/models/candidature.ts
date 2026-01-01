@@ -28,6 +28,9 @@ export interface ICandidature extends Document {
   competencesCles?: string;
   accesInternet?: string;
   frequenceUtilisation?: string;
+
+  // AJOUT DU CHAMP STATUT
+  statut: "en attente" | "approuvée" | "refusée";
 }
 
 const CandidatureSchema = new Schema<ICandidature>({
@@ -58,6 +61,14 @@ const CandidatureSchema = new Schema<ICandidature>({
   competencesCles: { type: String },
   accesInternet: { type: String },
   frequenceUtilisation: { type: String },
+
+  // CONFIGURATION DU STATUT
+  statut: { 
+    type: String, 
+    enum: ["en attente", "approuvée", "refusée"], 
+    default: "en attente", // Indispensable pour que les nouveaux s'affichent
+    required: true 
+  },
 }, { timestamps: true });
 
 export default model<ICandidature>("Candidature", CandidatureSchema);

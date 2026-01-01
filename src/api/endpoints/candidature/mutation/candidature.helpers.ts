@@ -1,78 +1,74 @@
 import { uploadFromBase64 } from "../../../../utils/cloudinary";
 import { sendMail } from "../../../../utils/sendMail";
 
+/**
+ * Gère l'upload des fichiers vers Cloudinary
+ * Retourne impérativement des URLs complètes (https://...)
+ */
 export const handleFileUploads = async (input: any) => {
   let photoUrl = input.photo;
   let cvUrl = input.cv;
 
-  if (photoUrl?.startsWith("data:")) {
-    const res = await uploadFromBase64(photoUrl, { folder: "candidatures/photos" });
-    photoUrl = res.secure_url;
-  }
+  try {
+    // 1. Gestion de la Photo
+    // On n'upload que si c'est du base64 (commence par data:)
+    if (photoUrl && photoUrl.startsWith("data:")) {
+      const res = await uploadFromBase64(photoUrl, { 
+        folder: "candidatures/photos",
+        resource_type: "image" 
+      });
+      photoUrl = res.secure_url; // Récupère l'URL complète
+    }
 
-  if (cvUrl?.startsWith("data:")) {
-    const res = await uploadFromBase64(cvUrl, { folder: "candidatures/cv" });
-    cvUrl = res.secure_url;
-  }
+    // 2. Gestion du CV (PDF)
+    if (cvUrl && cvUrl.startsWith("data:")) {
+      const res = await uploadFromBase64(cvUrl, { 
+        folder: "candidatures/cv",
+        resource_type: "auto" // Auto détecte le PDF
+      });
+      cvUrl = res.secure_url; // Récupère l'URL complète
+    }
 
-  return { photoUrl, cvUrl };
+    // SÉCURITÉ : Si à ce stade l'URL ne commence pas par http, 
+    // c'est que l'upload a échoué ou que la donnée est corrompue.
+    // On nettoie pour éviter l'erreur "No routes matched" au frontend.
+    if (photoUrl && !photoUrl.startsWith("http")) photoUrl = null;
+    if (cvUrl && !cvUrl.startsWith("http")) cvUrl = null;
+
+    return { photoUrl, cvUrl };
+  } catch (error) {
+    console.error("Erreur lors de l'upload Cloudinary:", error);
+    // En cas d'erreur, on retourne les valeurs originales ou null
+    return { photoUrl: null, cvUrl: null };
+  }
 };
 
+/**
+ * Gère l'envoi des emails transactionnels selon le statut
+ */
 export const sendStatusEmail = async (email: string, nom: string, type: 'CONFIRMATION' | 'APPROBATION' | 'REFUS') => {
   const contents = {
     CONFIRMATION: {
-      subject: "Accusé de réception de votre candidature - Fondation Lap Nomba",
-      body: `Bonjour ${nom},
-
-Nous vous confirmons la réception de votre dossier de candidature au sein de la Fondation Lap Nomba. Votre intérêt pour nos programmes d'excellence numérique a bien été enregistré.
-
-Pour suivre l'actualité de la sélection en temps réel, il est impératif de rejoindre notre canal d'information officiel :
-Lien de la chaîne : https://whatsapp.com/channel/0029VajVvS65vKA4XvB0mC3m
-
-Prochaines étapes du processus :
-1. Évaluation technique et administrative de votre dossier.
-2. Publication de la liste des candidats présélectionnés.
-3. Session d'orientation pour les candidats retenus.
-
-Nous vous remercions de votre patience durant cette phase d'étude.`
+      subject: "Accusé de réception - Fondation Lap Nomba",
+      body: `Bonjour ${nom},\n\nNous vous confirmons la bonne réception de votre dossier de candidature. Notre équipe procède actuellement à l'évaluation technique.`
     },
     APPROBATION: {
-      subject: "Notification d'admission - Fondation Lap Nomba",
-      body: `Bonjour ${nom},
-
-Nous avons le plaisir de vous informer que votre candidature a été officiellement approuvée par le comité de sélection.
-
-Votre profil correspond aux standards d'excellence que nous recherchons.  
-Pour finaliser votre intégration et recevoir le calendrier officiel de formation, veuillez laisser un message à notre assistant virtuel sur WhatsApp en cliquant sur le lien suivant :
-
-👉 https://wa.me/237672018999
-
-Notre équipe vous ajoutera ensuite dans nos différents forums et groupes de travail dédiés.
-
-
-Félicitations pour cette admission.`
+      subject: "Félicitations - Admission Fondation Lap Nomba",
+      body: `Bonjour ${nom},\n\nNous avons le plaisir de vous informer que votre candidature a été approuvée !\n\nProchaine étape : Contactez notre équipe sur WhatsApp pour rejoindre votre groupe de formation :\n👉 https://wa.me/237672018999`
     },
     REFUS: {
       subject: "Décision concernant votre candidature - Fondation Lap Nomba",
-      body: `Bonjour ${nom},
-
-Nous avons procédé à l'examen attentif de votre candidature. Malheureusement, nous avons le regret de vous informer que votre dossier n'a pas été retenu pour cette session.
-
-Cette décision fait suite à un manque de précision, de cohérence ou de rigueur dans les informations fournies lors de votre inscription. Notre programme exigeant un haut niveau de sérieux dès la phase de candidature, nous ne pouvons donner suite à votre demande.
-
-Nous vous encourageons à faire preuve de plus de diligence lors de vos prochaines démarches.`
+      body: `Bonjour ${nom},\n\nAprès examen de votre dossier, nous avons le regret de vous informer que nous ne pouvons pas donner une suite favorable à votre demande pour cette session.\n\nNous vous encourageons à persévérer dans vos projets.`
     }
   };
 
-  const { subject, body } = contents[type];
-  
-  const footer = `
+  try {
+    const { subject, body } = contents[type];
+    const footer = `\n\nCordialement,\nLa Direction de la Formation\nFondation Lap Nomba\n"Transformer pour impacter"`;
 
-Cordialement,
-
-La Direction de la Formation
-Fondation Lap Nomba
-Former Pour Transformer`;
-
-  await sendMail(email, subject, body + footer);
+    await sendMail(email, subject, body + footer);
+  } catch (error) {
+    console.error(`Erreur lors de l'envoi de l'email (${type}) à ${email}:`, error);
+    // On ne bloque pas le processus si l'email échoue
+  }
 };
