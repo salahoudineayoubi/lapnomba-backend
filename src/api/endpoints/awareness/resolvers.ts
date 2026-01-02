@@ -1,24 +1,30 @@
-import { AwarenessModel } from "../../../models/awareness";
+import AwarenessAgent from "../../../models/awarenessAgent";
+import { sendMail } from "../../../utils/sendMail";
 
 export const awarenessResolvers = {
   Query: {
-    awarenessList: async () => AwarenessModel.find().lean(),
-    awareness: async (_: any, { id }: { id: string }) =>
-      AwarenessModel.findById(id).lean(),
+    awarenessAgents: async () => 
+      await AwarenessAgent.find().sort({ createdAt: -1 }),
   },
   Mutation: {
-    createAwareness: async (_: any, args: any) => {
-      const awareness = new AwarenessModel({ ...args });
-      return (await awareness.save()).toObject();
+    createAwarenessAgent: async (_: any, { input }: any) => {
+      try {
+        const agent = await AwarenessAgent.create(input);
+
+        await sendMail(
+          agent.email,
+          "Engagement Terrain - Fondation Lap Nomba",
+          `Bonjour ${agent.nomComplet},\n\nVotre candidature comme Agent de Sensibilisation a été reçue. Nous préparons votre kit d'intervention pour la zone : ${agent.zoneIntervention}.`
+        );
+
+        return agent;
+      } catch (error: any) {
+        if (error.code === 11000) throw new Error("Cet email est déjà utilisé.");
+        throw error;
+      }
     },
-    updateAwareness: async (_: any, { id, ...fields }: any) => {
-      const awareness = await AwarenessModel.findByIdAndUpdate(id, fields, { new: true });
-      if (!awareness) throw new Error("Sensibilisation non trouvée");
-      return awareness.toObject();
-    },
-    deleteAwareness: async (_: any, { id }: { id: string }) => {
-      const result = await AwarenessModel.deleteOne({ _id: id });
-      return result.deletedCount !== 0;
-    },
-  },
+    updateAwarenessAgentStatus: async (_: any, { id, statut }: any) => {
+      return await AwarenessAgent.findByIdAndUpdate(id, { statut }, { new: true });
+    }
+  }
 };

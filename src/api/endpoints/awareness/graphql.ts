@@ -1,37 +1,43 @@
 import { gql } from "apollo-server-express";
 
 export const awarenessTypeDefs = gql`
-  type Awareness {
-    id: ID!
-    titre: String!
-    description: String!
-    imageUrl: String
-    videoUrl: String
-    createdAt: String!
-    updatedAt: String!
-  }
+type AwarenessAgent {
+  id: ID!
+  nomComplet: String!
+  age: Int
+  pays: String!
+  ville: String!
+  email: String!
+  whatsapp: String!
+  zoneIntervention: String!
+  occupationActuelle: String
+  experienceOratoire: String
+  disponibiliteHebdo: String
+  motivationTerrain: String!
+  statut: String
+  createdAt: String
+}
 
-  type Query {
-    awarenessList: [Awareness!]!
-    awareness(id: ID!): Awareness
-  }
+input AwarenessAgentInput {
+  nomComplet: String!
+  age: Int
+  pays: String!
+  ville: String!
+  email: String!
+  whatsapp: String!
+  zoneIntervention: String!
+  occupationActuelle: String
+  experienceOratoire: String
+  disponibiliteHebdo: String
+  motivationTerrain: String!
+}
 
-  type Mutation {
-    createAwareness(
-      titre: String!
-      description: String!
-      imageUrl: String
-      videoUrl: String
-    ): Awareness!
+extend type Query {
+  awarenessAgents: [AwarenessAgent!]!
+}
 
-    updateAwareness(
-      id: ID!
-      titre: String
-      description: String
-      imageUrl: String
-      videoUrl: String
-    ): Awareness!
-
-    deleteAwareness(id: ID!): Boolean!
-  }
+extend type Mutation {
+  createAwarenessAgent(input: AwarenessAgentInput!): AwarenessAgent!
+  updateAwarenessAgentStatus(id: ID!, statut: String!): AwarenessAgent!
+}
 `;
