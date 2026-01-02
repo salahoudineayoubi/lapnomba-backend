@@ -18,6 +18,8 @@ import { candidatureTypeDefs } from "./candidature/graphql";
 import { candidatureResolvers } from "./candidature/resolvers";
 import { ambassadorTypeDefs } from "./ambassador/graphql";
 import { ambassadorResolvers } from "./ambassador/resolvers";
+import { PsychosocialTypeDefs } from "./psychosocial/graphql";
+import { psychosocialResolvers } from "./psychosocial/resolvers";
 export const typeDefs = [
   studentTypeDefs,
   adminTypeDefs,
@@ -27,10 +29,9 @@ export const typeDefs = [
   donateurTypeDefs,
   testimonialTypeDefs,
   chatbotTypeDefs,
-  candidatureTypeDefs
-  ,ambassadorTypeDefs
-
-
+  candidatureTypeDefs,
+  ambassadorTypeDefs,
+  PsychosocialTypeDefs
 ];
 
 export const resolvers = [
@@ -42,7 +43,8 @@ export const resolvers = [
   donateurResolvers,
   testimonialResolvers,
   chatbotResolvers,
-  candidatureResolvers
-  ,ambassadorResolvers
+  candidatureResolvers,
+  ambassadorResolvers,
+  psychosocialResolvers
 
 ];
