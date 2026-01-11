@@ -23,6 +23,8 @@ import { psychosocialResolvers } from "./psychosocial/resolvers";
 import { awarenessTypeDefs } from "./awareness/graphql";
 import { awarenessResolvers } from "./awareness/resolvers";
 import { rootTypeDefs } from "../endpoints/root";
+import { partnerTypeDefs } from "../endpoints/partners/graphql";
+import { partnerResolvers } from "./partners/resolvers";
 
 export const typeDefs = [
   rootTypeDefs,
@@ -37,7 +39,8 @@ export const typeDefs = [
   candidatureTypeDefs,
   ambassadorTypeDefs,
   PsychosocialTypeDefs,
-  awarenessTypeDefs
+  awarenessTypeDefs,
+  partnerTypeDefs
 ];
 
 export const resolvers = [
@@ -52,5 +55,6 @@ export const resolvers = [
   candidatureResolvers,
   ambassadorResolvers,
   psychosocialResolvers,
-  awarenessResolvers
+  awarenessResolvers,
+  partnerResolvers
 ];
