@@ -97,6 +97,7 @@ async function startServer() {
           "http://admin.lapnomba.org",
           "https://admissions.lapnomba.org",
           "http://admissions.lapnomba.org",
+          "https://donate.lapnomba.org"
         ],
         credentials: true,
       })
