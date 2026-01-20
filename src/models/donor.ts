@@ -1,34 +1,74 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema, Types } from "mongoose";
 
-export interface IDonor extends Document {
-  nom: string;
-  email: string;
-  montant: number;
-  typePaiement: string;
-  numeroMobileMoney?: string;
-  bankName?: string;
-  bankAccount?: string;
-  bankSwift?: string;
-  commentaire?: string;
+export type DonationCategory = "FINANCIAL" | "MATERIAL" | "SPONSORSHIP" | "CROWDFUNDING";
+export type PaymentMethod = "MOMO" | "ORANGE_MONEY" | "CARD" | "PAYPAL" | "CRYPTO" | "BANK_TRANSFER" | "CASH";
+export type PaymentStatus = "PENDING" | "COMPLETED" | "FAILED" | "CANCELED" | "REFUNDED";
+
+export interface IDonation extends Document {
+  // Donateur
+  donorName: string;
+  donorEmail: string;
+  donorPhone?: string;
+  anonymous?: boolean;
+
+  // Don
+  category: DonationCategory;
+  amount: number;
+  currency: string; // "XAF", "USD", "EUR"...
+  message?: string;
   futureContact: boolean;
-  date?: Date;
+
+  // Paiement
+  paymentMethod: PaymentMethod;
+  status: PaymentStatus;
+
+  // Références externes (PayPal / providers)
+  provider?: "PAYPAL" | "MOMO" | "OM" | "CARD" | "CRYPTO";
+  providerOrderId?: string;   // PayPal order id
+  providerCaptureId?: string; // PayPal capture id
+  providerTransactionId?: string; // MoMo/OM/Card transaction id
+
+  // Liens métier
+  materialDonationId?: Types.ObjectId;     // si category MATERIAL
+  sponsorshipId?: Types.ObjectId;          // si category SPONSORSHIP
+  campaignId?: Types.ObjectId;             // si category CROWDFUNDING
+
+  // Audit
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-const DonorSchema = new Schema<IDonor>(
+const DonationSchema = new Schema<IDonation>(
   {
-    nom: { type: String, required: true },
-    email: { type: String, required: true },
-    montant: { type: Number, required: true },
-    typePaiement: { type: String, required: true },
-    numeroMobileMoney: { type: String },
-    bankName: { type: String },
-    bankAccount: { type: String },
-    bankSwift: { type: String },
-    commentaire: { type: String },
+    donorName: { type: String, required: true, trim: true },
+    donorEmail: { type: String, required: true, trim: true, lowercase: true },
+    donorPhone: { type: String },
+    anonymous: { type: Boolean, default: false },
+
+    category: { type: String, enum: ["FINANCIAL", "MATERIAL", "SPONSORSHIP", "CROWDFUNDING"], required: true },
+    amount: { type: Number, required: true, min: 0 },
+    currency: { type: String, default: "XAF" },
+    message: { type: String },
     futureContact: { type: Boolean, default: false },
-    date: { type: Date, default: Date.now }
+
+    paymentMethod: { type: String, enum: ["MOMO","ORANGE_MONEY","CARD","PAYPAL","CRYPTO","BANK_TRANSFER","CASH"], required: true },
+    status: { type: String, enum: ["PENDING","COMPLETED","FAILED","CANCELED","REFUNDED"], default: "PENDING" },
+
+    provider: { type: String, enum: ["PAYPAL","MOMO","OM","CARD","CRYPTO"] },
+    providerOrderId: { type: String },
+    providerCaptureId: { type: String },
+    providerTransactionId: { type: String },
+
+    materialDonationId: { type: Schema.Types.ObjectId, ref: "MaterialDonation" },
+    sponsorshipId: { type: Schema.Types.ObjectId, ref: "Sponsorship" },
+    campaignId: { type: Schema.Types.ObjectId, ref: "CrowdfundingCampaign" },
   },
-  { timestamps: false }
+  { timestamps: true }
 );
 
-export const DonorModel = mongoose.model<IDonor>("Donor", DonorSchema);
+DonationSchema.index({ donorEmail: 1, createdAt: -1 });
+DonationSchema.index({ status: 1, createdAt: -1 });
+DonationSchema.index({ category: 1, createdAt: -1 });
+DonationSchema.index({ campaignId: 1, status: 1 });
+
+export const DonationModel = mongoose.model<IDonation>("Donation", DonationSchema);

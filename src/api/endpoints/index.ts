@@ -27,8 +27,8 @@ import { partnerTypeDefs } from "../endpoints/partners/graphql";
 import { partnerResolvers } from "./partners/resolvers";
 import { developerTypeDefs } from "./developer/graphql";
 import { developerResolvers } from "./developer/resolvers";
-import { materialTypeDefs } from "./material/graphql";
-import { materialResolvers } from "./material/resolvers";
+// import { materialTypeDefs } from "./material/graphql";
+// import { materialResolvers } from "./material/resolvers";
 
 export const typeDefs = [
   rootTypeDefs,
@@ -46,7 +46,7 @@ export const typeDefs = [
   awarenessTypeDefs,
   partnerTypeDefs,
   developerTypeDefs,
-  materialTypeDefs
+  // materialTypeDefs
 ];
 
 export const resolvers = [
@@ -64,5 +64,5 @@ export const resolvers = [
   awarenessResolvers,
   partnerResolvers,
   developerResolvers,
-  materialResolvers
+  // materialResolvers
 ];

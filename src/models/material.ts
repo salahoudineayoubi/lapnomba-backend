@@ -1,31 +1,46 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
 
-export interface IMaterial extends Document {
-  nom: string;
-  telephone: string;
-  email?: string;
-  typeMateriel: string;
-  etatMateriel: string;
-  quantite: number;
-  modeLivraison: string;
-  adresse?: string;
-  details?: string;
+export type MaterialDeliveryMode = "DROP_OFF" | "PICKUP" | "SHIPPING";
+export type MaterialCondition = "NEW" | "VERY_GOOD" | "GOOD" | "REPAIRABLE";
+
+export interface IMaterialDonation extends Document {
+  donorName: string;
+  donorPhone: string;
+  donorEmail?: string;
+
+  itemType: string;      // "Ordinateur Portable", "PC Bureau", "Tablette", "Accessoires"...
+  condition: MaterialCondition;
+  quantity: number;
+
+  deliveryMode: MaterialDeliveryMode;
+  pickupAddress?: string; // required if PICKUP or SHIPPING
+  notes?: string;
+
+  status: "RECEIVED" | "SCHEDULED" | "PENDING";
   createdAt: Date;
+  updatedAt: Date;
 }
 
-const MaterialSchema: Schema = new Schema(
+const MaterialDonationSchema = new Schema<IMaterialDonation>(
   {
-    nom: { type: String, required: true },
-    telephone: { type: String, required: true },
-    email: { type: String },
-    typeMateriel: { type: String, required: true },
-    etatMateriel: { type: String, required: true },
-    quantite: { type: Number, required: true, min: 1 },
-    modeLivraison: { type: String, required: true },
-    adresse: { type: String },
-    details: { type: String },
+    donorName: { type: String, required: true, trim: true },
+    donorPhone: { type: String, required: true, trim: true },
+    donorEmail: { type: String, trim: true, lowercase: true },
+
+    itemType: { type: String, required: true, trim: true },
+    condition: { type: String, enum: ["NEW", "VERY_GOOD", "GOOD", "REPAIRABLE"], required: true },
+    quantity: { type: Number, required: true, min: 1 },
+
+    deliveryMode: { type: String, enum: ["DROP_OFF", "PICKUP", "SHIPPING"], required: true },
+    pickupAddress: { type: String },
+    notes: { type: String },
+
+    status: { type: String, enum: ["RECEIVED", "SCHEDULED", "PENDING"], default: "PENDING" },
   },
   { timestamps: true }
 );
 
-export default mongoose.models.Material || mongoose.model<IMaterial>("Material", MaterialSchema);
+export const MaterialDonationModel = mongoose.model<IMaterialDonation>(
+  "MaterialDonation",
+  MaterialDonationSchema
+);

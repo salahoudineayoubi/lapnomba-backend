@@ -1,59 +1,122 @@
+// filepath: /Users/macbookpro/Desktop/LapNomba/backend/src/api/endpoints/donateur/graphql.ts
 import { gql } from "apollo-server-express";
+
 export const donateurTypeDefs = gql`
-  type Donateur {
+  enum DonationCategory { FINANCIAL MATERIAL SPONSORSHIP CROWDFUNDING }
+  enum PaymentMethod { MOMO ORANGE_MONEY CARD PAYPAL CRYPTO BANK_TRANSFER CASH }
+  enum PaymentStatus { PENDING COMPLETED FAILED CANCELED REFUNDED }
+
+  type Donation {
     id: ID!
-    nom: String!
-    email: String!
-    montant: Float!
-    typePaiement: String!
-    numeroMobileMoney: String
-    bankName: String
-    bankAccount: String
-    bankSwift: String
-    commentaire: String
-    futureContact: Boolean
-    date: String
+    donorName: String!
+    donorEmail: String!
+    donorPhone: String
+    anonymous: Boolean
+    category: DonationCategory!
+    amount: Float!
+    currency: String!
+    message: String
+    futureContact: Boolean!
+    paymentMethod: PaymentMethod!
+    status: PaymentStatus!
+    campaignId: ID
+    createdAt: String!
   }
 
-  type DonateurStats {
-    totalMontant: Float!
-    nombreDonateurs: Int!
+  type CrowdfundingCampaign {
+    id: ID!
+    title: String!
+    slug: String!
+    goalAmount: Float!
+    currency: String!
+    story: String
+    organizerName: String!
+    organizerEmail: String!
+    coverImage: String
+    totalRaised: Float!
+    donorsCount: Int!
+    status: String!
+    createdAt: String!
+  }
+
+  type MaterialDonation {
+    id: ID!
+    donorName: String!
+    itemType: String!
+    quantity: Int!
+    status: String!
+    createdAt: String!
+  }
+
+  type Sponsorship {
+    id: ID!
+    sponsorName: String!
+    studentName: String
+    status: String!
+    createdAt: String!
+  }
+
+  type PayPalOrderResponse {
+    donationId: ID!
+    orderId: String!
+    approveUrl: String
+  }
+
+  input CreateFinancialDonationInput {
+    donorName: String!
+    donorEmail: String!
+    donorPhone: String
+    amount: Float!
+    currency: String
+    paymentMethod: PaymentMethod!
+    message: String
+    futureContact: Boolean
+    anonymous: Boolean
+  }
+
+  input CreateMaterialDonationInput {
+    donorName: String!
+    itemType: String!
+    quantity: Int!
+  }
+
+  input CreateSponsorshipInput {
+    sponsorName: String!
+    studentName: String
+  }
+
+  input CreateCampaignInput {
+    title: String!
+    goalAmount: Float!
+    currency: String
+    story: String
+    organizerName: String!
+    organizerEmail: String!
+    coverImage: String
+  }
+
+  input DonateToCampaignInput {
+    campaignSlug: String!
+    donorName: String!
+    donorEmail: String!
+    amount: Float!
+    paymentMethod: PaymentMethod!
+    anonymous: Boolean
   }
 
   type Query {
-    donateurs: [Donateur!]!
-    donateur(id: ID!): Donateur
-    donateurStats: DonateurStats!
+    crowdfundingCampaigns(limit: Int): [CrowdfundingCampaign!]!
+    campaignBySlug(slug: String!): CrowdfundingCampaign
+    donationById(id: ID!): Donation
   }
 
-  type Mutation {
-    createDonateur(
-      nom: String!
-      email: String!
-      montant: Float!
-      typePaiement: String!
-      numeroMobileMoney: String
-      bankName: String
-      bankAccount: String
-      bankSwift: String
-      commentaire: String
-      futureContact: Boolean
-    ): Donateur!
-
-    updateDonateur(
-      id: ID!
-      nom: String
-      email: String
-      montant: Float
-      typePaiement: String
-      numeroMobileMoney: String
-      bankName: String
-      bankAccount: String
-      bankSwift: String
-      commentaire: String
-      futureContact: Boolean
-    ): Donateur!
-
-    deleteDonateur(id: ID!): Boolean!
-  }
+type Mutation {
+  createCampaign(input: CreateCampaignInput!): CrowdfundingCampaign!
+  donateToCampaign(input: DonateToCampaignInput!): Donation!
+  createFinancialDonation(input: CreateFinancialDonationInput!): Donation!
+  createPayPalOrderForDonation(donationId: ID!): PayPalOrderResponse!
+  capturePayPalDonation(orderId: String!): Donation!        
+  createMaterialDonation(input: CreateMaterialDonationInput!): MaterialDonation!
+  createSponsorship(input: CreateSponsorshipInput!): Sponsorship!
+}
 `;
