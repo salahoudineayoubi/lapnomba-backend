@@ -13,12 +13,21 @@ export interface ICrowdfundingCampaign extends Document {
   donorsCount: number;
   status: "ACTIVE" | "PAUSED" | "CLOSED";
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const CrowdfundingCampaignSchema = new Schema<ICrowdfundingCampaign>(
   {
     title: { type: String, required: true, trim: true },
-    slug: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    // ✅ L'index est créé automatiquement ici grâce à 'unique: true'. 
+    // Pas besoin de le redéclarer plus bas.
+    slug: { 
+      type: String, 
+      required: true, 
+      unique: true, 
+      lowercase: true, 
+      trim: true 
+    },
     goalAmount: { type: Number, required: true, min: 1 },
     currency: { type: String, default: "XAF" },
     story: { type: String },
@@ -27,15 +36,22 @@ const CrowdfundingCampaignSchema = new Schema<ICrowdfundingCampaign>(
     organizerEmail: { type: String, required: true, trim: true, lowercase: true },
     totalRaised: { type: Number, default: 0 },
     donorsCount: { type: Number, default: 0 },
-    status: { type: String, enum: ["ACTIVE", "PAUSED", "CLOSED"], default: "ACTIVE" },
+    status: { 
+      type: String, 
+      enum: ["ACTIVE", "PAUSED", "CLOSED"], 
+      default: "ACTIVE",
+      index: true // Utile si vous avez beaucoup de campagnes pour filtrer les actives
+    },
   },
   { timestamps: true }
 );
 
-// Index pour accélérer la recherche par slug (utilisé par les donateurs)
-CrowdfundingCampaignSchema.index({ slug: 1 });
+/**
+ * ❌ SUPPRESSION DE : CrowdfundingCampaignSchema.index({ slug: 1 });
+ * C'est cette ligne qui causait le Warning "Duplicate schema index".
+ */
 
-export const CrowdfundingCampaignModel = mongoose.model<ICrowdfundingCampaign>(
-  "CrowdfundingCampaign",
-  CrowdfundingCampaignSchema
-);
+// ✅ Sécurité pour éviter de re-compiler le modèle lors du hot-reload en développement
+export const CrowdfundingCampaignModel = 
+  mongoose.models.CrowdfundingCampaign || 
+  mongoose.model<ICrowdfundingCampaign>("CrowdfundingCampaign", CrowdfundingCampaignSchema);
