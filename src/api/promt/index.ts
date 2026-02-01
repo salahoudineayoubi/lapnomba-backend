@@ -162,5 +162,821 @@ Visa
 MTN Mobile Money
 MTN
 Orange Money
+Plan
+D'Actions
+
+Triennal
+
+2026 — 2028
+
+Former Pour Transformer :
+L'émergence d'une économie numérique responsable
+
+01. Contexte & Genèse
+
+DE ZAGUINA À
+LAP NOMBA
+
+À Foumban, le terme "Zaguina" porte le poids d'une tragédie silencieuse : celle d'une jeunesse brillante dont le génie a été dévoyé vers la cybercriminalité par manque d'opportunités.
+
+Lap Nomba, expression historique signifiant "Saisir les nombres", a longtemps été ternie par son association aux activités illicites. Notre plan d'action vise à opérer une révolution sémantique et sociale.
+
+Désormais, "Saisir les nombres" ne signifie plus arnaquer, mais coder, analyser, protéger et entreprendre. Nous transformons un héritage de survie en un moteur de souveraineté numérique pour le Cameroun.
+
+Le génie de Foumban ne doit plus être une menace, mais une promesse.
+
+Foumban Jeunesse
+02. ÉTAT DES LIEUX
+
+L'Urgence
+d'Agir
+
+Face à une mutation numérique sans précédent, l'inaction n'est plus une option. Transformer la crise de repères en levier de croissance inclusive.
+
+68%
+
+JEUNESSE HORS-CIRCUIT
+
+Dépourvus de compétences numériques certifiées ou d'accompagnement professionnel.
+
++32%
+
+DÉRIVES NUMÉRIQUES
+
+Augmentation annuelle des cas de cybercriminalité liés au phénomène 'Zaguina'.
+
+72%
+
+FRACTURE ÉTHIQUE
+
+Utilisateurs accédant au web sans aucune éducation aux responsabilités numériques.
+
+20k
+
+CIBLE 2028
+
+Bénéficiaires réorientés de l'informel vers l'économie numérique licite.
+
+Abdel Naser Pouamoun
+“
+La pandémie a accéléré les mutations numériques. Le phénomèneZaguinarévèle aujourd'hui l'urgence d'une réponse structurée : transformer notre jeunesse en innovateurs éthiques. Saisir les nombres, c'est désormais bâtir le destin de notre nation.
+
+Abdel Naser Pouamoun
+
+Président Fondateur — Fondation Lap Nomba
+
+ENGAGEMENT
+
+ÉTHIQUE
+
+EXCELLENCE
+
+03. MÉTHODOLOGIE
+
+Notre Mission :
+3 Piliers Stratégiques
+
+01
+
+SENSIBILISATION
+
+Opérer une révolution sémantique : changer les mentalités face à la cybercriminalité et prévenir les dérives dès la racine.
+
+02
+
+FORMATION TIC
+
+Déployer des Bootcamps intensifs de haut niveau en codage, cybersécurité et gouvernance des données.
+
+03
+
+INTÉGRATION
+
+Assurer la pérennité via l'insertion professionnelle et l'incubation de startups technologiques à fort impact local.
+
+VISION TRIENNALE
+
+Objectifs
+Stratégiques
+
+01
+Impact Social
+
+🎯 01
+
+Réduire le phénomène Zaguina de 40% dans les zones d'intervention prioritaires.
+
+02
+Employabilité
+
+🎯 02
+
+Atteindre 70% de taux d'emploi légal pour nos certifiés via nos partenaires tech.
+
+03
+Croissance
+
+🎯 03
+
+Mobiliser 1M€ de financements internationaux d'ici 2028 pour l'extension nationale.
+
+L'humain au cœur de la souveraineté numérique.
+
+PROJECTION 2026 | PHASE 01
+
+Ancrage Territorial
+
+OUEST CAMEROUN
+
+Cible : 800 Jeunes
+
+01
+Sensibilisation
+Terrain
+Sensibilisation
+
+Caravanes de proximité ciblant 10 établissements scolaires et lieux communautaires pour déconstruire le mythe du gain facile.
+
+02
+Mentorat
+Expertise
+Mentorat
+
+Constitution d'un vivier de 50 mentors issus de la diaspora et des leaders locaux pour un accompagnement technique et éthique.
+
+03
+Support
+Portail d'Écoute
+
+Mise en place d'une plateforme d'assistance pro-bono pour orienter les jeunes en quête de reconversion numérique.
+
+PLAN STRATÉGIQUE 2026 • FONDATION LAP NOMBA
+
+ÉVÉNEMENT MAJEUR | AVRIL — JUIN 2026
+
+Bootcamp
+Koutaba
+
+Véritable centre névralgique de la Phase 01, ce bootcamp intensif offre une immersion totale. Nous formons la prochaine génération d'experts à travers l'apprentissage du Python, de la Cyber-sécurité et du Cloud Computing.
+
+400+
+
+Candidats Formés
+
+1-on-1
+
+Mentorat Diaspora
+
+Bootcamp Tech
+Certification
+
+RECONNUE MONDIALEMENT
+
+Unité d'écoute
+04. Accompagnement
+
+Unité
+d'écoute
+
+Sortir de la cybercriminalité est d'abord une reconstruction mentale avant d'être technique.
+
+Situé à Foumbot, ce centre pilote offre un sanctuaire de parole. Nous aidons les jeunes à déconstruire les mécanismes de l'arnaque pour les réorienter vers des parcours d'apprentissage sains et valorisants.
+
+100%
+
+Confidentiel
+
+Pro-Bono
+
+Accès Gratuit
+
+FINANCES & STRATÉGIE
+
+Projections
+Budgétaires 2026
+
+1. Origine des Fonds
+
+300k €
+
+Budget Annuel
+
+40% Philanthropie Locale
+
+Leaders communautaires & Diaspora.
+
+60% Multilatéral
+
+Subventions (UNESCO, OIF, Partenaires Tech).
+
+2. Allocation des Charges
+
+Formations & Mentorat
+
+45%
+
+Bourses, formateurs experts, certifications.
+
+Infrastructure & Hubs
+
+30%
+
+Équipement tech, énergie solaire, connectivité.
+
+Opérations & Caravanes
+
+15%
+
+Déploiement terrain, sensibilisation écoles.
+
+R&D & Administration
+
+10%
+
+Suivi d'impact, frais de gestion.
+
+* Ce budget prévisionnel est optimisé pour un impact direct sur 800 jeunes pour la première phase de déploiement à l'Ouest Cameroun.
+
+PHASE 02 | LITTORAL 2027
+
+Cyber-
+Douala
+
+Infrastructure de Cybersécurité et Souveraineté Numérique.
+
+OBJECTIF FORMATION
+
+25 Experts
+
+Nouveaux formateurs certifiés de classe mondiale pour encadrer la capitale économique.
+
+Clean Web
+
+Caravanes de sensibilisation dans les zones urbaines denses pour l'assainissement des usages numériques.
+
+Partenariat Paix
+
+Alliance stratégique avec les instances internationales pour la stabilité et la tech au service de la paix.
+
+Défense Cyber
+
+Formation certifiante de haut niveau pour 600 experts en réponse aux incidents critiques.
+
+Centre d'innovation
+PHASE 03 | YAOUNDÉ 2027
+
+Hub de
+L'Innovation
+
+Lancement du centre névralgique pour les startups de la zone CEMAC. Un tremplin technologique pour transformer les talents éthiques en leaders de l'économie numérique.
+
+800 Participants
+
+Mobilisation de l'écosystème tech régional.
+
+Support 24h/24
+
+Ligne d'écoute et assistance technique.
+
+150 Startups Pitchées
+
+Présentation devant des investisseurs internationaux.
+
+ÉVÉNEMENT INTERNATIONAL | JUILLET 2027
+
+Sommet Régional
+Jeunesse Tech
+
+Le point de convergence des talents africains. Un dialogue stratégique entre la jeunesse, les régulateurs et les géants de l'industrie technologique mondiale.
+
+700+
+
+Experts Lap Nomba
+
+Alliance
+
+ITU / Smart Africa
+
+Standards
+
+Normes CEMAC
+
+Sommet Foumban
+PARTENAIRE INSTITUTIONNEL
+
+SMART AFRICA
+
+RESSOURCES & CHARGES 2027
+
+Plan de
+Financement Équilibré
+
+600k €
+
+TOTAL RESSOURCES
+
+ORIGINE DES FONDS (100%)
+
+30%
+
+Fonds Propres & Services
+
+Prestations tech et formations.
+
+70%
+
+Partenaires Multilatéraux
+
+Accords cadres et subventions.
+
+Allocation des Charges (100% Utilisé)
+
+EXPANSION NATIONALE
+
+25%
+
+Déploiement opérationnel dans 3 régions. (150k €)
+
+ACADÉMIE & BOURSES
+
+25%
+
+Prise en charge de 1500 apprenants. (150k €)
+
+PLATEFORME DIGITALE
+
+25%
+
+Développement LMS et portail d'assistance. (150k €)
+
+PILOTAGE & IMPACT
+
+25%
+
+Audit et frais de structure. (150k €)
+
+DOCUMENT DE TRAVAIL PRÉVISIONNEL - FONDATION LAP NOMBA © 2027
+
+Échéance Finale 2028
+Phase 3 :
+Modèle National
+L'aboutissement de notre stratégie triennale : faire de l'éthique numérique le standard de l'éducation camerounaise.
+
+Objectif Impact
+
+-40% de Cybercriminalité
+dans les zones cibles.
+
+Intégration Académique
+
+Plaidoyer pour l'intégration du modèle dans le cursus scolaire national.
+
+Co-organisation Internationale
+
+Sommet stratégique co-organisé avec l'ONUDC pour la sécurité régionale.
+
+Masse Critique
+
+Certification finale de 5 000 jeunes au total sur l'ensemble du territoire.
+
+Écosystème Entrepreneurial
+Incubateur
+Lap Nomba Lab
+Soutenu par le financement de la Banque Mondiale, nous bâtissons l'infrastructure qui transforme les idées en champions numériques.
+
+250
+
+Startups Incubées
+
+500
+
+Emplois Directs
+
+Hub Incubation
+PARTENAIRE
+
+BANQUE MONDIALE
+
+Clôture du Plan Triennal
+Gala de
+L'Impact 2028
+INVITATION
+
+"Célébrons ensemble l'émergence d'une souveraineté numérique responsable au Cameroun."
+
+NOVEMBRE 2028
+
+DOUALA
+
+CÉLÉBRATION
+
+15 000 trajectoires de vie transformées et valorisées.
+
+STRATÉGIE
+
+Présentation du rapport d'impact triennal aux partenaires.
+
+RECONNAISSANCE
+
+Remise des trophées "L'Innovateur de Demain".
+
+FONDATION LAP NOMBA • LE FUTUR SE CONSTRUIT ICI
+
+Horizon 2028 : Souveraineté & Impact
+Projection
+Budgétaire
+
+OBJECTIF DE FINANCEMENT ANNUEL
+
+800 000 €
+
+• Sources de Financements
+
+50%
+
+Apport Diaspora
+
+Mobilisation directe du réseau international.
+
+50%
+
+Élites Locales
+
+Soutien des forces vives nationales.
+
+Déploiement des Ressources
+
+45%
+
+CAMPUS LAP NOMBA
+
+Construction d'un centre d'excellence tech (Bâtiments & Data Center).
+
+30%
+
+PROGRAMME RÉINSERTION
+
+Financement des micro-projets tech des diplômés.
+
+15%
+
+FONDS DE ROULEMENT
+
+Assurance de la continuité et réserve de sécurité.
+
+10%
+
+PLAIDOYER & ÉVÉNEMENTS
+
+Sommet Annuel et missions de sensibilisation.
+
+* Projection de maturité basée sur le déploiement national complet et l'acquisition d'actifs fixes.
+
+Coopération Multilatérale
+Nos Partenaires
+PNUD
+
+TECH4PEACE & PAIX SOCIALE
+
+UNESCO
+
+ÉDUCATION & ALPHABÉTISATION
+
+OIF
+
+COOPÉRATION FRANCOPHONE
+
+ONUDC
+
+LUTTE CONTRE LA FRAUDE
+
+BANQUE MONDIALE
+
+DÉVELOPPEMENT ÉCONOMIQUE
+
+Synthèse Stratégique 2026 - 2028
+Total des
+Ressources
+Cibles
+Notre modèle repose sur la solidité de l'engagement privé comme levier de confiance pour les institutions. Sur cet horizon de 3 ans, nous aurons mobilisé 1,7 Million € pour transformer durablement l'écosystème numérique de la jeunesse camerounaise.
+
+CUMUL TRIENNAL PRÉVISIONNEL
+
+2026
+
+Phase d'Ancrage
+
+300k €
+
+2027
+
+Accélération
+
+600k €
+
+2028
+
+Maturité & Impact
+
+800k €
+
+TOTAL TRIENNAL
+
+1,7 M€
+
+* Ce plan de financement triennal vise l'autonomie financière et l'expansion nationale du modèle Lap Nomba.
+
+05. ANALYSE D'IMPACT SOCIAL
+
+Retour sur
+Investissement
+RATIO DE PERFORMANCE
+
+5 : 1
+
+15 000
+
+VIES IMPACTÉES
+
+Jeunes réorientés vers des parcours licites.
+
+500
+
+EMPLOIS CRÉÉS
+
+Insertions directes dans l'écosystème tech.
+
+2M €
+
+ÉCONOMIE LOCALE
+
+Pertes liées à la cybercriminalité évitées.
+
+05
+
+RÉGIONS CIBLES
+
+Rayonnement et ancrage national progressif.
+
+* Note méthodologique : Pour chaque 1€ investi dans nos programmes, la société camerounaise génère une valeur économique et sociale équivalente à 5€.
+
+PLANIFICATION STRATÉGIQUE
+
+2026
+
+Calendrier
+Prévisionnel
+
+Trimestre 01
+
+Janvier - Mars
+
+Foumban
+
+Lancement de la Caravane de Sensibilisation & Identification des bénéficiaires.
+
+Trimestre 02
+
+Avril - Juin
+
+Koutaba
+
+Bootcamps intensifs : Programmation Web & Fondamentaux de la Cybersécurité.
+
+Trimestre 03
+
+Juillet - Septembre
+
+Foumbot
+
+Ouverture Unité d'Écoute pro-bono & Mentorat éthique individuel.
+
+Trimestre 04
+
+Octobre - Décembre
+
+Région Ouest
+
+Grand Salon de l'Innovation Numérique & Remise des certifications.
+
+PLANIFICATION STRATÉGIQUE
+
+2027
+
+Calendrier
+Prévisionnel
+
+Trimestre 01
+
+Janvier - Mars
+
+Douala & Yaoundé
+
+Étude d'impact et duplication du modèle de caravane dans les zones urbaines.
+
+Trimestre 02
+
+Avril - Juin
+
+Hybrid (Online/OUEST)
+
+Mise à l'échelle de l'Académie Numérique : 500 nouveaux apprenants ciblés.
+
+Trimestre 03
+
+Juillet - Septembre
+
+Yaoundé
+
+Sommet Régional de la Jeunesse & Renforcement des partenariats multilatéraux.
+
+Trimestre 04
+
+Octobre - Décembre
+
+National
+
+Lancement du Portail National d'Éducation à l'Éthique Numérique.
+
+PLANIFICATION STRATÉGIQUE
+
+2028
+
+Calendrier
+Prévisionnel
+
+Trimestre 01
+
+Janvier - Mars
+
+Région Ouest
+
+Inauguration du Campus Physique Lap Nomba (Centre d'Excellence).
+
+Trimestre 02
+
+Avril - Juin
+
+National
+
+Certification Éthique Lap Nomba : Label reconnu par les entreprises Tech.
+
+Trimestre 03
+
+Juillet - Septembre
+
+Afrique de l'Ouest
+
+Première mission de plaidoyer et d'exportation du modèle à l'international.
+
+Trimestre 04
+
+Octobre - Décembre
+
+Écosystème Numérique
+
+Bilan d'impact triennal & lancement du fonds d'investissement Jeunesse Tech.
+
+MONITORING D'IMPACT
+
+Indicateurs
+De Performance
+
+Rétention
+
+Apprenants actifs
+
+90%
+
+Satisfaction
+
+Bénéficiaires
+
+85%
+
+Post-Formation
+
+Suivi géolocalisé
+
+6 Mois
+
+Horizon 2029
+
+Expansion
+Pan-Africaine
+
+Le succès de notre modèle au Cameroun pose les jalons d'une souveraineté numérique à l'échelle régionale. Nous amorçons la duplication stratégique de notre infrastructure éducative.
+
+OBJECTIF GLOBAL : 3 PAYS • 1 MODÈLE DE RÉFÉRENCE
+
+PROCHAINE ÉTAPE 1
+
+GABON
+
+Libreville — Jan. 2029
+
+PROCHAINE ÉTAPE 2
+
+SÉNÉGAL
+
+Dakar — Juin 2029
+
+Gouvernance & Sécurité
+Gestion des Risques &
+Transparence Radicale
+Risque Identifié
+
+Chômage Structurel
+
+Saturation du marché numérique urbain pour les nouveaux certifiés.
+
+Stratégie de Mitigation (Plan B)
+
+Pivot vers l'Agri-Tech :
+
+Réorientation des compétences numériques vers la modernisation agricole en zone rurale.
+
+Contrôle & Audit
+
+Transparence Totale
+
+La confiance de nos partenaires est notre actif le plus précieux.
+
+Audits Trimestriels
+
+Réalisés par des cabinets d'audit indépendants.
+
+Rapports Publics
+
+Accessibles en temps réel sur notre plateforme web officielle.
+
+La résilience d'un projet ne se mesure pas à l'absence de risques, mais à la qualité des mécanismes mis en place pour les anticiper et les transformer.
+
+Validation Institutionnelle
+Accords de
+Coopération (MoUs)
+Échéance Stratégique
+
+Trimestre 2 — 2026
+
+Partenaires Signataires
+
+• Ministère de la Jeunesse et de l'Éducation Civique (MINJEC)
+• Agences Onusiennes (PNUD, UNESCO)
+• Fonds de Coopération Multilatérale
+
+La signature marque le passage de l'initiative privée à l'intérêt public national.
+
+Cycle de Mise en Œuvre
+
+01. Signature Officielle
+
+Consolidation des engagements juridiques.
+
+02. Co-financement
+
+Déblocage des fonds Diaspora / Bailleurs.
+
+03. Évaluation & Échelle
+
+Audit de performance et extension nationale.
+
+Standard de conformité internationale • 2026-2028
+
+Capital Humain & Bénévolat
+Notre Force
+Humaine
+Une armée de 200 bénévoles mobilisés chaque année
+
+100+
+
+MENTORS
+
+Experts TIC de la Diaspora
+
+50
+
+AGENTS
+
+Sensibilisation de terrain
+
+10
+
+PSYCHOS
+
+Experts en soutien émotionnel
+
+40
+
+AMBASSADEURS
+
+Relais digitaux & influenceurs
+
+La force de la Fondation Lap Nomba ne réside pas seulement dans ses outils, mais dans la passion des hommes et des femmes qui croient en une économie numérique responsable au Cameroun.
+
+Engagement
+
+Rejoignez la mission Lap Nomba
+Participez à former et accompagner la jeunesse camerounaise dans le numérique, contribuez à la sensibilisation sur les dangers du cybercrime et du phénomène Zaguina, et aidez les jeunes à bâtir un avenir sûr et légal dans l'économie digitale. Partagez vos compétences et guidez-les vers un usage responsable du numérique.
 `;
 export default SYSTEM_PROMPT;
