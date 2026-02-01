@@ -1,17 +1,18 @@
-import express, { Application } from "express";
+import express, { Application, Router } from "express";
 import cors from "cors";
 import "dotenv/config";
+import path from "path"; // Ajouté pour la gestion des chemins
 import logger from "./utils/logger";
 import { connectMongo } from "./data-source";
 import { ApolloServer } from "apollo-server-express";
 import { typeDefs, resolvers } from "./api/endpoints";
 import exportExcelRouter from "./api/endpoints/candidature/exportExcel";
 
-// --- PayPal Webhook Router ---
-import { Router } from "express";
+// Importations pour PayPal et Reçus
 import { DonationModel } from "./models/donor";
 import { CrowdfundingCampaignModel } from "./models/crowdfunding_campaign";
 import { paypalVerifyWebhookSignature } from "./utils/paypal";
+import { generateAndSendReceipt } from "./utils/receipt"; // Importation du service de reçu
 
 export const paypalWebhookRouter = Router();
 
@@ -45,17 +46,23 @@ paypalWebhookRouter.post("/paypal/webhook", async (req, res) => {
       if (orderId) {
         const donation = await DonationModel.findOne({ provider: "PAYPAL", providerOrderId: orderId });
 
-        if (donation) {
+        if (donation && donation.status !== "COMPLETED") {
           donation.providerCaptureId = captureId;
           donation.status = "COMPLETED";
           await donation.save();
 
+          // Mise à jour des compteurs de campagne
           if (donation.campaignId) {
             await CrowdfundingCampaignModel.updateOne(
               { _id: donation.campaignId },
               { $inc: { totalRaised: donation.amount, donorsCount: 1 } }
             );
           }
+
+          // ✅ ENVOI DU REÇU AUTOMATIQUE POUR PAYPAL
+          generateAndSendReceipt(donation).catch(err => 
+            logger.error("❌ Erreur envoi reçu PayPal:", err)
+          );
         }
       }
     }
@@ -80,11 +87,16 @@ paypalWebhookRouter.post("/paypal/webhook", async (req, res) => {
 async function startServer() {
   try {
     await connectMongo();
-    logger.info("Connecté à MongoDB");
+    logger.info("✅ Connecté à MongoDB");
     const app: Application = express();
 
     app.use(express.json({ limit: "10mb" }));
     app.use(express.urlencoded({ limit: "10mb", extended: true }));
+
+    // ✅ CONFIGURATION DU DOSSIER STATIQUE POUR LES REÇUS
+    // Cela permet d'accéder aux PDFs via https://api.lapnomba.org/receipts/RECU-XXXX.pdf
+    const publicPath = path.join(__dirname, "../public/receipts");
+    app.use("/receipts", express.static(publicPath));
 
     app.use(
       cors({
@@ -104,12 +116,13 @@ async function startServer() {
     );
 
     app.use("/api", exportExcelRouter);
-    app.use("/api", paypalWebhookRouter); // <-- Ajout du webhook PayPal
+    app.use("/api", paypalWebhookRouter);
 
     const server = new ApolloServer({
       typeDefs,
       resolvers,
     });
+    
     await server.start();
     server.applyMiddleware({
       app: app as any,
@@ -120,11 +133,13 @@ async function startServer() {
     const port = process.env.PORT || 4000;
     app.listen(port, () => {
       logger.info(`🚀 Serveur GraphQL lancé sur le port ${port}`);
+      logger.info(`📁 Reçus servis depuis : ${publicPath}`);
     });
   } catch (err: any) {
     logger.error("❌ Erreur au démarrage du serveur :", err);
     process.exit(1);
   }
 }
+
 startServer();
 export {};

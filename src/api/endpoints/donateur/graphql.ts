@@ -1,10 +1,17 @@
-// filepath: /Users/macbookpro/Desktop/LapNomba/backend/src/api/endpoints/donateur/graphql.ts
 import { gql } from "apollo-server-express";
 
 export const donateurTypeDefs = gql`
   enum DonationCategory { FINANCIAL MATERIAL SPONSORSHIP CROWDFUNDING }
   enum PaymentMethod { MOMO ORANGE_MONEY CARD PAYPAL CRYPTO BANK_TRANSFER CASH }
   enum PaymentStatus { PENDING COMPLETED FAILED CANCELED REFUNDED }
+
+  # Nouveau type pour les détails bancaires
+  type BankTransferInfo {
+    reference: String
+    senderBank: String
+    sentAt: String
+    proofUrl: String
+  }
 
   type Donation {
     id: ID!
@@ -19,6 +26,7 @@ export const donateurTypeDefs = gql`
     futureContact: Boolean!
     paymentMethod: PaymentMethod!
     status: PaymentStatus!
+    bankTransfer: BankTransferInfo
     campaignId: ID
     createdAt: String!
   }
@@ -95,6 +103,23 @@ export const donateurTypeDefs = gql`
     coverImage: String
   }
 
+  input CreateBankTransferDonationInput {
+    donorName: String!
+    donorEmail: String!
+    donorPhone: String
+    anonymous: Boolean
+
+    amount: Float!
+    currency: String
+    message: String
+    futureContact: Boolean
+
+    reference: String!       
+    senderBank: String       
+    sentAt: String           
+    proofUrl: String      
+  }
+
   input DonateToCampaignInput {
     campaignSlug: String!
     donorName: String!
@@ -105,18 +130,23 @@ export const donateurTypeDefs = gql`
   }
 
   type Query {
+    donations: [Donation!]!
     crowdfundingCampaigns(limit: Int): [CrowdfundingCampaign!]!
     campaignBySlug(slug: String!): CrowdfundingCampaign
     donationById(id: ID!): Donation
   }
 
-type Mutation {
-  createCampaign(input: CreateCampaignInput!): CrowdfundingCampaign!
-  donateToCampaign(input: DonateToCampaignInput!): Donation!
-  createFinancialDonation(input: CreateFinancialDonationInput!): Donation!
-  createPayPalOrderForDonation(donationId: ID!): PayPalOrderResponse!
-  capturePayPalDonation(orderId: String!): Donation!        
-  createMaterialDonation(input: CreateMaterialDonationInput!): MaterialDonation!
-  createSponsorship(input: CreateSponsorshipInput!): Sponsorship!
-}
+  type Mutation {
+    createCampaign(input: CreateCampaignInput!): CrowdfundingCampaign!
+    donateToCampaign(input: DonateToCampaignInput!): Donation!
+    createFinancialDonation(input: CreateFinancialDonationInput!): Donation!
+    createPayPalOrderForDonation(donationId: ID!): PayPalOrderResponse!
+    capturePayPalDonation(orderId: String!): Donation!        
+    createMaterialDonation(input: CreateMaterialDonationInput!): MaterialDonation!
+    createSponsorship(input: CreateSponsorshipInput!): Sponsorship!
+    createBankTransferDonation(input: CreateBankTransferDonationInput!): Donation!
+    markBankTransferAsCompleted(donationId: ID!): Donation!
+    markBankTransferAsFailed(donationId: ID!): Donation!
+    deleteDonation(id: ID!): Boolean
+  }
 `;

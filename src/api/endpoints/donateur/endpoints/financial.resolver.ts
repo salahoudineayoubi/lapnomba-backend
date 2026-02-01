@@ -1,23 +1,41 @@
 import { DonationModel } from "../../../../models/donor";
 import { CrowdfundingCampaignModel } from "../../../../models/crowdfunding_campaign";
-import { paypalCreateOrder, paypalCaptureOrder } from "../../../../utils/paypal";
-// import { momoCreateOrder, momoCaptureOrder } from "../../../../utils/momo"; // À implémenter
-// import { cryptoCreateOrder, cryptoCaptureOrder } from "../../../../utils/crypto"; // À implémenter
+import { generateAndSendReceipt } from "../../../../utils/receipt"; // Assure-toi que le chemin est correct
 
 export const financialDonationResolvers = {
   Query: {
+    /**
+     * ✅ Récupérer toutes les donations pour l'admin
+     */
+    donations: async () => {
+      // Trie par date de création décroissante (plus récent d'abord)
+      return await DonationModel.find().sort({ createdAt: -1 });
+    },
+
+    /**
+     * ✅ Récupérer une donation spécifique par son ID
+     */
     donationById: async (_: any, { id }: any) => {
-      return DonationModel.findById(id);
+      return await DonationModel.findById(id);
     },
   },
 
   Mutation: {
-    // 1. Création d'un don financier (tous moyens de paiement)
-    createFinancialDonation: async (_: any, { input }: any) => {
+    /**
+     * ✅ Création d'un don par VIREMENT bancaire (Côté Utilisateur)
+     * Crée une donation avec le statut 'PENDING'
+     */
+    createBankTransferDonation: async (_: any, { input }: any) => {
+      // Validations de sécurité
+      if (!input?.donorName?.trim()) throw new Error("Nom du donateur requis.");
+      if (!input?.donorEmail?.trim()) throw new Error("Email du donateur requis.");
+      if (!input?.amount || input.amount <= 0) throw new Error("Montant invalide.");
+      if (!input?.reference?.trim()) throw new Error("La référence/objet du virement est obligatoire.");
+
       const donation = await DonationModel.create({
-        donorName: input.donorName,
-        donorEmail: input.donorEmail,
-        donorPhone: input.donorPhone,
+        donorName: input.donorName.trim(),
+        donorEmail: input.donorEmail.trim().toLowerCase(),
+        donorPhone: input.donorPhone?.trim(),
         anonymous: input.anonymous ?? false,
 
         category: "FINANCIAL",
@@ -26,89 +44,88 @@ export const financialDonationResolvers = {
         message: input.message,
         futureContact: input.futureContact ?? false,
 
-        paymentMethod: input.paymentMethod,
+        paymentMethod: "BANK_TRANSFER",
         status: "PENDING",
-        provider: input.paymentMethod,
+
+        // Informations spécifiques au virement
+        bankTransfer: {
+          reference: input.reference.trim(),
+          senderBank: input.senderBank?.trim(),
+          sentAt: input.sentAt ? new Date(input.sentAt) : undefined,
+          proofUrl: input.proofUrl?.trim(),
+        },
+        
+        // Liaison optionnelle à une campagne
+        campaignId: input.campaignId || undefined,
       });
 
       return donation;
     },
 
-    // 2. PayPal: créer order
-    createPayPalOrderForDonation: async (_: any, { donationId }: any) => {
+    /**
+     * ✅ Valider un virement (Côté Admin)
+     * Change le statut en 'COMPLETED', met à jour les stats et envoie le reçu
+     */
+    markBankTransferAsCompleted: async (_: any, { donationId }: any) => {
       const donation = await DonationModel.findById(donationId);
+      
       if (!donation) throw new Error("Donation introuvable.");
-      if (donation.paymentMethod !== "PAYPAL") throw new Error("Cette donation n'est pas en mode PAYPAL.");
+      if (donation.paymentMethod !== "BANK_TRANSFER") {
+        throw new Error("Cette donation n'est pas un virement bancaire.");
+      }
+      if (donation.status === "COMPLETED") {
+        throw new Error("Cette donation est déjà validée.");
+      }
 
-      const { orderId, approveUrl } = await paypalCreateOrder({
-        amount: donation.amount,
-        currency: donation.currency,
-        donationId: donation.id,
-      });
-
-      donation.providerOrderId = orderId;
-      donation.status = "PENDING";
+      // 1. Mise à jour du statut
+      donation.status = "COMPLETED";
       await donation.save();
 
-      return { donationId: donation.id, orderId, approveUrl };
-    },
-
-    // 3. PayPal: capture
-    capturePayPalDonation: async (_: any, { orderId }: any) => {
-      const donation = await DonationModel.findOne({ providerOrderId: orderId, provider: "PAYPAL" });
-      if (!donation) throw new Error("Donation PayPal introuvable.");
-
-      const capture = await paypalCaptureOrder(orderId);
-
-      donation.providerCaptureId = capture.captureId;
-      donation.status = capture.status === "COMPLETED" ? "COMPLETED" : "FAILED";
-      await donation.save();
-
-      // Si lié à une campagne, incrémente les stats
-      if (donation.status === "COMPLETED" && donation.campaignId) {
+      // 2. Mise à jour des statistiques de la campagne si liée
+      if (donation.campaignId) {
         await CrowdfundingCampaignModel.updateOne(
           { _id: donation.campaignId },
-          { $inc: { totalRaised: donation.amount, donorsCount: 1 } }
+          { 
+            $inc: { 
+              totalRaised: donation.amount, 
+              donorsCount: 1 
+            } 
+          }
         );
       }
 
-      return donation;
-    },
-
-    // 4. Donner à une campagne (paiement à la fondation, campaignId attachée)
-    donateToCampaign: async (_: any, { input }: any) => {
-      const campaign = await CrowdfundingCampaignModel.findOne({ slug: input.campaignSlug.toLowerCase() });
-      if (!campaign) throw new Error("Campagne introuvable.");
-      if (campaign.status !== "ACTIVE") throw new Error("Campagne non active.");
-
-      const donation = await DonationModel.create({
-        donorName: input.donorName,
-        donorEmail: input.donorEmail,
-        donorPhone: input.donorPhone,
-        anonymous: input.anonymous ?? false,
-
-        category: "CROWDFUNDING",
-        amount: input.amount,
-        currency: input.currency ?? campaign.currency,
-        message: input.message,
-        futureContact: input.futureContact ?? false,
-
-        paymentMethod: input.paymentMethod,
-        status: input.paymentMethod === "PAYPAL" ? "PENDING" : "PENDING",
-        provider: input.paymentMethod === "PAYPAL" ? "PAYPAL" : input.paymentMethod,
-
-        campaignId: campaign._id,
+      // 3. Génération du PDF et envoi de l'email (Processus asynchrone en arrière-plan)
+      // On ne met pas de "await" pour ne pas faire attendre l'interface admin
+      generateAndSendReceipt(donation).catch((err) => {
+        console.error("🔴 Échec de la génération/envoi du reçu :", err);
       });
 
       return donation;
     },
 
-    // 5. (Placeholders pour autres moyens de paiement)
-    // createMomoOrderForDonation: async (_: any, { donationId }: any) => { ... },
-    // captureMomoDonation: async (_: any, { transactionId }: any) => { ... },
-    // createCardOrderForDonation: async (_: any, { donationId }: any) => { ... },
-    // captureCardDonation: async (_: any, { transactionId }: any) => { ... },
-    // createCryptoOrderForDonation: async (_: any, { donationId }: any) => { ... },
-    // captureCryptoDonation: async (_: any, { transactionId }: any) => { ... },
-  }
+    /**
+     * ✅ Marquer un virement comme échoué/rejeté (Côté Admin)
+     */
+    markBankTransferAsFailed: async (_: any, { donationId }: any) => {
+      const donation = await DonationModel.findById(donationId);
+      
+      if (!donation) throw new Error("Donation introuvable.");
+      if (donation.paymentMethod !== "BANK_TRANSFER") {
+        throw new Error("Cette donation n'est pas un virement bancaire.");
+      }
+
+      donation.status = "FAILED";
+      await donation.save();
+      
+      return donation;
+    },
+
+    /**
+     * ✅ Supprimer définitivement une donation (Côté Admin)
+     */
+    deleteDonation: async (_: any, { id }: any) => {
+      const result = await DonationModel.deleteOne({ _id: id });
+      return result.deletedCount > 0;
+    },
+  },
 };
