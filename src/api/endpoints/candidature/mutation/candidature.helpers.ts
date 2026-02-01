@@ -1,50 +1,64 @@
+import fs from "fs";
+import path from "path";
 import { uploadFromBase64 } from "../../../../utils/cloudinary";
 import { sendMail } from "../../../../utils/sendMail";
 
 /**
- * Gère l'upload des fichiers vers Cloudinary
- * Retourne impérativement des URLs complètes (https://...)
+ * Gère l'upload des fichiers.
+ * Photo -> Cloudinary
+ * CV -> Stockage Local (pour éviter les erreurs d'affichage Cloudinary PDF)
  */
 export const handleFileUploads = async (input: any) => {
   let photoUrl = input.photo;
   let cvUrl = input.cv;
 
   try {
-    // 1. Gestion de la Photo
-    // On n'upload que si c'est du base64 (commence par data:)
+    // 1. Gestion de la Photo (Cloudinary)
     if (photoUrl && photoUrl.startsWith("data:")) {
       const res = await uploadFromBase64(photoUrl, { 
         folder: "candidatures/photos",
         resource_type: "image" 
       });
-      photoUrl = res.secure_url; // Récupère l'URL complète
+      photoUrl = res.secure_url;
     }
 
-    // 2. Gestion du CV (PDF)
+    // 2. Gestion du CV (Stockage Local)
     if (cvUrl && cvUrl.startsWith("data:")) {
-      const res = await uploadFromBase64(cvUrl, { 
-        folder: "candidatures/cv",
-        resource_type: "auto" // Auto détecte le PDF
-      });
-      cvUrl = res.secure_url; // Récupère l'URL complète
+      // On extrait les données Base64
+      const base64Data = cvUrl.split(";base64,").pop();
+      // On génère un nom de fichier unique
+      const fileName = `cv-${Date.now()}-${Math.floor(Math.random() * 1000)}.pdf`;
+      
+      // On définit les chemins
+      const uploadDir = path.join(process.cwd(), "public", "uploads", "cv");
+      const filePath = path.join(uploadDir, fileName);
+
+      // Création du dossier s'il n'existe pas
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+
+      // Écriture du fichier sur le disque
+      fs.writeFileSync(filePath, base64Data!, { encoding: 'base64' });
+
+      // On stocke le chemin relatif (ex: /uploads/cv/cv-123.pdf)
+      cvUrl = `/uploads/cv/${fileName}`;
     }
 
-    // SÉCURITÉ : Si à ce stade l'URL ne commence pas par http, 
-    // c'est que l'upload a échoué ou que la donnée est corrompue.
-    // On nettoie pour éviter l'erreur "No routes matched" au frontend.
+    // SÉCURITÉ : Vérification minimale
     if (photoUrl && !photoUrl.startsWith("http")) photoUrl = null;
-    if (cvUrl && !cvUrl.startsWith("http")) cvUrl = null;
+    // Pour le CV, on vérifie s'il commence par /uploads ou http
+    if (cvUrl && !cvUrl.startsWith("/") && !cvUrl.startsWith("http")) cvUrl = null;
 
     return { photoUrl, cvUrl };
   } catch (error) {
-    console.error("Erreur lors de l'upload Cloudinary:", error);
-    // En cas d'erreur, on retourne les valeurs originales ou null
+    console.error("Erreur lors du traitement des fichiers:", error);
     return { photoUrl: null, cvUrl: null };
   }
 };
 
 /**
- * Gère l'envoi des emails transactionnels selon le statut
+ * Gère l'envoi des emails transactionnels
  */
 export const sendStatusEmail = async (email: string, nom: string, type: 'CONFIRMATION' | 'APPROBATION' | 'REFUS') => {
   const contents = {
@@ -69,6 +83,5 @@ export const sendStatusEmail = async (email: string, nom: string, type: 'CONFIRM
     await sendMail(email, subject, body + footer);
   } catch (error) {
     console.error(`Erreur lors de l'envoi de l'email (${type}) à ${email}:`, error);
-    // On ne bloque pas le processus si l'email échoue
   }
 };

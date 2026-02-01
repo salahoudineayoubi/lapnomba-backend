@@ -1,21 +1,23 @@
 import express, { Application, Router } from "express";
 import cors from "cors";
 import "dotenv/config";
-import path from "path"; // Ajouté pour la gestion des chemins
+import path from "path";
+import fs from "fs"; 
 import logger from "./utils/logger";
 import { connectMongo } from "./data-source";
 import { ApolloServer } from "apollo-server-express";
 import { typeDefs, resolvers } from "./api/endpoints";
 import exportExcelRouter from "./api/endpoints/candidature/exportExcel";
 
-// Importations pour PayPal et Reçus
+// Importations PayPal & Reçus
 import { DonationModel } from "./models/donor";
 import { CrowdfundingCampaignModel } from "./models/crowdfunding_campaign";
 import { paypalVerifyWebhookSignature } from "./utils/paypal";
-import { generateAndSendReceipt } from "./utils/receipt"; // Importation du service de reçu
+import { generateAndSendReceipt } from "./utils/receipt";
 
 export const paypalWebhookRouter = Router();
 
+// --- ROUTE WEBHOOK PAYPAL ---
 paypalWebhookRouter.post("/paypal/webhook", async (req, res) => {
   try {
     const transmissionId = req.header("paypal-transmission-id") || "";
@@ -35,7 +37,10 @@ paypalWebhookRouter.post("/paypal/webhook", async (req, res) => {
       webhookEvent: event,
     });
 
-    if (!ok) return res.status(400).json({ ok: false, message: "Invalid webhook signature" });
+    if (!ok) {
+      logger.warn("⚠️ Signature Webhook PayPal invalide");
+      return res.status(400).json({ ok: false, message: "Invalid webhook signature" });
+    }
 
     const eventType = event?.event_type as string | undefined;
 
@@ -51,7 +56,6 @@ paypalWebhookRouter.post("/paypal/webhook", async (req, res) => {
           donation.status = "COMPLETED";
           await donation.save();
 
-          // Mise à jour des compteurs de campagne
           if (donation.campaignId) {
             await CrowdfundingCampaignModel.updateOne(
               { _id: donation.campaignId },
@@ -59,7 +63,6 @@ paypalWebhookRouter.post("/paypal/webhook", async (req, res) => {
             );
           }
 
-          // ✅ ENVOI DU REÇU AUTOMATIQUE POUR PAYPAL
           generateAndSendReceipt(donation).catch(err => 
             logger.error("❌ Erreur envoi reçu PayPal:", err)
           );
@@ -80,61 +83,83 @@ paypalWebhookRouter.post("/paypal/webhook", async (req, res) => {
 
     return res.json({ ok: true });
   } catch (e: any) {
+    logger.error("🔥 Erreur Webhook PayPal:", e.message);
     return res.status(500).json({ ok: false, message: e?.message || "Webhook error" });
   }
 });
 
+// --- DÉMARRAGE DU SERVEUR ---
 async function startServer() {
   try {
     await connectMongo();
     logger.info("✅ Connecté à MongoDB");
+
     const app: Application = express();
 
-    app.use(express.json({ limit: "10mb" }));
-    app.use(express.urlencoded({ limit: "10mb", extended: true }));
+    // --- CONFIGURATION DES DOSSIERS DE STOCKAGE ---
+    // Sur Railway, on s'assure que les dossiers existent dans le répertoire de travail
+    const publicBase = path.join(process.cwd(), "public");
+    const receiptsPath = path.join(publicBase, "receipts");
+    const cvPath = path.join(publicBase, "uploads", "cv");
+    
+    // Création récursive des dossiers s'ils manquent (Crucial pour Railway)
+    [receiptsPath, cvPath].forEach(dir => {
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+            logger.info(`📁 Dossier créé ou vérifié : ${dir}`);
+        }
+    });
 
-    // ✅ CONFIGURATION DU DOSSIER STATIQUE POUR LES REÇUS
-    // Cela permet d'accéder aux PDFs via https://api.lapnomba.org/receipts/RECU-XXXX.pdf
-    const publicPath = path.join(__dirname, "../public/receipts");
-    app.use("/receipts", express.static(publicPath));
+    // Middlewares
+    // On garde 20mb pour être tranquille avec les CV et les exports Excel
+    app.use(express.json({ limit: "20mb" })); 
+    app.use(express.urlencoded({ limit: "20mb", extended: true }));
 
+    // --- SERVICE DES FICHIERS STATIQUES ---
+    // Ces routes permettent au frontend d'accéder aux fichiers via l'URL Railway
+    app.use("/receipts", express.static(receiptsPath));
+    app.use("/uploads/cv", express.static(cvPath));
+
+    // Sécurité CORS : Ajoute tes domaines frontend ici
     app.use(
       cors({
         origin: [
           "http://localhost:3000",
           "http://localhost:3001",
           "https://lapnomba.org",
-          "http://lapnomba.org",
           "https://admin.lapnomba.org",
-          "http://admin.lapnomba.org",
           "https://admissions.lapnomba.org",
-          "http://admissions.lapnomba.org",
           "https://donate.lapnomba.org"
         ],
         credentials: true,
       })
     );
 
+    // Routes API Standard
     app.use("/api", exportExcelRouter);
     app.use("/api", paypalWebhookRouter);
 
+    // Serveur Apollo
     const server = new ApolloServer({
       typeDefs,
       resolvers,
+      introspection: true, // Recommandé pour tester avec l'URL Railway /graphql
     });
     
     await server.start();
     server.applyMiddleware({
       app: app as any,
       path: "/graphql",
-      cors: false,
+      cors: false, 
     });
 
     const port = process.env.PORT || 4000;
     app.listen(port, () => {
-      logger.info(`🚀 Serveur GraphQL lancé sur le port ${port}`);
-      logger.info(`📁 Reçus servis depuis : ${publicPath}`);
+      logger.info(`🚀 Serveur actif sur le port ${port}`);
+      logger.info(`📄 GraphQL : https://lapnomba-backend-production-c06d.up.railway.app/graphql`);
+      logger.info(`📂 CV locaux : https://lapnomba-backend-production-c06d.up.railway.app/uploads/cv/`);
     });
+
   } catch (err: any) {
     logger.error("❌ Erreur au démarrage du serveur :", err);
     process.exit(1);
