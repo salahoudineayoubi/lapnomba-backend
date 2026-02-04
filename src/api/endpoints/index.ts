@@ -3,11 +3,10 @@
 import { adminTypeDefs } from "./admin/graphql";
 import { adminResolvers } from "./admin/resolvers";
 import { projectSummitTypeDefs } from "./projet_summit/graphql";
-// import { projectSummitResolvers } from "./projet_summit/resolvers";
+import {communityVoiceTypeDefs} from "./communityVoice/graphql";
 import { newsletterTypeDefs } from "./newsletter/graphql";
 import { newsletterResolvers } from "./newsletter/resolvers";
-// import { joinTeamRequestTypeDefs } from "./joint_team_request/graphql";
-// import { joinTeamRequestResolvers } from "./joint_team_request/resolvers";
+import {ICommunityVoice } from "../../models/communityvoice";
 import { donateurTypeDefs } from "./donateur/graphql";
 import { donateurResolvers } from "./donateur/resolvers";
 import { testimonialTypeDefs } from "./testimonials/graphql";
@@ -27,17 +26,17 @@ import { partnerTypeDefs } from "../endpoints/partners/graphql";
 import { partnerResolvers } from "./partners/resolvers";
 import { developerTypeDefs } from "./developer/graphql";
 import { developerResolvers } from "./developer/resolvers";
+import { communityVoiceResolvers } from "./communityVoice/resolver";
 // import { materialTypeDefs } from "./material/graphql";
 // import { materialResolvers } from "./material/resolvers";
 
 export const typeDefs = [
   rootTypeDefs,
-  // studentTypeDefs,
+communityVoiceTypeDefs,
   adminTypeDefs,
   projectSummitTypeDefs,
   newsletterTypeDefs,
-  // joinTeamRequestTypeDefs,
-  donateurTypeDefs,
+    donateurTypeDefs,
   testimonialTypeDefs,
   chatbotTypeDefs,
   candidatureTypeDefs,
@@ -50,11 +49,11 @@ export const typeDefs = [
 ];
 
 export const resolvers = [
-  // studentResolvers,
+communityVoiceResolvers,
   adminResolvers,
-  // projectSummitResolvers,
+
   newsletterResolvers,
-  // joinTeamRequestResolvers,
+
   donateurResolvers,
   testimonialResolvers,
   chatbotResolvers,
