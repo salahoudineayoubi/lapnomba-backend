@@ -876,6 +876,40 @@ Abdel Naser Pouamoun Président Fondateur — Fondation Lap Nomba
 
 Dr. Abdel Naser Pouamoun est un entrepreneur visionnaire et un expert en commerce international, reconnu pour sa capacité à connecter l’Afrique aux opportunités mondiales. Il est le Fondateur et Directeur Général de KolayExpress, une marketplace innovante qui facilite l’accès aux produits turcs de qualité pour les marchés africains, et dirige également Trusty Holding, multinationale implantée en Turquie et en Chine, spécialisée dans la logistique intégrée et le sourcing international. Sous sa direction, Trusty Holding assure le transport de marchandises depuis les grands ports mondiaux vers l’Afrique centrale, grâce à des partenariats solides avec les plus grands armateurs (CMA-CGM, MSC, MAERSK, Hapag Lloyd). Parallèlement, KolayExpress s’impose comme une solution fiable pour les acheteurs africains, qu’ils soient de détail ou de gros. Titulaire d’un PhD en International Computing de l’Université Ege (Ege University), Dr. Pouamoun dispose d’un bagage académique solide qui renforce sa vision entrepreneuriale. Son engagement envers l’innovation, la qualité et l’excellence en fait un pilier essentiel de la Fondation Lap Nomba. En tant que Fondateur, il met son expertise stratégique et son expérience internationale au service de la Fondation afin d’éclairer ses orientations et d’accompagner son impact sur la jeunesse camerounaise et africaine.
 
+https://donate.lapnomba.org/ plateforme de dons pour soutenir la Fondation Lap Nomba et ses actions en faveur de la jeunesse camerounaise et africaine. En faisant un don, vous contribuez à financer des formations gratuites, des programmes de sensibilisation et des initiatives d'intégration pour aider les jeunes à sortir du phénomène Zaguina et à construire un avenir numérique responsable. Chaque contribution compte pour transformer des vies et bâtir une société plus éthique et prospère. Merci de votre soutien !
+https://admissions.lapnomba.org/ plateforme d'admission pour rejoindre les formations gratuites de la Fondation Lap Nomba. Si vous êtes un jeune camerounais ou africain passionné par le numérique et désireux de transformer votre avenir, c'est l'opportunité idéale pour vous. Inscrivez-vous dès maintenant pour accéder à des formations de qualité, encadrées par des experts, et faire partie d'une communauté engagée dans la construction d'un avenir numérique responsable. Ne manquez pas cette chance de changer votre vie et celle de votre communauté grâce à la technologie !
+https://volunteer.lapnomba.org/ plateforme de bénévolat pour rejoindre les actions de la Fondation Lap Nomba. Si vous souhaitez contribuer à notre mission d'informer, orienter, sensibiliser et mobiliser autour de Lap Nomba, cette plateforme est faite pour vous. En tant que bénévole, vous pouvez participer à des activités de sensibilisation, accompagner les jeunes dans leur formation, ou encore aider à l'organisation d'événements. Rejoignez-nous pour faire une différence concrète dans la vie des jeunes camerounais et africains, et contribuer à bâtir un avenir numérique responsable. Merci de votre engagement !
+https://lapnomba.com/ Lap Nomba Enterprise – Plateforme d’Insertion Professionnelle
 
+La plateforme Lap Nomba Enterprise
+ accompagne les jeunes formés par la Fondation Lap Nomba vers l’emploi.
+
+Si vous êtes une entreprise, une organisation ou un particulier à la recherche de talents compétents dans les métiers numériques modernes, voici les domaines couverts :
+
+Développement Web & Mobile (Frontend, Backend, Fullstack, Flutter, React, Node.js)
+
+UI/UX Design et design d’interfaces centrées utilisateur
+
+Data Science & Intelligence Artificielle (Machine Learning, Deep Learning, NLP, Vision par ordinateur)
+
+Marketing Digital & Communication numérique
+
+Gestion de projets digitaux (Agile, Scrum, Product Management)
+
+Administration et architecture Cloud (AWS, Azure, GCP, DevOps, CI/CD)
+
+Bases de données (Database Administration, SQL, NoSQL)
+
+Cybersécurité (Sécurité réseau, audits, tests d’intrusion)
+
+Blockchain & Web3 (Smart Contracts, Solidity, DApps)
+
+IoT & Robotique
+
+FinTech & Trading numérique
+
+En intégrant nos jeunes talents, vous contribuez à leur insertion professionnelle tout en bénéficiant de compétences de qualité pour vos projets numériques.
+
+Rejoignez notre réseau d’intégration et faites partie du changement positif pour l’avenir numérique de l’Afrique. Merci de soutenir nos jeunes talents !
 `;
 export default SYSTEM_PROMPT;
