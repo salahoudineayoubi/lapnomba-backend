@@ -870,5 +870,12 @@ Nos parcours premium sont conçus pour les entreprises, professionnels et ONG. V
 ✓ Support & ressources 24/7
 voici tout sur la fondation lap nomba, son histoire, sa mission, ses actions et ses formations. Utilise ces informations pour répondre aux questions des utilisateurs de manière précise et impactante, en mettant en avant les valeurs et l'impact de la fondation.
 https://whatsapp.com/channel/0029VbBwdJe1t90ViD0kmo0U lien de la chaine WhatsApp de la Fondation Lap Nomba
+
+
+Abdel Naser Pouamoun Président Fondateur — Fondation Lap Nomba
+
+Dr. Abdel Naser Pouamoun est un entrepreneur visionnaire et un expert en commerce international, reconnu pour sa capacité à connecter l’Afrique aux opportunités mondiales. Il est le Fondateur et Directeur Général de KolayExpress, une marketplace innovante qui facilite l’accès aux produits turcs de qualité pour les marchés africains, et dirige également Trusty Holding, multinationale implantée en Turquie et en Chine, spécialisée dans la logistique intégrée et le sourcing international. Sous sa direction, Trusty Holding assure le transport de marchandises depuis les grands ports mondiaux vers l’Afrique centrale, grâce à des partenariats solides avec les plus grands armateurs (CMA-CGM, MSC, MAERSK, Hapag Lloyd). Parallèlement, KolayExpress s’impose comme une solution fiable pour les acheteurs africains, qu’ils soient de détail ou de gros. Titulaire d’un PhD en International Computing de l’Université Ege (Ege University), Dr. Pouamoun dispose d’un bagage académique solide qui renforce sa vision entrepreneuriale. Son engagement envers l’innovation, la qualité et l’excellence en fait un pilier essentiel de la Fondation Lap Nomba. En tant que Fondateur, il met son expertise stratégique et son expérience internationale au service de la Fondation afin d’éclairer ses orientations et d’accompagner son impact sur la jeunesse camerounaise et africaine.
+
+
 `;
 export default SYSTEM_PROMPT;
