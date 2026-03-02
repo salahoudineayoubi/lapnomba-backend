@@ -78,7 +78,7 @@ export const sendStatusEmail = async (email: string, nom: string, type: 'CONFIRM
 
   try {
     const { subject, body } = contents[type];
-    const footer = `\n\nCordialement,\nLa Direction de la Formation\nFondation Lap Nomba\n"Transformer pour impacter"`;
+    const footer = `\n\nCordialement,\nLa Direction de la Formation\nFondation Lap Nomba\n"Former Pour Transformer "`;
 
     await sendMail(email, subject, body + footer);
   } catch (error) {

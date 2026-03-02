@@ -1,4 +1,4 @@
-// utils/sendMail.ts
+
 import nodemailer from "nodemailer";
 
 export const sendMail = async (to: string, subject: string, text: string) => {
@@ -11,7 +11,7 @@ export const sendMail = async (to: string, subject: string, text: string) => {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
-    // Ajoute ceci pour forcer l'IPv4 si nécessaire
+   
     tls: {
       rejectUnauthorized: false 
     }

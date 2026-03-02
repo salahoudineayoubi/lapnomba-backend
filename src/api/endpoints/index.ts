@@ -1,5 +1,4 @@
-// import { studentTypeDefs } from "./students/graphql";
-// import { studentResolvers } from "./students/resolvers";
+
 import { adminTypeDefs } from "./admin/graphql";
 import { adminResolvers } from "./admin/resolvers";
 import { projectSummitTypeDefs } from "./projet_summit/graphql";
@@ -27,8 +26,8 @@ import { partnerResolvers } from "./partners/resolvers";
 import { developerTypeDefs } from "./developer/graphql";
 import { developerResolvers } from "./developer/resolvers";
 import { communityVoiceResolvers } from "./communityVoice/resolver";
-// import { materialTypeDefs } from "./material/graphql";
-// import { materialResolvers } from "./material/resolvers";
+import { materialTypeDefs } from "./material/graphql";
+import { materialResolvers } from "./material/resolvers";
 
 export const typeDefs = [
   rootTypeDefs,
@@ -45,7 +44,7 @@ communityVoiceTypeDefs,
   awarenessTypeDefs,
   partnerTypeDefs,
   developerTypeDefs,
-  // materialTypeDefs
+  materialTypeDefs
 ];
 
 export const resolvers = [
@@ -63,5 +62,5 @@ communityVoiceResolvers,
   awarenessResolvers,
   partnerResolvers,
   developerResolvers,
-  // materialResolvers
+  materialResolvers
 ];

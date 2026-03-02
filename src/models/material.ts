@@ -8,12 +8,12 @@ export interface IMaterialDonation extends Document {
   donorPhone: string;
   donorEmail?: string;
 
-  itemType: string;      // "Ordinateur Portable", "PC Bureau", "Tablette", "Accessoires"...
+  itemType: string;
   condition: MaterialCondition;
   quantity: number;
 
   deliveryMode: MaterialDeliveryMode;
-  pickupAddress?: string; // required if PICKUP or SHIPPING
+  pickupAddress?: string;
   notes?: string;
 
   status: "RECEIVED" | "SCHEDULED" | "PENDING";
