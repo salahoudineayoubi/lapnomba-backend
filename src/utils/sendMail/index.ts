@@ -5,8 +5,8 @@ export const sendMail = async (to: string, subject: string, text: string) => {
   // Création du transporteur SMTP (typé correctement)
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST || "node26-ca.n0c.com",
-    port: Number(process.env.SMTP_PORT) || 587,
-    secure: false,          // false pour TLS, true pour SSL
+    port: Number(process.env.SMTP_PORT) || 465,
+    secure: true,          // false pour TLS, true pour SSL
     requireTLS: true,
     auth: {
       user: process.env.SMTP_USER || "contact@lapnomba.org",
