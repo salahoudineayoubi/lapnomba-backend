@@ -13,7 +13,7 @@ export const materialResolvers = {
 
   Mutation: {
     createMaterial: async (_: any, { input }: any) => {
-      // Création dans MongoDB
+      // 1️⃣ Création dans MongoDB
       const material = new MaterialDonationModel({
         donorName: input.nom,
         donorPhone: input.telephone,
@@ -28,11 +28,13 @@ export const materialResolvers = {
 
       await material.save();
 
-      // 1️⃣ Email à la Fondation
-      await sendMail(
-        "contact@lapnomba.org",
-        "Nouveau don de matériel - Fondation Lap Nomba",
-        `
+      // 2️⃣ Envoi de mails (try/catch pour ne pas bloquer le retour)
+      try {
+        // Email à la Fondation
+        await sendMail(
+          "contact@lapnomba.org",
+          "Nouveau don de matériel - Fondation Lap Nomba",
+          `
 Un nouveau don de matériel a été soumis :
 
 Nom : ${input.nom}
@@ -48,15 +50,19 @@ Adresse : ${input.adresse || "Non applicable"}
 
 Détails :
 ${input.details || "Aucun"}
-        `
-      );
-
-      // 2️⃣ Email au Donateur
-      if (input.email) {
-        await sendMail(
-          input.email,
-          "Confirmation de votre don - Fondation Lap Nomba",
           `
+        );
+      } catch (err) {
+        console.error("Erreur envoi mail Fondation :", err);
+      }
+
+      if (input.email) {
+        try {
+          // Email au Donateur
+          await sendMail(
+            input.email,
+            "Confirmation de votre don - Fondation Lap Nomba",
+            `
 Cher(e) ${input.nom},
 
 Nous avons bien reçu votre proposition de don :
@@ -73,11 +79,14 @@ Avec gratitude,
 
 Fondation Lap Nomba
 contact@lapnomba.org
-          `
-        );
+            `
+          );
+        } catch (err) {
+          console.error("Erreur envoi mail Donateur :", err);
+        }
       }
 
-      // Mapping correct pour GraphQL
+      // 3️⃣ Mapping correct pour GraphQL
       return {
         id: material._id,
         nom: material.donorName,
