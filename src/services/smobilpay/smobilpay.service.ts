@@ -33,7 +33,7 @@ export interface SmobilpayOrderRequest {
   returnUrl: string;
   notificationUrl: string;
 
-  // on garde optionnels, mais on ne les envoie plus pour l’instant
+  // conservés en optionnel pour plus tard, non envoyés pour l’instant
   optRefOne?: string;
   optRefTwo?: string;
   receiptUrl?: string;
@@ -65,6 +65,9 @@ const cleanPhoneNumber = (phone?: string): string | undefined => {
 
   const cleaned = phone.replace(/[^\d]/g, "");
 
+  if (!cleaned) return undefined;
+
+  // 237697123000 -> 697123000
   if (cleaned.startsWith("237") && cleaned.length === 12) {
     return cleaned.slice(3);
   }
@@ -153,7 +156,7 @@ const buildOrderPayloadFromDonation = (
     expiryDate: expiryDate.toISOString(),
     id: {
       uuid: crypto.randomUUID(),
-      // version retirée du payload de debug pour éviter les incompatibilités
+      // volontairement omis pour éviter toute incompatibilité sandbox
       // version: smobilpayConfig.orderVersion,
     },
     items: buildOrderItemsFromDonation(donation),
@@ -175,6 +178,7 @@ const extractTransactionId = (data: any): string | null => {
   return (
     data?.txid ||
     data?.transactionId ||
+    data?.orderTransactionId ||
     data?.id ||
     data?.orderId ||
     data?.data?.txid ||
@@ -249,11 +253,22 @@ export const createSmobilpayOrderForDonation = async (
 
   const response = await smobilpayPost<any>(smobilpayConfig.orderUrl, payload);
 
+  if (!response?.data) {
+    throw new Error("Réponse vide reçue depuis Smobilpay.");
+  }
+
   logger.info("📥 Réponse Smobilpay brute", response.data);
 
   const transactionId = extractTransactionId(response.data);
   const paymentUrl = extractPaymentUrl(response.data);
   const rawStatus = extractRawStatus(response.data);
+
+  if (!paymentUrl) {
+    logger.warn(
+      "⚠️ Aucun paymentUrl/redirectUrl reçu depuis Smobilpay",
+      response.data
+    );
+  }
 
   donation.providerReference = payload.merchantReference;
   donation.providerOrderId = payload.merchantReference;
