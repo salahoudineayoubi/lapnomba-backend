@@ -1,46 +1,93 @@
-import mongoose, { Document, Schema } from "mongoose";
-
-export type MaterialDeliveryMode = "DROP_OFF" | "PICKUP" | "SHIPPING";
-export type MaterialCondition = "NEW" | "VERY_GOOD" | "GOOD" | "REPAIRABLE";
+import mongoose, { Document, Model, Schema } from "mongoose";
 
 export interface IMaterialDonation extends Document {
   donorName: string;
-  donorPhone: string;
   donorEmail?: string;
+  donorPhone?: string;
 
   itemType: string;
-  condition: MaterialCondition;
   quantity: number;
+  description?: string;
 
-  deliveryMode: MaterialDeliveryMode;
-  pickupAddress?: string;
-  notes?: string;
+  status: string;
 
-  status: "RECEIVED" | "SCHEDULED" | "PENDING";
   createdAt: Date;
   updatedAt: Date;
 }
 
 const MaterialDonationSchema = new Schema<IMaterialDonation>(
   {
-    donorName: { type: String, required: true, trim: true },
-    donorPhone: { type: String, required: true, trim: true },
-    donorEmail: { type: String, trim: true, lowercase: true },
+    donorName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
-    itemType: { type: String, required: true, trim: true },
-    condition: { type: String, enum: ["NEW", "VERY_GOOD", "GOOD", "REPAIRABLE"], required: true },
-    quantity: { type: Number, required: true, min: 1 },
+    donorEmail: {
+      type: String,
+      trim: true,
+      lowercase: true,
+    },
 
-    deliveryMode: { type: String, enum: ["DROP_OFF", "PICKUP", "SHIPPING"], required: true },
-    pickupAddress: { type: String },
-    notes: { type: String },
+    donorPhone: {
+      type: String,
+      trim: true,
+    },
 
-    status: { type: String, enum: ["RECEIVED", "SCHEDULED", "PENDING"], default: "PENDING" },
+    itemType: {
+      type: String,
+      required: true,
+      trim: true,
+      index: true,
+    },
+
+    quantity: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+
+    description: {
+      type: String,
+      trim: true,
+    },
+
+    status: {
+      type: String,
+      required: true,
+      default: "PENDING",
+      enum: ["PENDING", "REVIEWED", "ACCEPTED", "REJECTED", "RECEIVED"],
+      index: true,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-export const MaterialDonationModel = mongoose.model<IMaterialDonation>(
-  "MaterialDonation",
-  MaterialDonationSchema
-);
+MaterialDonationSchema.index({ createdAt: -1 });
+MaterialDonationSchema.index({ status: 1, createdAt: -1 });
+
+MaterialDonationSchema.pre("validate", function (next) {
+  const doc = this as IMaterialDonation;
+
+  if (!doc.donorName?.trim()) {
+    return next(new Error("Le nom du donateur est requis."));
+  }
+
+  if (!doc.itemType?.trim()) {
+    return next(new Error("Le type de matériel est requis."));
+  }
+
+  if (doc.quantity <= 0) {
+    return next(new Error("La quantité doit être supérieure à 0."));
+  }
+
+  next();
+});
+
+const MaterialDonationModelInstance: Model<IMaterialDonation> =
+  (mongoose.models.MaterialDonation as Model<IMaterialDonation>) ||
+  mongoose.model<IMaterialDonation>("MaterialDonation", MaterialDonationSchema);
+
+export const MaterialDonationModel = MaterialDonationModelInstance;

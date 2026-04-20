@@ -1,11 +1,30 @@
 import { gql } from "apollo-server-express";
 
 export const donateurTypeDefs = gql`
-  enum DonationCategory { FINANCIAL MATERIAL SPONSORSHIP CROWDFUNDING }
-  enum PaymentMethod { MOMO ORANGE_MONEY CARD PAYPAL CRYPTO BANK_TRANSFER CASH }
-  enum PaymentStatus { PENDING COMPLETED FAILED CANCELED REFUNDED }
+  enum DonationCategory {
+    FINANCIAL
+    MATERIAL
+    SPONSORSHIP
+    CROWDFUNDING
+  }
 
-  # Nouveau type pour les détails bancaires
+  enum PaymentMethod {
+    MOMO
+    ORANGE_MONEY
+    CARD
+    CRYPTO
+    BANK_TRANSFER
+    CASH
+  }
+
+  enum PaymentStatus {
+    PENDING
+    COMPLETED
+    FAILED
+    CANCELED
+    REFUNDED
+  }
+
   type BankTransferInfo {
     reference: String
     senderBank: String
@@ -26,9 +45,21 @@ export const donateurTypeDefs = gql`
     futureContact: Boolean!
     paymentMethod: PaymentMethod!
     status: PaymentStatus!
+
+    provider: String
+    providerOrderId: String
+    providerCaptureId: String
+    providerTransactionId: String
+    providerReference: String
+    providerPaymentUrl: String
+    providerStatusRaw: String
+
     bankTransfer: BankTransferInfo
     campaignId: ID
     createdAt: String!
+    updatedAt: String!
+    paidAt: String
+    failedAt: String
   }
 
   type CrowdfundingCampaign {
@@ -45,29 +76,44 @@ export const donateurTypeDefs = gql`
     donorsCount: Int!
     status: String!
     createdAt: String!
+    updatedAt: String!
   }
 
   type MaterialDonation {
     id: ID!
     donorName: String!
+    donorEmail: String
+    donorPhone: String
     itemType: String!
     quantity: Int!
+    description: String
     status: String!
     createdAt: String!
+    updatedAt: String!
   }
 
   type Sponsorship {
     id: ID!
     sponsorName: String!
+    sponsorEmail: String
+    sponsorPhone: String
     studentName: String
+    amount: Float
+    currency: String
+    message: String
     status: String!
     createdAt: String!
+    updatedAt: String!
   }
 
-  type PayPalOrderResponse {
+  type PaymentInitiationResponse {
     donationId: ID!
-    orderId: String!
-    approveUrl: String
+    provider: String!
+    paymentUrl: String
+    reference: String
+    transactionId: String
+    status: PaymentStatus!
+    message: String
   }
 
   input CreateFinancialDonationInput {
@@ -80,17 +126,26 @@ export const donateurTypeDefs = gql`
     message: String
     futureContact: Boolean
     anonymous: Boolean
+    campaignId: ID
   }
 
   input CreateMaterialDonationInput {
     donorName: String!
+    donorEmail: String
+    donorPhone: String
     itemType: String!
     quantity: Int!
+    description: String
   }
 
   input CreateSponsorshipInput {
     sponsorName: String!
+    sponsorEmail: String
+    sponsorPhone: String
     studentName: String
+    amount: Float
+    currency: String
+    message: String
   }
 
   input CreateCampaignInput {
@@ -114,39 +169,57 @@ export const donateurTypeDefs = gql`
     message: String
     futureContact: Boolean
 
-    reference: String!       
-    senderBank: String       
-    sentAt: String           
-    proofUrl: String      
+    reference: String!
+    senderBank: String
+    sentAt: String
+    proofUrl: String
+    campaignId: ID
   }
 
   input DonateToCampaignInput {
     campaignSlug: String!
     donorName: String!
     donorEmail: String!
+    donorPhone: String
     amount: Float!
+    currency: String
     paymentMethod: PaymentMethod!
+    message: String
+    futureContact: Boolean
     anonymous: Boolean
   }
 
   type Query {
     donations: [Donation!]!
+    donationById(id: ID!): Donation
+
     crowdfundingCampaigns(limit: Int): [CrowdfundingCampaign!]!
     campaignBySlug(slug: String!): CrowdfundingCampaign
-    donationById(id: ID!): Donation
+
+    materialDonations: [MaterialDonation!]!
+    sponsorships: [Sponsorship!]!
   }
 
   type Mutation {
+    # Campagnes
     createCampaign(input: CreateCampaignInput!): CrowdfundingCampaign!
     donateToCampaign(input: DonateToCampaignInput!): Donation!
+
+    # Dons financiers
     createFinancialDonation(input: CreateFinancialDonationInput!): Donation!
-    createPayPalOrderForDonation(donationId: ID!): PayPalOrderResponse!
-    capturePayPalDonation(orderId: String!): Donation!        
-    createMaterialDonation(input: CreateMaterialDonationInput!): MaterialDonation!
-    createSponsorship(input: CreateSponsorshipInput!): Sponsorship!
     createBankTransferDonation(input: CreateBankTransferDonationInput!): Donation!
+
+    # Paiement générique (Smobilpay / Maviance)
+    initiateDonationPayment(donationId: ID!): PaymentInitiationResponse!
+    verifyDonationPayment(donationId: ID!): Donation!
+
+    # Gestion manuelle
     markBankTransferAsCompleted(donationId: ID!): Donation!
     markBankTransferAsFailed(donationId: ID!): Donation!
-    deleteDonation(id: ID!): Boolean
+    deleteDonation(id: ID!): Boolean!
+
+    # Dons matériels / sponsorship
+    createMaterialDonation(input: CreateMaterialDonationInput!): MaterialDonation!
+    createSponsorship(input: CreateSponsorshipInput!): Sponsorship!
   }
 `;

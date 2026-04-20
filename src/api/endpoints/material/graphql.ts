@@ -4,13 +4,10 @@ export const materialTypeDefs = gql`
   type Material {
     id: ID!
     nom: String!
-    telephone: String!
+    telephone: String
     email: String
     typeMateriel: String!
-    etatMateriel: String!
     quantite: Int!
-    modeLivraison: String!
-    adresse: String
     details: String
     status: String!
     createdAt: String!
@@ -19,13 +16,10 @@ export const materialTypeDefs = gql`
 
   input CreateMaterialInput {
     nom: String!
-    telephone: String!
+    telephone: String
     email: String
     typeMateriel: String!
-    etatMateriel: String!
     quantite: Int!
-    modeLivraison: String!
-    adresse: String
     details: String
   }
 

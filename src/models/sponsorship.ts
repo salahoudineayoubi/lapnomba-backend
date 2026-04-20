@@ -1,19 +1,16 @@
-import mongoose, { Document, Schema } from "mongoose";
-
-export type SponsorshipDuration = "3M" | "6M" | "12M";
-export type SponsorshipStatus = "ACTIVE" | "PAUSED" | "COMPLETED" | "CANCELED";
+import mongoose, { Document, Model, Schema } from "mongoose";
 
 export interface ISponsorship extends Document {
   sponsorName: string;
-  sponsorEmail: string;
+  sponsorEmail?: string;
   sponsorPhone?: string;
 
-  studentName?: string;   // optionnel si tu assignes plus tard
-  studentId?: string;     // si tu as une table Students
-  duration: SponsorshipDuration;
+  studentName?: string;
+  amount?: number;
+  currency?: string;
+  message?: string;
 
-  monthlyReport: boolean; // suivi mensuel
-  status: SponsorshipStatus;
+  status: string;
 
   createdAt: Date;
   updatedAt: Date;
@@ -21,18 +18,77 @@ export interface ISponsorship extends Document {
 
 const SponsorshipSchema = new Schema<ISponsorship>(
   {
-    sponsorName: { type: String, required: true, trim: true },
-    sponsorEmail: { type: String, required: true, trim: true, lowercase: true },
-    sponsorPhone: { type: String },
+    sponsorName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
-    studentName: { type: String },
-    studentId: { type: String },
+    sponsorEmail: {
+      type: String,
+      trim: true,
+      lowercase: true,
+    },
 
-    duration: { type: String, enum: ["3M", "6M", "12M"], required: true },
-    monthlyReport: { type: Boolean, default: true },
-    status: { type: String, enum: ["ACTIVE","PAUSED","COMPLETED","CANCELED"], default: "ACTIVE" },
+    sponsorPhone: {
+      type: String,
+      trim: true,
+    },
+
+    studentName: {
+      type: String,
+      trim: true,
+    },
+
+    amount: {
+      type: Number,
+      min: 0,
+    },
+
+    currency: {
+      type: String,
+      default: "XAF",
+      uppercase: true,
+      trim: true,
+    },
+
+    message: {
+      type: String,
+      trim: true,
+    },
+
+    status: {
+      type: String,
+      required: true,
+      default: "PENDING",
+      enum: ["PENDING", "ACTIVE", "COMPLETED", "CANCELED"],
+      index: true,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-export const SponsorshipModel = mongoose.model<ISponsorship>("Sponsorship", SponsorshipSchema);
+SponsorshipSchema.index({ createdAt: -1 });
+SponsorshipSchema.index({ status: 1, createdAt: -1 });
+
+SponsorshipSchema.pre("validate", function (next) {
+  const doc = this as ISponsorship;
+
+  if (!doc.sponsorName?.trim()) {
+    return next(new Error("Le nom du sponsor est requis."));
+  }
+
+  if (doc.amount !== undefined && doc.amount < 0) {
+    return next(new Error("Le montant du sponsoring ne peut pas être négatif."));
+  }
+
+  next();
+});
+
+const SponsorshipModelInstance: Model<ISponsorship> =
+  (mongoose.models.Sponsorship as Model<ISponsorship>) ||
+  mongoose.model<ISponsorship>("Sponsorship", SponsorshipSchema);
+
+export const SponsorshipModel = SponsorshipModelInstance;

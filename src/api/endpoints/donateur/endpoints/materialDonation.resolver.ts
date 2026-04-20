@@ -1,30 +1,37 @@
 import { MaterialDonationModel } from "../../../../models/material";
 
 export const materialDonationResolvers = {
+  Query: {
+    materialDonations: async () => {
+      return await MaterialDonationModel.find().sort({ createdAt: -1 });
+    },
+  },
+
   Mutation: {
     createMaterialDonation: async (_: any, { input }: any) => {
-      // Validation : adresse requise si PICKUP ou SHIPPING
-      if (
-        (input.deliveryMode === "PICKUP" || input.deliveryMode === "SHIPPING") &&
-        !input.pickupAddress
-      ) {
-        throw new Error("Adresse requise pour le ramassage ou la livraison.");
+      if (!input?.donorName?.trim()) {
+        throw new Error("Le nom du donateur est requis.");
       }
 
-      const material = await MaterialDonationModel.create({
-        donorName: input.donorName,
-        donorPhone: input.donorPhone,
-        donorEmail: input.donorEmail,
-        itemType: input.itemType,
-        condition: input.condition,
+      if (!input?.itemType?.trim()) {
+        throw new Error("Le type d'objet est requis.");
+      }
+
+      if (!input?.quantity || input.quantity <= 0) {
+        throw new Error("La quantité doit être supérieure à 0.");
+      }
+
+      const materialDonation = await MaterialDonationModel.create({
+        donorName: input.donorName.trim(),
+        donorEmail: input.donorEmail?.trim()?.toLowerCase(),
+        donorPhone: input.donorPhone?.trim(),
+        itemType: input.itemType.trim(),
         quantity: input.quantity,
-        deliveryMode: input.deliveryMode,
-        pickupAddress: input.pickupAddress,
-        notes: input.notes,
+        description: input.description?.trim(),
         status: "PENDING",
       });
 
-      return material;
+      return materialDonation;
     },
   },
 };

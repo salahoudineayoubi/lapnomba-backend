@@ -5,14 +5,15 @@ import { campaignResolvers } from "./endpoints/campaign.resolver";
 
 export const donateurResolvers = {
   Query: {
+    ...financialDonationResolvers.Query,
     ...campaignResolvers.Query,
-    ...financialDonationResolvers.Query, // Pour donationById
-    // Ajoute ici d'autres queries si besoin
+    ...materialDonationResolvers.Query,
+    ...sponsorshipResolvers.Query,
   },
   Mutation: {
     ...financialDonationResolvers.Mutation,
     ...materialDonationResolvers.Mutation,
     ...sponsorshipResolvers.Mutation,
     ...campaignResolvers.Mutation,
-  }
+  },
 };
