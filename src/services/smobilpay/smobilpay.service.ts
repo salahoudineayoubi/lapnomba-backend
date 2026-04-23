@@ -32,8 +32,6 @@ export interface SmobilpayOrderRequest {
   totalAmount: number;
   returnUrl: string;
   notificationUrl: string;
-
-  // conservés en optionnel pour plus tard, non envoyés pour l’instant
   optRefOne?: string;
   optRefTwo?: string;
   receiptUrl?: string;
@@ -67,7 +65,6 @@ const cleanPhoneNumber = (phone?: string): string | undefined => {
 
   if (!cleaned) return undefined;
 
-  // 237697123000 -> 697123000
   if (cleaned.startsWith("237") && cleaned.length === 12) {
     return cleaned.slice(3);
   }
@@ -148,7 +145,7 @@ const buildOrderPayloadFromDonation = (
 
   const walletConfig = getWalletConfigFromDonation(donation);
 
-  const payload: SmobilpayOrderRequest = {
+  return {
     currency: donation.currency || smobilpayConfig.defaultCurrency,
     customerName: donation.donorName,
     description: donation.message?.trim() || "Donation Lap Nomba Foundation",
@@ -156,8 +153,6 @@ const buildOrderPayloadFromDonation = (
     expiryDate: expiryDate.toISOString(),
     id: {
       uuid: crypto.randomUUID(),
-      // volontairement omis pour éviter toute incompatibilité sandbox
-      // version: smobilpayConfig.orderVersion,
     },
     items: buildOrderItemsFromDonation(donation),
     langKey: smobilpayConfig.defaultLangKey,
@@ -170,8 +165,6 @@ const buildOrderPayloadFromDonation = (
     returnUrl: buildReturnUrl(String(donation._id), donation),
     notificationUrl: buildNotificationUrl(),
   };
-
-  return payload;
 };
 
 const extractTransactionId = (data: any): string | null => {
@@ -205,6 +198,52 @@ const extractRawStatus = (data: any): string => {
     data?.data?.status ||
     "PENDING"
   );
+};
+
+const mapSmobilpayStatusToInternalStatus = (
+  rawStatus?: string
+): "PENDING" | "COMPLETED" | "FAILED" | "CANCELED" | "REFUNDED" => {
+  const normalized = (rawStatus || "").toUpperCase().trim();
+
+  if (
+    [
+      "CONFIRMED",
+      "SUCCESS",
+      "SUCCESSFUL",
+      "COMPLETED",
+      "COMPLETE",
+      "PAID",
+      "APPROVED",
+    ].includes(normalized)
+  ) {
+    return "COMPLETED";
+  }
+
+  if (
+    [
+      "FAILED",
+      "FAIL",
+      "ERROR",
+      "DECLINED",
+      "REJECTED",
+    ].includes(normalized)
+  ) {
+    return "FAILED";
+  }
+
+  if (["CANCELED", "CANCELLED"].includes(normalized)) {
+    return "CANCELED";
+  }
+
+  if (normalized === "REFUNDED") {
+    return "REFUNDED";
+  }
+
+  if (["IN_PROGRESS", "CREATED", "INITIALISED", "INITIALIZED", "PENDING"].includes(normalized)) {
+    return "PENDING";
+  }
+
+  return "PENDING";
 };
 
 export const createSmobilpayOrderForDonation = async (
@@ -264,10 +303,7 @@ export const createSmobilpayOrderForDonation = async (
   const rawStatus = extractRawStatus(response.data);
 
   if (!paymentUrl) {
-    logger.warn(
-      "⚠️ Aucun paymentUrl/redirectUrl reçu depuis Smobilpay",
-      response.data
-    );
+    logger.warn("⚠️ Aucun paymentUrl/redirectUrl reçu depuis Smobilpay", response.data);
   }
 
   donation.providerReference = payload.merchantReference;
@@ -347,6 +383,14 @@ export const verifyAndSyncDonationWithSmobilpay = async (
     throw new Error("Don introuvable.");
   }
 
+  logger.info("🔎 Vérification donation avant sync", {
+    donationId: donation.id,
+    providerReference: donation.providerReference,
+    providerTransactionId: donation.providerTransactionId,
+    providerStatusRaw: donation.providerStatusRaw,
+    currentStatus: donation.status,
+  });
+
   let statusResponse: any = null;
 
   if (donation.providerTransactionId) {
@@ -363,28 +407,37 @@ export const verifyAndSyncDonationWithSmobilpay = async (
     );
   }
 
+  logger.info("📥 Réponse brute de vérification Smobilpay", statusResponse);
+
   const rawStatus = extractRawStatus(statusResponse);
+  const internalStatus = mapSmobilpayStatusToInternalStatus(rawStatus);
+
   donation.providerStatusRaw = rawStatus;
   donation.providerResponse = statusResponse;
 
-  const normalized = rawStatus.toUpperCase().trim();
-
-  if (["SUCCESS", "COMPLETED", "PAID", "APPROVED"].includes(normalized)) {
+  if (internalStatus === "COMPLETED") {
     if (donation.status !== "COMPLETED") {
       donation.status = "COMPLETED";
       donation.paidAt = new Date();
       donation.failedAt = undefined;
     }
-  } else if (["FAILED", "ERROR", "DECLINED"].includes(normalized)) {
+  } else if (internalStatus === "FAILED") {
     donation.status = "FAILED";
     donation.failedAt = new Date();
-  } else if (["CANCELED", "CANCELLED"].includes(normalized)) {
+  } else if (internalStatus === "CANCELED") {
     donation.status = "CANCELED";
-  } else if (normalized === "REFUNDED") {
+  } else if (internalStatus === "REFUNDED") {
     donation.status = "REFUNDED";
   } else {
     donation.status = "PENDING";
   }
+
+  logger.info("✅ Statut donation après mapping", {
+    donationId: donation.id,
+    rawStatus,
+    internalStatus,
+    finalStatus: donation.status,
+  });
 
   await donation.save();
 

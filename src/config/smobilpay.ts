@@ -11,7 +11,7 @@ const toNumber = (value: string | undefined, fallback: number): number => {
 };
 
 export const smobilpayConfig = {
-  appBaseUrl: process.env.APP_BASE_URL || "http://localhost:4000",
+  appBaseUrl: required(process.env.APP_BASE_URL, "APP_BASE_URL"),
 
   consumerKey: required(
     process.env.SMOBILPAY_CONSUMER_KEY,
@@ -22,51 +22,59 @@ export const smobilpayConfig = {
     "SMOBILPAY_CONSUMER_SECRET"
   ),
 
-  tokenUrl:
-    process.env.SMOBILPAY_TOKEN_URL ||
-    "https://api.enkap-staging.maviance.info/token",
+  tokenUrl: required(
+    process.env.SMOBILPAY_TOKEN_URL,
+    "SMOBILPAY_TOKEN_URL"
+  ),
 
-  orderUrl:
-    process.env.SMOBILPAY_ORDER_URL ||
-    "https://api.enkap-staging.maviance.info/purchase/v1.2/api/order",
+  orderUrl: required(
+    process.env.SMOBILPAY_ORDER_URL,
+    "SMOBILPAY_ORDER_URL"
+  ),
 
-  orderStatusUrl:
-    process.env.SMOBILPAY_ORDER_STATUS_URL ||
-    "https://api.enkap-staging.maviance.info/purchase/v1.2/api/order/status",
+  orderStatusUrl: required(
+    process.env.SMOBILPAY_ORDER_STATUS_URL,
+    "SMOBILPAY_ORDER_STATUS_URL"
+  ),
 
-  orderDetailsUrl:
-    process.env.SMOBILPAY_ORDER_DETAILS_URL ||
-    "https://api.enkap-staging.maviance.info/purchase/v1.2/api/order",
+  orderDetailsUrl: required(
+    process.env.SMOBILPAY_ORDER_DETAILS_URL,
+    "SMOBILPAY_ORDER_DETAILS_URL"
+  ),
 
-  callbackUrl:
-    process.env.SMOBILPAY_CALLBACK_URL ||
-    `${process.env.APP_BASE_URL || "http://localhost:4000"}/api/smobilpay/webhook`,
+  callbackUrl: required(
+    process.env.SMOBILPAY_CALLBACK_URL,
+    "SMOBILPAY_CALLBACK_URL"
+  ),
 
-  returnUrl:
-    process.env.SMOBILPAY_RETURN_URL ||
-    "https://donate.lapnomba.org/payment/return",
+  returnUrl: required(
+    process.env.SMOBILPAY_RETURN_URL,
+    "SMOBILPAY_RETURN_URL"
+  ),
 
-  defaultCurrency: process.env.SMOBILPAY_DEFAULT_CURRENCY || "XAF",
-  defaultLangKey: process.env.SMOBILPAY_DEFAULT_LANG_KEY || "en",
-  orderVersion: process.env.SMOBILPAY_ORDER_VERSION || "V1.2",
+  defaultCurrency: process.env.SMOBILPAY_DEFAULT_CURRENCY?.trim() || "XAF",
+  defaultLangKey: process.env.SMOBILPAY_DEFAULT_LANG_KEY?.trim() || "en",
+  orderVersion: process.env.SMOBILPAY_ORDER_VERSION?.trim() || "V1.2",
 
   requestTimeoutMs: toNumber(process.env.SMOBILPAY_TIMEOUT_MS, 30000),
 
-  /**
-   * Mapping CashIn pour dons
-   * Orange Money donation => CMORANGEOM / 30052
-   * MTN MoMo donation => CMMTNMOMO / 20052
-   */
-  orangeMoneyMerchantCode:
-    process.env.SMOBILPAY_ORANGE_MERCHANT_CODE || "CMORANGEOM",
+  orangeMoneyMerchantCode: required(
+    process.env.SMOBILPAY_ORANGE_MERCHANT_CODE,
+    "SMOBILPAY_ORANGE_MERCHANT_CODE"
+  ),
   orangeMoneyServiceId: toNumber(
     process.env.SMOBILPAY_ORANGE_SERVICE_ID,
     30052
   ),
 
-  mtnMomoMerchantCode:
-    process.env.SMOBILPAY_MTN_MERCHANT_CODE || "CMMTNMOMO",
-  mtnMomoServiceId: toNumber(process.env.SMOBILPAY_MTN_SERVICE_ID, 20052),
+  mtnMomoMerchantCode: required(
+    process.env.SMOBILPAY_MTN_MERCHANT_CODE,
+    "SMOBILPAY_MTN_MERCHANT_CODE"
+  ),
+  mtnMomoServiceId: toNumber(
+    process.env.SMOBILPAY_MTN_SERVICE_ID,
+    20052
+  ),
 };
 
 export default smobilpayConfig;
