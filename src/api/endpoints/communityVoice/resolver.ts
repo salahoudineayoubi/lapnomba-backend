@@ -1,6 +1,120 @@
 import { sendMail } from "../../../utils/sendMail";
 import { CommunityVoiceModel } from "../../../models/communityvoice";
 
+const buildCommunityVoiceMail = (
+  type: "CONFIRMATION" | "APPROVAL" | "REJECTION",
+  name: string
+): { subject: string; text: string; html: string } => {
+  const safeName = name?.trim() || "Cher contributeur";
+
+  const messages = {
+    CONFIRMATION: {
+      subject: "Confirmation de réception de votre avis - Fondation Lap Nomba",
+      text: `Bonjour ${safeName},
+
+Nous vous remercions pour votre contribution à la Fondation Lap Nomba.
+
+Votre avis a bien été reçu et est actuellement en attente de modération par notre équipe.
+
+Nous vous informerons dès qu’il sera approuvé et publié.
+
+Cordialement,
+Fondation Lap Nomba`,
+      html: `
+        <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
+          <h2>Confirmation de réception de votre avis</h2>
+          <p>Bonjour <strong>${safeName}</strong>,</p>
+          <p>
+            Nous vous remercions pour votre contribution à la
+            <strong>Fondation Lap Nomba</strong>.
+          </p>
+          <p>
+            Votre avis a bien été reçu et est actuellement en attente de modération
+            par notre équipe.
+          </p>
+          <p>
+            Nous vous informerons dès qu’il sera approuvé et publié.
+          </p>
+          <p>
+            Cordialement,<br />
+            <strong>Fondation Lap Nomba</strong>
+          </p>
+        </div>
+      `,
+    },
+
+    APPROVAL: {
+      subject: "Votre avis a été approuvé - Fondation Lap Nomba",
+      text: `Bonjour ${safeName},
+
+Bonne nouvelle.
+
+Votre avis a été approuvé et publié sur notre plateforme.
+
+Nous vous remercions pour votre contribution à la communauté Lap Nomba et pour votre confiance.
+
+Cordialement,
+Fondation Lap Nomba`,
+      html: `
+        <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
+          <h2>Votre avis a été approuvé</h2>
+          <p>Bonjour <strong>${safeName}</strong>,</p>
+          <p>
+            Bonne nouvelle.
+          </p>
+          <p>
+            Votre avis a été approuvé et publié sur notre plateforme.
+          </p>
+          <p>
+            Nous vous remercions pour votre contribution à la communauté Lap Nomba
+            et pour votre confiance.
+          </p>
+          <p>
+            Cordialement,<br />
+            <strong>Fondation Lap Nomba</strong>
+          </p>
+        </div>
+      `,
+    },
+
+    REJECTION: {
+      subject: "Mise à jour concernant votre avis - Fondation Lap Nomba",
+      text: `Bonjour ${safeName},
+
+Nous vous remercions pour votre contribution.
+
+Après examen, votre avis n’a pas été retenu pour publication sur notre plateforme.
+
+Nous vous remercions pour votre compréhension et pour l’intérêt que vous portez aux actions de la Fondation Lap Nomba.
+
+Cordialement,
+Fondation Lap Nomba`,
+      html: `
+        <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
+          <h2>Mise à jour concernant votre avis</h2>
+          <p>Bonjour <strong>${safeName}</strong>,</p>
+          <p>
+            Nous vous remercions pour votre contribution.
+          </p>
+          <p>
+            Après examen, votre avis n’a pas été retenu pour publication sur notre plateforme.
+          </p>
+          <p>
+            Nous vous remercions pour votre compréhension et pour l’intérêt que vous
+            portez aux actions de la Fondation Lap Nomba.
+          </p>
+          <p>
+            Cordialement,<br />
+            <strong>Fondation Lap Nomba</strong>
+          </p>
+        </div>
+      `,
+    },
+  };
+
+  return messages[type];
+};
+
 export const communityVoiceResolvers = {
   Query: {
     getApprovedVoices: async () => {
@@ -30,20 +144,17 @@ export const communityVoiceResolvers = {
 
         if (email) {
           try {
-            await sendMail(
-              email,
-              "Confirmation de réception de votre avis - Fondation Lap Nomba",
-              `Bonjour ${name},
-
-Nous vous remercions pour votre contribution à la Fondation Lap Nomba.
-
-Votre avis a bien été reçu et est actuellement en attente de modération par notre équipe.
-
-Nous vous informerons dès qu'il sera approuvé et publié.
-
-Cordialement,
-Fondation Lap Nomba`
+            const { subject, text, html } = buildCommunityVoiceMail(
+              "CONFIRMATION",
+              name
             );
+
+            await sendMail({
+              to: email,
+              subject,
+              text,
+              html,
+            });
           } catch (mailError) {
             console.error(
               "[CommunityVoice] Erreur envoi mail confirmation :",
@@ -82,20 +193,17 @@ Fondation Lap Nomba`
 
         if (voice.email) {
           try {
-            await sendMail(
-              voice.email,
-              "Votre avis a été approuvé - Fondation Lap Nomba",
-              `Bonjour ${voice.name},
-
-Bonne nouvelle !
-
-Votre avis a été approuvé et publié sur notre plateforme.
-
-Merci pour votre contribution à la communauté Lap Nomba.
-
-Cordialement,
-Fondation Lap Nomba`
+            const { subject, text, html } = buildCommunityVoiceMail(
+              "APPROVAL",
+              voice.name
             );
+
+            await sendMail({
+              to: voice.email,
+              subject,
+              text,
+              html,
+            });
           } catch (mailError) {
             console.error(
               "[CommunityVoice] Erreur envoi mail approbation :",
@@ -132,20 +240,17 @@ Fondation Lap Nomba`
 
         if (voice.email) {
           try {
-            await sendMail(
-              voice.email,
-              "Mise à jour de votre avis - Fondation Lap Nomba",
-              `Bonjour ${voice.name},
-
-Nous vous remercions pour votre contribution.
-
-Après vérification, votre avis n'a pas été retenu pour publication.
-
-Merci pour votre compréhension.
-
-Cordialement,
-Fondation Lap Nomba`
+            const { subject, text, html } = buildCommunityVoiceMail(
+              "REJECTION",
+              voice.name
             );
+
+            await sendMail({
+              to: voice.email,
+              subject,
+              text,
+              html,
+            });
           } catch (mailError) {
             console.error(
               "[CommunityVoice] Erreur envoi mail suppression :",

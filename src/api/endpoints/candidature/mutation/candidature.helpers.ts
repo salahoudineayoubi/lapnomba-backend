@@ -6,82 +6,193 @@ import { sendMail } from "../../../../utils/sendMail";
 /**
  * Gère l'upload des fichiers.
  * Photo -> Cloudinary
- * CV -> Stockage Local (pour éviter les erreurs d'affichage Cloudinary PDF)
+ * CV -> Stockage Local
  */
 export const handleFileUploads = async (input: any) => {
   let photoUrl = input.photo;
   let cvUrl = input.cv;
 
   try {
-    // 1. Gestion de la Photo (Cloudinary)
     if (photoUrl && photoUrl.startsWith("data:")) {
-      const res = await uploadFromBase64(photoUrl, { 
+      const res = await uploadFromBase64(photoUrl, {
         folder: "candidatures/photos",
-        resource_type: "image" 
+        resource_type: "image",
       });
       photoUrl = res.secure_url;
     }
 
-    // 2. Gestion du CV (Stockage Local)
     if (cvUrl && cvUrl.startsWith("data:")) {
-      // On extrait les données Base64
       const base64Data = cvUrl.split(";base64,").pop();
-      // On génère un nom de fichier unique
       const fileName = `cv-${Date.now()}-${Math.floor(Math.random() * 1000)}.pdf`;
-      
-      // On définit les chemins
+
       const uploadDir = path.join(process.cwd(), "public", "uploads", "cv");
       const filePath = path.join(uploadDir, fileName);
 
-      // Création du dossier s'il n'existe pas
       if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir, { recursive: true });
       }
 
-      // Écriture du fichier sur le disque
-      fs.writeFileSync(filePath, base64Data!, { encoding: 'base64' });
+      fs.writeFileSync(filePath, base64Data!, { encoding: "base64" });
 
-      // On stocke le chemin relatif (ex: /uploads/cv/cv-123.pdf)
       cvUrl = `/uploads/cv/${fileName}`;
     }
 
-    // SÉCURITÉ : Vérification minimale
-    if (photoUrl && !photoUrl.startsWith("http")) photoUrl = null;
-    // Pour le CV, on vérifie s'il commence par /uploads ou http
-    if (cvUrl && !cvUrl.startsWith("/") && !cvUrl.startsWith("http")) cvUrl = null;
+    if (photoUrl && !photoUrl.startsWith("http")) {
+      photoUrl = null;
+    }
+
+    if (cvUrl && !cvUrl.startsWith("/") && !cvUrl.startsWith("http")) {
+      cvUrl = null;
+    }
 
     return { photoUrl, cvUrl };
   } catch (error) {
-    console.error("Erreur lors du traitement des fichiers:", error);
+    console.error("Erreur lors du traitement des fichiers :", error);
     return { photoUrl: null, cvUrl: null };
   }
+};
+
+const buildCandidateStatusMail = (
+  type: "CONFIRMATION" | "APPROBATION" | "REFUS",
+  nom: string
+): { subject: string; text: string; html: string } => {
+  const safeName = nom?.trim() || "Cher candidat";
+
+  const messages = {
+    CONFIRMATION: {
+      subject: "Accusé de réception de votre candidature - Fondation Lap Nomba",
+      text: `Bonjour ${safeName},
+
+Nous vous confirmons la bonne réception de votre dossier de candidature.
+
+Notre équipe procède actuellement à l’examen de votre profil ainsi qu’à l’évaluation des éléments transmis.
+
+Nous vous remercions pour l’intérêt porté à la mission de la Fondation Lap Nomba et reviendrons vers vous très prochainement.
+
+Cordialement,
+La Direction de la Formation
+Fondation Lap Nomba`,
+      html: `
+        <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
+          <h2>Accusé de réception de votre candidature</h2>
+          <p>Bonjour <strong>${safeName}</strong>,</p>
+          <p>
+            Nous vous confirmons la bonne réception de votre dossier de candidature.
+          </p>
+          <p>
+            Notre équipe procède actuellement à l’examen de votre profil ainsi qu’à
+            l’évaluation des éléments transmis.
+          </p>
+          <p>
+            Nous vous remercions pour l’intérêt porté à la mission de la
+            <strong>Fondation Lap Nomba</strong> et reviendrons vers vous très prochainement.
+          </p>
+          <p>
+            Cordialement,<br />
+            <strong>La Direction de la Formation</strong><br />
+            Fondation Lap Nomba
+          </p>
+        </div>
+      `,
+    },
+
+    APPROBATION: {
+      subject: "Validation de votre candidature - Fondation Lap Nomba",
+      text: `Bonjour ${safeName},
+
+Nous avons le plaisir de vous informer que votre candidature a été approuvée.
+
+Vous pouvez désormais contacter notre équipe sur WhatsApp pour rejoindre votre groupe de formation et recevoir les prochaines consignes :
+
+https://wa.me/237672018999
+
+Nous vous félicitons pour cette étape et vous souhaitons la bienvenue au sein de l’écosystème de la Fondation Lap Nomba.
+
+Cordialement,
+La Direction de la Formation
+Fondation Lap Nomba`,
+      html: `
+        <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
+          <h2>Validation de votre candidature</h2>
+          <p>Bonjour <strong>${safeName}</strong>,</p>
+          <p>
+            Nous avons le plaisir de vous informer que votre candidature a été approuvée.
+          </p>
+          <p>
+            Vous pouvez désormais contacter notre équipe sur WhatsApp pour rejoindre
+            votre groupe de formation et recevoir les prochaines consignes :
+          </p>
+          <p>
+            <a href="https://wa.me/237672018999">https://wa.me/237672018999</a>
+          </p>
+          <p>
+            Nous vous félicitons pour cette étape et vous souhaitons la bienvenue au sein
+            de l’écosystème de la <strong>Fondation Lap Nomba</strong>.
+          </p>
+          <p>
+            Cordialement,<br />
+            <strong>La Direction de la Formation</strong><br />
+            Fondation Lap Nomba
+          </p>
+        </div>
+      `,
+    },
+
+    REFUS: {
+      subject: "Décision concernant votre candidature - Fondation Lap Nomba",
+      text: `Bonjour ${safeName},
+
+Après examen attentif de votre dossier, nous sommes au regret de vous informer que nous ne pouvons pas donner une suite favorable à votre candidature pour cette session.
+
+Nous vous remercions pour l’intérêt accordé à nos programmes et vous encourageons à poursuivre vos efforts dans votre parcours.
+
+Cordialement,
+La Direction de la Formation
+Fondation Lap Nomba`,
+      html: `
+        <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
+          <h2>Décision concernant votre candidature</h2>
+          <p>Bonjour <strong>${safeName}</strong>,</p>
+          <p>
+            Après examen attentif de votre dossier, nous sommes au regret de vous
+            informer que nous ne pouvons pas donner une suite favorable à votre
+            candidature pour cette session.
+          </p>
+          <p>
+            Nous vous remercions pour l’intérêt accordé à nos programmes et vous
+            encourageons à poursuivre vos efforts dans votre parcours.
+          </p>
+          <p>
+            Cordialement,<br />
+            <strong>La Direction de la Formation</strong><br />
+            Fondation Lap Nomba
+          </p>
+        </div>
+      `,
+    },
+  };
+
+  return messages[type];
 };
 
 /**
  * Gère l'envoi des emails transactionnels
  */
-export const sendStatusEmail = async (email: string, nom: string, type: 'CONFIRMATION' | 'APPROBATION' | 'REFUS') => {
-  const contents = {
-    CONFIRMATION: {
-      subject: "Accusé de réception - Fondation Lap Nomba",
-      body: `Bonjour ${nom},\n\nNous vous confirmons la bonne réception de votre dossier de candidature. Notre équipe procède actuellement à l'évaluation technique.`
-    },
-    APPROBATION: {
-      subject: "Félicitations - Admission Fondation Lap Nomba",
-      body: `Bonjour ${nom},\n\nNous avons le plaisir de vous informer que votre candidature a été approuvée !\n\nProchaine étape : Contactez notre équipe sur WhatsApp pour rejoindre votre groupe de formation :\n👉 https://wa.me/237672018999`
-    },
-    REFUS: {
-      subject: "Décision concernant votre candidature - Fondation Lap Nomba",
-      body: `Bonjour ${nom},\n\nAprès examen de votre dossier, nous avons le regret de vous informer que nous ne pouvons pas donner une suite favorable à votre demande pour cette session.\n\nNous vous encourageons à persévérer dans vos projets.`
-    }
-  };
-
+export const sendStatusEmail = async (
+  email: string,
+  nom: string,
+  type: "CONFIRMATION" | "APPROBATION" | "REFUS"
+) => {
   try {
-    const { subject, body } = contents[type];
-    const footer = `\n\nCordialement,\nLa Direction de la Formation\nFondation Lap Nomba\n"Former Pour Transformer "`;
+    const { subject, text, html } = buildCandidateStatusMail(type, nom);
 
-    await sendMail(email, subject, body + footer);
+    await sendMail({
+      to: email,
+      subject,
+      text,
+      html,
+    });
   } catch (error) {
-    console.error(`Erreur lors de l'envoi de l'email (${type}) à ${email}:`, error);
+    console.error(`Erreur lors de l'envoi de l'email (${type}) à ${email} :`, error);
   }
 };

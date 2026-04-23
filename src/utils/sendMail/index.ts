@@ -1,12 +1,23 @@
 import nodemailer from "nodemailer";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
 
-export const sendMail = async (to: string, subject: string, text: string) => {
-  // Création du transporteur SMTP (typé correctement)
+type SendMailParams = {
+  to: string;
+  subject: string;
+  text?: string;
+  html?: string;
+};
+
+export const sendMail = async ({
+  to,
+  subject,
+  text,
+  html,
+}: SendMailParams) => {
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST || "node26-ca.n0c.com",
     port: Number(process.env.SMTP_PORT) || 465,
-    secure: true,          // false pour TLS, true pour SSL
+    secure: true,
     requireTLS: true,
     auth: {
       user: process.env.SMTP_USER || "contact@lapnomba.org",
@@ -18,7 +29,7 @@ export const sendMail = async (to: string, subject: string, text: string) => {
     connectionTimeout: 30000,
     socketTimeout: 30000,
     family: 4,
-  } as SMTPTransport.Options); // ⚠️ TypeScript accepte maintenant le host/port/etc.
+  } as SMTPTransport.Options);
 
   try {
     await transporter.verify();
@@ -29,9 +40,12 @@ export const sendMail = async (to: string, subject: string, text: string) => {
   }
 
   return await transporter.sendMail({
-    from: `"Fondation Lap Nomba" <${process.env.SMTP_USER || "contact@lapnomba.org"}>`,
+    from: `"Fondation Lap Nomba" <${
+      process.env.SMTP_USER || "contact@lapnomba.org"
+    }>`,
     to,
     subject,
     text,
+    html,
   });
 };
