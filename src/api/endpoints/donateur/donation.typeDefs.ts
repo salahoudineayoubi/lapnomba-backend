@@ -116,6 +116,14 @@ export const donateurTypeDefs = gql`
     message: String
   }
 
+type DonationStats {
+    totalAmount: Float!
+    totalCompleted: Float!
+    totalPending: Float!
+    totalFailed: Float!
+    count: Int!
+  }
+    
   input CreateFinancialDonationInput {
     donorName: String!
     donorEmail: String!
@@ -192,6 +200,7 @@ export const donateurTypeDefs = gql`
   type Query {
     donations: [Donation!]!
     donationById(id: ID!): Donation
+    donationStats: DonationStats! 
 
     crowdfundingCampaigns(limit: Int): [CrowdfundingCampaign!]!
     campaignBySlug(slug: String!): CrowdfundingCampaign

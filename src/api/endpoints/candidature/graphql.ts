@@ -1,6 +1,13 @@
 import { gql } from "apollo-server-express";
 
 export const candidatureTypeDefs = gql`
+  type CandidatureStats {
+    total: Int!
+    enAttente: Int!
+    approuvee: Int!
+    refusee: Int!
+  }
+
   type Candidature {
     id: ID!
     nomComplet: String!
@@ -62,6 +69,9 @@ export const candidatureTypeDefs = gql`
   type Query {
     candidatures: [Candidature!]!
     candidatureById(id: ID!): Candidature
+
+    # 🔥 NEW DASHBOARD STATS
+    candidatureStats: CandidatureStats!
   }
 
   type Mutation {

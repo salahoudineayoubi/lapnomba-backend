@@ -24,10 +24,48 @@ export const financialDonationResolvers = {
       return await DonationModel.find().sort({ createdAt: -1 });
     },
 
-    donationById: async (_: any, { id }: { id: string }) => {
+    donationById: async (_: any, { id }: any) => {
       return await DonationModel.findById(id);
     },
+
+    donationStats: async () => {
+      const stats = await DonationModel.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalAmount: { $sum: "$amount" },
+            totalCompleted: {
+              $sum: {
+                $cond: [{ $eq: ["$status", "COMPLETED"] }, "$amount", 0],
+              },
+            },
+            totalPending: {
+              $sum: {
+                $cond: [{ $eq: ["$status", "PENDING"] }, "$amount", 0],
+              },
+            },
+            totalFailed: {
+              $sum: {
+                $cond: [{ $eq: ["$status", "FAILED"] }, "$amount", 0],
+              },
+            },
+            count: { $sum: 1 },
+          },
+        },
+      ]);
+
+      return (
+        stats[0] || {
+          totalAmount: 0,
+          totalCompleted: 0,
+          totalPending: 0,
+          totalFailed: 0,
+          count: 0,
+        }
+      );
+    },
   },
+
 
   Mutation: {
     createFinancialDonation: async (_: any, { input }: any) => {
