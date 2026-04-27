@@ -20,13 +20,33 @@ import { donationMessages } from "./financia/message";
 
 export const financialDonationResolvers = {
   Query: {
-    donations: async () => {
-      return await DonationModel.find().sort({ createdAt: -1 });
-    },
+  donations: async () => {
+    const donations = await DonationModel.find().sort({ createdAt: -1 });
 
-    donationById: async (_: any, { id }: any) => {
-      return await DonationModel.findById(id);
-    },
+    return donations.map((d: any) => ({
+      ...d.toObject(),
+
+      // 🔥 FIX CRITIQUE
+      createdAt: d.createdAt
+        ? new Date(d.createdAt).getTime()
+        : null,
+    }));
+  },
+
+  donationById: async (_: any, { id }: any) => {
+    const d = await DonationModel.findById(id);
+
+    if (!d) return null;
+
+    return {
+      ...d.toObject(),
+
+      // 🔥 FIX ICI AUSSI
+      createdAt: d.createdAt
+        ? new Date(d.createdAt).getTime()
+        : null,
+    };
+  },
 
     donationStats: async () => {
       const stats = await DonationModel.aggregate([

@@ -11,6 +11,8 @@ import { sendMail } from "../../../../utils/sendMail";
 export const handleFileUploads = async (input: any) => {
   let photoUrl = input.photo;
   let cvUrl = input.cv;
+const BASE_URL =
+  process.env.APP_BASE_URL || "https://lobster-app-vdl5o.ondigitalocean.app";
 
   try {
     if (photoUrl && photoUrl.startsWith("data:")) {
@@ -18,12 +20,15 @@ export const handleFileUploads = async (input: any) => {
         folder: "candidatures/photos",
         resource_type: "image",
       });
+
       photoUrl = res.secure_url;
     }
 
     if (cvUrl && cvUrl.startsWith("data:")) {
       const base64Data = cvUrl.split(";base64,").pop();
-      const fileName = `cv-${Date.now()}-${Math.floor(Math.random() * 1000)}.pdf`;
+      const fileName = `cv-${Date.now()}-${Math.floor(
+        Math.random() * 1000
+      )}.pdf`;
 
       const uploadDir = path.join(process.cwd(), "public", "uploads", "cv");
       const filePath = path.join(uploadDir, fileName);
@@ -34,14 +39,15 @@ export const handleFileUploads = async (input: any) => {
 
       fs.writeFileSync(filePath, base64Data!, { encoding: "base64" });
 
-      cvUrl = `/uploads/cv/${fileName}`;
+      // ✅ URL complète du backend, sans /graphql
+      cvUrl = `${BASE_URL}/uploads/cv/${fileName}`;
     }
 
     if (photoUrl && !photoUrl.startsWith("http")) {
       photoUrl = null;
     }
 
-    if (cvUrl && !cvUrl.startsWith("/") && !cvUrl.startsWith("http")) {
+    if (cvUrl && !cvUrl.startsWith("http")) {
       cvUrl = null;
     }
 

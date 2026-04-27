@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { transformPlugin } from "../models/plugins/transform.plugin"; // adapte le chemin
 
 export interface IDeveloper extends Document {
   nomComplet: string;
@@ -8,6 +9,7 @@ export interface IDeveloper extends Document {
   motivation?: string;
   disponible4h: boolean;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const DeveloperSchema: Schema = new Schema(
@@ -22,4 +24,8 @@ const DeveloperSchema: Schema = new Schema(
   { timestamps: true }
 );
 
-export default mongoose.models.Developer || mongoose.model<IDeveloper>("Developer", DeveloperSchema);
+// ✅ important
+DeveloperSchema.plugin(transformPlugin);
+
+export default mongoose.models.Developer ||
+  mongoose.model<IDeveloper>("Developer", DeveloperSchema);

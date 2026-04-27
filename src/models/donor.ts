@@ -1,4 +1,7 @@
 import mongoose, { Document, Model, Schema, Types } from "mongoose";
+import { transformPlugin } from "../models/plugins/transform.plugin";
+
+/* ================= TYPES ================= */
 
 export type DonationCategory =
   | "FINANCIAL"
@@ -22,6 +25,8 @@ export type PaymentStatus =
   | "REFUNDED";
 
 export type PaymentProvider = "MOMO" | "OM" | "CARD" | "CRYPTO";
+
+/* ================= INTERFACES ================= */
 
 export interface IBankTransferInfo {
   reference?: string;
@@ -68,6 +73,8 @@ export interface IDonation extends Document {
   updatedAt: Date;
 }
 
+/* ================= SUB SCHEMA ================= */
+
 const BankTransferInfoSchema = new Schema<IBankTransferInfo>(
   {
     reference: { type: String, trim: true },
@@ -78,13 +85,11 @@ const BankTransferInfoSchema = new Schema<IBankTransferInfo>(
   { _id: false }
 );
 
+/* ================= MAIN SCHEMA ================= */
+
 const DonationSchema = new Schema<IDonation>(
   {
-    donorName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+    donorName: { type: String, required: true, trim: true },
 
     donorEmail: {
       type: String,
@@ -93,15 +98,9 @@ const DonationSchema = new Schema<IDonation>(
       lowercase: true,
     },
 
-    donorPhone: {
-      type: String,
-      trim: true,
-    },
+    donorPhone: { type: String, trim: true },
 
-    anonymous: {
-      type: Boolean,
-      default: false,
-    },
+    anonymous: { type: Boolean, default: false },
 
     category: {
       type: String,
@@ -110,11 +109,7 @@ const DonationSchema = new Schema<IDonation>(
       index: true,
     },
 
-    amount: {
-      type: Number,
-      required: true,
-      min: 0.01,
-    },
+    amount: { type: Number, required: true, min: 0.01 },
 
     currency: {
       type: String,
@@ -124,15 +119,9 @@ const DonationSchema = new Schema<IDonation>(
       trim: true,
     },
 
-    message: {
-      type: String,
-      trim: true,
-    },
+    message: { type: String, trim: true },
 
-    futureContact: {
-      type: Boolean,
-      default: false,
-    },
+    futureContact: { type: Boolean, default: false },
 
     paymentMethod: {
       type: String,
@@ -154,46 +143,15 @@ const DonationSchema = new Schema<IDonation>(
       index: true,
     },
 
-    providerOrderId: {
-      type: String,
-      trim: true,
-      index: true,
-    },
+    providerOrderId: { type: String, trim: true, index: true },
+    providerCaptureId: { type: String, trim: true },
+    providerTransactionId: { type: String, trim: true, index: true },
+    providerReference: { type: String, trim: true, index: true },
+    providerPaymentUrl: { type: String, trim: true },
+    providerStatusRaw: { type: String, trim: true },
 
-    providerCaptureId: {
-      type: String,
-      trim: true,
-    },
-
-    providerTransactionId: {
-      type: String,
-      trim: true,
-      index: true,
-    },
-
-    providerReference: {
-      type: String,
-      trim: true,
-      index: true,
-    },
-
-    providerPaymentUrl: {
-      type: String,
-      trim: true,
-    },
-
-    providerStatusRaw: {
-      type: String,
-      trim: true,
-    },
-
-    providerResponse: {
-      type: Schema.Types.Mixed,
-    },
-
-    webhookPayload: {
-      type: Schema.Types.Mixed,
-    },
+    providerResponse: { type: Schema.Types.Mixed },
+    webhookPayload: { type: Schema.Types.Mixed },
 
     bankTransfer: {
       type: BankTransferInfoSchema,
@@ -216,18 +174,15 @@ const DonationSchema = new Schema<IDonation>(
       index: true,
     },
 
-    paidAt: {
-      type: Date,
-    },
-
-    failedAt: {
-      type: Date,
-    },
+    paidAt: { type: Date },
+    failedAt: { type: Date },
   },
   {
     timestamps: true,
   }
 );
+
+/* ================= INDEX ================= */
 
 DonationSchema.index({ donorEmail: 1, createdAt: -1 });
 DonationSchema.index({ status: 1, createdAt: -1 });
@@ -237,6 +192,8 @@ DonationSchema.index({ provider: 1, providerOrderId: 1 });
 DonationSchema.index({ provider: 1, providerTransactionId: 1 });
 DonationSchema.index({ providerReference: 1 });
 DonationSchema.index({ paymentMethod: 1, createdAt: -1 });
+
+/* ================= VALIDATION ================= */
 
 DonationSchema.pre("validate", function (next) {
   const doc = this as IDonation;
@@ -282,12 +239,17 @@ DonationSchema.pre("validate", function (next) {
     doc.bankTransfer = undefined;
   }
 
-  if (doc.paymentMethod === "BANK_TRANSFER" && !doc.bankTransfer?.reference?.trim()) {
+  if (
+    doc.paymentMethod === "BANK_TRANSFER" &&
+    !doc.bankTransfer?.reference?.trim()
+  ) {
     return next(new Error("La référence du virement bancaire est requise."));
   }
 
   next();
 });
+
+/* ================= HELPERS ================= */
 
 export const providerFromPaymentMethod = (
   method: PaymentMethod
@@ -298,6 +260,12 @@ export const providerFromPaymentMethod = (
   if (method === "CRYPTO") return "CRYPTO";
   return undefined;
 };
+
+/* ================= PLUGIN (🔥 IMPORTANT) ================= */
+
+DonationSchema.plugin(transformPlugin);
+
+/* ================= MODEL ================= */
 
 const DonationModelInstance: Model<IDonation> =
   (mongoose.models.Donation as Model<IDonation>) ||

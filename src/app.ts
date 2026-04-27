@@ -17,25 +17,24 @@ async function startServer() {
 
     const app: Application = express();
 
-    // --- CONFIGURATION DES DOSSIERS DE STOCKAGE ---
+    const port = Number(process.env.PORT) || 4000;
+
+    const appBaseUrl =
+      process.env.APP_BASE_URL ||
+      "https://lobster-app-vdl5o.ondigitalocean.app";
+
+    // --- DOSSIERS PUBLICS ---
     const publicBase = path.join(process.cwd(), "public");
     const receiptsPath = path.join(publicBase, "receipts");
-    const cvPath = path.join(publicBase, "uploads", "cv");
+    const uploadsPath = path.join(publicBase, "uploads");
+    const cvPath = path.join(uploadsPath, "cv");
 
-    [receiptsPath, cvPath].forEach((dir) => {
+    [receiptsPath, uploadsPath, cvPath].forEach((dir) => {
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
-        logger.info(`📁 Dossier créé ou vérifié : ${dir}`);
+        logger.info(`📁 Dossier créé : ${dir}`);
       }
     });
-
-    // --- MIDDLEWARES ---
-    app.use(express.json({ limit: "20mb" }));
-    app.use(express.urlencoded({ limit: "20mb", extended: true }));
-
-    // --- FICHIERS STATIQUES ---
-    app.use("/receipts", express.static(receiptsPath));
-    app.use("/uploads/cv", express.static(cvPath));
 
     // --- CORS ---
     app.use(
@@ -49,6 +48,23 @@ async function startServer() {
           "https://donate.lapnomba.org",
         ],
         credentials: true,
+      })
+    );
+
+    // --- MIDDLEWARES ---
+    app.use(express.json({ limit: "20mb" }));
+    app.use(express.urlencoded({ limit: "20mb", extended: true }));
+
+    // --- FICHIERS STATIQUES ---
+    app.use("/receipts", express.static(receiptsPath));
+
+    app.use(
+      "/uploads",
+      express.static(uploadsPath, {
+        setHeaders: (res) => {
+          res.setHeader("Access-Control-Allow-Origin", "*");
+          res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+        },
       })
     );
 
@@ -71,15 +87,11 @@ async function startServer() {
       cors: false,
     });
 
-    const port = Number(process.env.PORT) || 4000;
-    const appBaseUrl =
-      process.env.APP_BASE_URL ||
-      `http://localhost:${port}`;
-
     app.listen(port, () => {
       logger.info(`🚀 Serveur actif sur le port ${port}`);
       logger.info(`📄 GraphQL : ${appBaseUrl}/graphql`);
-      logger.info(`📂 CV locaux : ${appBaseUrl}/uploads/cv/`);
+      logger.info(`📂 Uploads : ${appBaseUrl}/uploads/`);
+      logger.info(`📂 CV : ${appBaseUrl}/uploads/cv/`);
       logger.info(`💳 Smobilpay webhook : ${appBaseUrl}/api/smobilpay/webhook`);
       logger.info(`🔍 Smobilpay health : ${appBaseUrl}/api/smobilpay/health`);
     });

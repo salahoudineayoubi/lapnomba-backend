@@ -40,6 +40,8 @@ import { developerResolvers } from "./developer/resolvers";
 
 import { materialTypeDefs } from "./material/graphql";
 import { materialResolvers } from "./material/resolvers";
+import { academyTypeDefs } from "./academy/graph";
+import { academyResolvers } from "./academy/resolver";
 
 export const typeDefs = [
   rootTypeDefs,
@@ -57,6 +59,7 @@ export const typeDefs = [
   partnerTypeDefs,
   developerTypeDefs,
   materialTypeDefs,
+  academyTypeDefs,
 ];
 
 export const resolvers = [
@@ -73,4 +76,5 @@ export const resolvers = [
   partnerResolvers,
   developerResolvers,
   materialResolvers,
+  academyResolvers,
 ];
