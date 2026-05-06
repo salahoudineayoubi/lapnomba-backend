@@ -37,19 +37,20 @@ async function startServer() {
     });
 
     // --- CORS ---
-    app.use(
-      cors({
-        origin: [
-          "http://localhost:3000",
-          "http://localhost:3001",
-          "https://lapnomba.org",
-          "https://admin.lapnomba.org",
-          "https://admissions.lapnomba.org",
-          "https://donate.lapnomba.org",
-        ],
-        credentials: true,
-      })
-    );
+ app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:3001",
+      "https://lapnomba.org",
+      "https://admin.lapnomba.org",
+      "https://admissions.lapnomba.org",
+      "https://donate.lapnomba.org",
+      "https://academy.lapnomba.org",
+    ],
+    credentials: true,
+  })
+);
 
     // --- MIDDLEWARES ---
     app.use(express.json({ limit: "20mb" }));
