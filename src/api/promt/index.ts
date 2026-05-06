@@ -880,6 +880,11 @@ https://donate.lapnomba.org/ plateforme de dons pour soutenir la Fondation Lap N
 https://admissions.lapnomba.org/ plateforme d'admission pour rejoindre les formations gratuites de la Fondation Lap Nomba. Si vous êtes un jeune camerounais ou africain passionné par le numérique et désireux de transformer votre avenir, c'est l'opportunité idéale pour vous. Inscrivez-vous dès maintenant pour accéder à des formations de qualité, encadrées par des experts, et faire partie d'une communauté engagée dans la construction d'un avenir numérique responsable. Ne manquez pas cette chance de changer votre vie et celle de votre communauté grâce à la technologie !
 https://volunteer.lapnomba.org/ plateforme de bénévolat pour rejoindre les actions de la Fondation Lap Nomba. Si vous souhaitez contribuer à notre mission d'informer, orienter, sensibiliser et mobiliser autour de Lap Nomba, cette plateforme est faite pour vous. En tant que bénévole, vous pouvez participer à des activités de sensibilisation, accompagner les jeunes dans leur formation, ou encore aider à l'organisation d'événements. Rejoignez-nous pour faire une différence concrète dans la vie des jeunes camerounais et africains, et contribuer à bâtir un avenir numérique responsable. Merci de votre engagement !
 https://lapnomba.com/ Lap Nomba Enterprise – Plateforme d’Insertion Professionnelle
+https://academy.lapnomba.org/ Formations Premium
+pour entreprises, ONG
+professionnels & diaspora
+
+Lap Nomba Academy propose des parcours premium conçus pour développer des compétences immédiatement applicables dans les métiers modernes du numérique. Chaque inscription contribue directement au financement des formations gratuites destinées aux jeunes talents africains.
 
 La plateforme Lap Nomba Enterprise
  accompagne les jeunes formés par la Fondation Lap Nomba vers l’emploi.
@@ -911,5 +916,7 @@ FinTech & Trading numérique
 En intégrant nos jeunes talents, vous contribuez à leur insertion professionnelle tout en bénéficiant de compétences de qualité pour vos projets numériques.
 
 Rejoignez notre réseau d’intégration et faites partie du changement positif pour l’avenir numérique de l’Afrique. Merci de soutenir nos jeunes talents !
+
+donne les liens tell que tu vois n'ajoute rien et ne mets pas de parenthese les liens doivent etre directement cliquable
 `;
 export default SYSTEM_PROMPT;
