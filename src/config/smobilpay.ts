@@ -5,6 +5,13 @@ const required = (value: string | undefined, name: string): string => {
   return value.trim();
 };
 
+const optional = (
+  value: string | undefined,
+  fallback: string
+): string => {
+  return value?.trim() || fallback;
+};
+
 const toNumber = (value: string | undefined, fallback: number): number => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
@@ -17,20 +24,15 @@ export const smobilpayConfig = {
     process.env.SMOBILPAY_CONSUMER_KEY,
     "SMOBILPAY_CONSUMER_KEY"
   ),
+
   consumerSecret: required(
     process.env.SMOBILPAY_CONSUMER_SECRET,
     "SMOBILPAY_CONSUMER_SECRET"
   ),
 
-  tokenUrl: required(
-    process.env.SMOBILPAY_TOKEN_URL,
-    "SMOBILPAY_TOKEN_URL"
-  ),
+  tokenUrl: required(process.env.SMOBILPAY_TOKEN_URL, "SMOBILPAY_TOKEN_URL"),
 
-  orderUrl: required(
-    process.env.SMOBILPAY_ORDER_URL,
-    "SMOBILPAY_ORDER_URL"
-  ),
+  orderUrl: required(process.env.SMOBILPAY_ORDER_URL, "SMOBILPAY_ORDER_URL"),
 
   orderStatusUrl: required(
     process.env.SMOBILPAY_ORDER_STATUS_URL,
@@ -52,6 +54,12 @@ export const smobilpayConfig = {
     "SMOBILPAY_RETURN_URL"
   ),
 
+  // ✅ URL retour spécifique Lap Nomba Academy
+  academyPaymentReturnUrl: optional(
+    process.env.ACADEMY_PAYMENT_RETURN_URL,
+    "https://academy.lapnomba.org/payment/return"
+  ),
+
   defaultCurrency: process.env.SMOBILPAY_DEFAULT_CURRENCY?.trim() || "XAF",
   defaultLangKey: process.env.SMOBILPAY_DEFAULT_LANG_KEY?.trim() || "en",
   orderVersion: process.env.SMOBILPAY_ORDER_VERSION?.trim() || "V1.2",
@@ -62,19 +70,15 @@ export const smobilpayConfig = {
     process.env.SMOBILPAY_ORANGE_MERCHANT_CODE,
     "SMOBILPAY_ORANGE_MERCHANT_CODE"
   ),
-  orangeMoneyServiceId: toNumber(
-    process.env.SMOBILPAY_ORANGE_SERVICE_ID,
-    30052
-  ),
+
+  orangeMoneyServiceId: toNumber(process.env.SMOBILPAY_ORANGE_SERVICE_ID, 30052),
 
   mtnMomoMerchantCode: required(
     process.env.SMOBILPAY_MTN_MERCHANT_CODE,
     "SMOBILPAY_MTN_MERCHANT_CODE"
   ),
-  mtnMomoServiceId: toNumber(
-    process.env.SMOBILPAY_MTN_SERVICE_ID,
-    20052
-  ),
+
+  mtnMomoServiceId: toNumber(process.env.SMOBILPAY_MTN_SERVICE_ID, 20052),
 };
 
 export default smobilpayConfig;

@@ -1,5 +1,8 @@
 import { DonationModel } from "../../models/donor";
 import { CrowdfundingCampaignModel } from "../../models/crowdfunding_campaign";
+import AcademyPayment from "../../models/acdemy/payment";
+import AcademyEnrollment from "../../models/acdemy/enrollment";
+
 import { generateAndSendReceipt } from "../../utils/receipt";
 import logger from "../../utils/logger";
 
@@ -15,14 +18,19 @@ const mapSmobilpayStatus = (status?: string): InternalPaymentStatus => {
 
   switch (normalized) {
     case "SUCCESS":
+    case "SUCCESSFUL":
+    case "CONFIRMED":
     case "COMPLETED":
+    case "COMPLETE":
     case "PAID":
     case "APPROVED":
       return "COMPLETED";
 
     case "FAILED":
+    case "FAIL":
     case "ERROR":
     case "DECLINED":
+    case "REJECTED":
       return "FAILED";
 
     case "CANCELLED":
@@ -62,53 +70,37 @@ const finalizeDonationIfCompleted = async (donation: any) => {
   return donation;
 };
 
-export const handleSmobilpayWebhook = async (payload: any) => {
-  logger.info("📩 Webhook Smobilpay reçu");
+const getEnrollmentPaymentStatus = (payment: any) => {
+  if (payment.paymentType === "full") return "paye";
+  return "partiel";
+};
 
-  const providerReference =
-    payload?.reference ||
-    payload?.providerReference ||
-    payload?.merchantReference ||
-    payload?.externalReference ||
-    payload?.orderId ||
-    payload?.transactionRef ||
-    null;
+const finalizeAcademyPaymentIfCompleted = async (payment: any) => {
+  if (!payment) return null;
 
-  const transactionId =
-    payload?.transactionId ||
-    payload?.providerTransactionId ||
-    payload?.transactionRef ||
-    payload?.trxId ||
-    null;
-
-  const rawStatus =
-    payload?.status ||
-    payload?.transactionStatus ||
-    payload?.paymentStatus ||
-    "PENDING";
-
-  const mappedStatus = mapSmobilpayStatus(rawStatus);
-
-  let donation = null;
-
-  if (providerReference) {
-    donation = await DonationModel.findOne({ providerReference });
+  if (payment.status === "completed") {
+    return payment;
   }
 
-  if (!donation && transactionId) {
-    donation = await DonationModel.findOne({ providerTransactionId: transactionId });
-  }
+  payment.status = "completed";
+  payment.paidAt = new Date();
+  await payment.save();
 
-  if (!donation) {
-    logger.warn("⚠️ Aucun don trouvé pour ce webhook Smobilpay");
-    return {
-      matched: false,
-      providerReference,
-      transactionId,
-      status: mappedStatus,
-    };
-  }
+  await AcademyEnrollment.findByIdAndUpdate(payment.enrollmentId, {
+    paymentStatus: getEnrollmentPaymentStatus(payment),
+  });
 
+  return payment;
+};
+
+const syncDonationFromWebhook = async ({
+  donation,
+  providerReference,
+  transactionId,
+  rawStatus,
+  mappedStatus,
+  payload,
+}: any) => {
   donation.providerStatusRaw = rawStatus;
   donation.webhookPayload = payload;
 
@@ -139,6 +131,7 @@ export const handleSmobilpayWebhook = async (payload: any) => {
 
   return {
     matched: true,
+    type: "donation",
     donationId: donation.id,
     providerReference: donation.providerReference,
     transactionId: donation.providerTransactionId,
@@ -146,11 +139,147 @@ export const handleSmobilpayWebhook = async (payload: any) => {
   };
 };
 
-/**
- * Vérification manuelle basique
- * Ici on prépare déjà la structure. Plus tard tu la brancheras
- * à l'API réelle Smobilpay pour demander le statut live.
- */
+const syncAcademyPaymentFromWebhook = async ({
+  payment,
+  providerReference,
+  transactionId,
+  rawStatus,
+  mappedStatus,
+  payload,
+}: any) => {
+  payment.note = rawStatus;
+
+  if (providerReference) {
+    payment.providerReference = providerReference;
+  }
+
+  if (transactionId) {
+    payment.providerTransactionId = transactionId;
+  }
+
+  if (mappedStatus === "COMPLETED") {
+    payment = await finalizeAcademyPaymentIfCompleted(payment);
+  } else if (mappedStatus === "FAILED") {
+    payment.status = "failed";
+    await payment.save();
+  } else if (mappedStatus === "CANCELED") {
+    payment.status = "canceled";
+    await payment.save();
+  } else if (mappedStatus === "REFUNDED") {
+    payment.status = "refunded";
+    await payment.save();
+  } else {
+    payment.status = "pending";
+    await payment.save();
+  }
+
+  logger.info("✅ Paiement Academy synchronisé depuis webhook", {
+    academyPaymentId: payment.id,
+    enrollmentId: payment.enrollmentId,
+    status: payment.status,
+    rawStatus,
+  });
+
+  return {
+    matched: true,
+    type: "academy_payment",
+    academyPaymentId: payment.id,
+    enrollmentId: String(payment.enrollmentId),
+    providerReference: payment.providerReference,
+    transactionId: payment.providerTransactionId,
+    status: payment.status,
+  };
+};
+
+export const handleSmobilpayWebhook = async (payload: any) => {
+  logger.info("📩 Webhook Smobilpay reçu");
+
+  const providerReference =
+    payload?.reference ||
+    payload?.providerReference ||
+    payload?.merchantReference ||
+    payload?.externalReference ||
+    payload?.orderId ||
+    payload?.transactionRef ||
+    null;
+
+  const transactionId =
+    payload?.transactionId ||
+    payload?.providerTransactionId ||
+    payload?.transactionRef ||
+    payload?.trxId ||
+    payload?.txid ||
+    null;
+
+  const rawStatus =
+    payload?.status ||
+    payload?.transactionStatus ||
+    payload?.paymentStatus ||
+    payload?.state ||
+    "PENDING";
+
+  const mappedStatus = mapSmobilpayStatus(rawStatus);
+
+  let donation = null;
+
+  if (providerReference) {
+    donation = await DonationModel.findOne({ providerReference });
+  }
+
+  if (!donation && transactionId) {
+    donation = await DonationModel.findOne({
+      providerTransactionId: transactionId,
+    });
+  }
+
+  if (donation) {
+    return await syncDonationFromWebhook({
+      donation,
+      providerReference,
+      transactionId,
+      rawStatus,
+      mappedStatus,
+      payload,
+    });
+  }
+
+  let academyPayment = null;
+
+  if (providerReference) {
+    academyPayment = await AcademyPayment.findOne({ providerReference });
+  }
+
+  if (!academyPayment && transactionId) {
+    academyPayment = await AcademyPayment.findOne({
+      providerTransactionId: transactionId,
+    });
+  }
+
+  if (academyPayment) {
+    return await syncAcademyPaymentFromWebhook({
+      payment: academyPayment,
+      providerReference,
+      transactionId,
+      rawStatus,
+      mappedStatus,
+      payload,
+    });
+  }
+
+  logger.warn("⚠️ Aucun don ni paiement Academy trouvé pour ce webhook Smobilpay", {
+    providerReference,
+    transactionId,
+    rawStatus,
+  });
+
+  return {
+    matched: false,
+    providerReference,
+    transactionId,
+    status: mappedStatus,
+  };
+};
+
 export const verifyDonationPaymentById = async (donationId: string) => {
   const donation = await DonationModel.findById(donationId);
 
@@ -162,15 +291,9 @@ export const verifyDonationPaymentById = async (donationId: string) => {
     return donation;
   }
 
-  /**
-   * PLUS TARD :
-   * ici tu appelleras la vraie API Smobilpay avec :
-   * - donation.providerReference
-   * - donation.providerTransactionId
-   * puis tu mapperas le statut réel
-   */
-
-  const mappedStatus = mapSmobilpayStatus(donation.providerStatusRaw || "PENDING");
+  const mappedStatus = mapSmobilpayStatus(
+    donation.providerStatusRaw || "PENDING"
+  );
 
   if (mappedStatus === "COMPLETED") {
     return await finalizeDonationIfCompleted(donation);

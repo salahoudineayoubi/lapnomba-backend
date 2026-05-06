@@ -1,25 +1,8 @@
-
 import { gql } from "apollo-server-express";
 
-export const academyTypeDefs = gql`
-  type AcademyApplicationStats {
-    total: Int!
-    nouvelle: Int!
-    enEtude: Int!
-    devisEnvoye: Int!
-    approuvee: Int!
-    refusee: Int!
-    inscrite: Int!
-    terminee: Int!
-    professionnels: Int!
-    entreprises: Int!
-    ong: Int!
-    diaspora: Int!
-  }
-
+export const academyApplicationTypeDefs = gql`
   type AcademyApplication {
     id: ID!
-
     applicantType: String!
 
     fullName: String!
@@ -34,21 +17,21 @@ export const academyTypeDefs = gql`
     position: String
     website: String
 
+    programId: ID
     selectedTrack: String!
     trainingMode: String!
-    numberOfParticipants: Int
+    numberOfParticipants: Int!
     preferredStartDate: String
     learningGoal: String!
     currentLevel: String
 
     requiresQuote: Boolean!
     estimatedBudget: String
-    paymentMethod: String
-    paymentStatus: String!
-    amount: Float
-    currency: String
-    invoiceUrl: String
     quoteUrl: String
+
+    expectedAmount: Float
+    monthlyPrice: Float
+    currency: String!
 
     understandsImpactModel: Boolean!
     impactNote: String
@@ -75,8 +58,9 @@ export const academyTypeDefs = gql`
     position: String
     website: String
 
+    programId: ID
     selectedTrack: String!
-    trainingMode: String
+    trainingMode: String!
     numberOfParticipants: Int
     preferredStartDate: String
     learningGoal: String!
@@ -84,39 +68,34 @@ export const academyTypeDefs = gql`
 
     requiresQuote: Boolean
     estimatedBudget: String
-    paymentMethod: String
-    amount: Float
+
+    expectedAmount: Float
+    monthlyPrice: Float
     currency: String
 
     understandsImpactModel: Boolean
   }
 
-  input UpdateAcademyApplicationStatusInput {
+  input UpdateAcademyApplicationInput {
     id: ID!
-    status: String!
+    status: String
     adminNote: String
-  }
-
-  input UpdateAcademyPaymentInput {
-    id: ID!
-    paymentStatus: String!
-    paymentMethod: String
-    amount: Float
-    currency: String
-    invoiceUrl: String
     quoteUrl: String
+    requiresQuote: Boolean
+    expectedAmount: Float
+    monthlyPrice: Float
+    currency: String
   }
 
-  type Query {
+  extend type Query {
     academyApplications: [AcademyApplication!]!
     academyApplicationById(id: ID!): AcademyApplication
-    academyApplicationStats: AcademyApplicationStats!
   }
 
-  type Mutation {
+  extend type Mutation {
     createAcademyApplication(input: AcademyApplicationInput!): AcademyApplication!
-    updateAcademyApplicationStatus(input: UpdateAcademyApplicationStatusInput!): AcademyApplication!
-    updateAcademyPayment(input: UpdateAcademyPaymentInput!): AcademyApplication!
+    updateAcademyApplication(input: UpdateAcademyApplicationInput!): AcademyApplication!
     deleteAcademyApplication(id: ID!): Boolean!
+    approveAcademyApplication(id: ID!): AcademyEnrollment!
   }
 `;

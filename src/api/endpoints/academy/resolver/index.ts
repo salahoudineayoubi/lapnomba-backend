@@ -1,28 +1,20 @@
+import merge from "lodash.merge";
 
-import {
-  academyApplications,
-  academyApplicationById,
-  academyApplicationStats,
-} from "./endpoints/queries";
+import { academyProgramResolvers } from "./program";
+import { academyApplicationResolvers } from "./application";
+import { academyEnrollmentResolvers } from "./enrollement";
+import { academyPaymentResolvers } from "./payment";
+import { academyGroupResolvers } from "./group";
+import { academyProgressResolvers } from "./progress";
+import { academyStatsResolvers } from "./stats";
 
-import {
-  createAcademyApplication,
-  updateAcademyApplicationStatus,
-  updateAcademyPayment,
-  deleteAcademyApplication,
-} from "./endpoints/mutations";
-
-export const academyResolvers = {
-  Query: {
-    academyApplications,
-    academyApplicationById,
-    academyApplicationStats,
-  },
-
-  Mutation: {
-    createAcademyApplication,
-    updateAcademyApplicationStatus,
-    updateAcademyPayment,
-    deleteAcademyApplication,
-  },
-};
+export const academyResolvers = merge(
+  {},
+  academyProgramResolvers,
+  academyApplicationResolvers,
+  academyEnrollmentResolvers,
+  academyPaymentResolvers,
+  academyGroupResolvers,
+  academyProgressResolvers,
+  academyStatsResolvers
+);
