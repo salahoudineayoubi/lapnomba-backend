@@ -1,3 +1,5 @@
+import { signAdminToken } from "../../../utils/auth";
+
 export const adminResolvers = {
   Mutation: {
     adminLogin: async (
@@ -12,20 +14,25 @@ export const adminResolvers = {
           success: false,
           message: null,
           error: "Email et mot de passe requis",
+          token: null,
         };
       }
 
-      if (email === adminEmail && password === adminPassword) {
+      if (adminEmail && adminPassword && email === adminEmail && password === adminPassword) {
+        const token = signAdminToken({ email, role: "admin" });
+
         return {
           success: true,
           message: "Connexion réussie",
           error: null,
+          token,
         };
       } else {
         return {
           success: false,
           message: null,
           error: "Email ou mot de passe incorrect",
+          token: null,
         };
       }
     },

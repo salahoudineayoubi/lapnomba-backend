@@ -1,17 +1,21 @@
 import { Router } from "express";
 import Candidature from "../../../../models/candidature";
 import XLSX from "xlsx";
+import { isAuth } from "../../../../middlewares/isAuth";
+import logger from "../../../../utils/logger";
 
 const router = Router();
 
-router.get("/export-candidatures", async (req, res) => {
+// ADMIN ONLY — même vérification JWT que le reste de l'API (voir utils/auth.ts).
+router.get("/export-candidatures", isAuth, async (req, res) => {
   try {
-    let candidatures = await Candidature.find().lean();
+    // Exclut les candidatures supprimées (soft-delete).
+    let candidatures = await Candidature.find({ deletedAt: null }).lean();
 
     // Supprime ou tronque les champs trop longs (ex: photo, cv)
     candidatures = candidatures.map(c => {
       // On retire les champs base64 ou trop volumineux
-      const { photo, cv, ...rest } = c;
+      const { photo, cv, statusHistory, ...rest } = c as any;
       return rest;
       // Si tu veux garder un aperçu, tu peux faire :
       // return { ...rest, photo: photo?.slice(0, 100) || undefined, cv: cv?.slice(0, 100) || undefined };
@@ -27,7 +31,7 @@ router.get("/export-candidatures", async (req, res) => {
     res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     res.send(buffer);
   } catch (err) {
-    console.error("Erreur lors de l'export Excel :", err);
+    logger.error("Erreur lors de l'export Excel", { error: err instanceof Error ? err.message : err });
     res.status(500).json({ error: "Erreur lors de l'export Excel", details: err instanceof Error ? err.message : err });
   }
 });

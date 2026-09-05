@@ -5,6 +5,7 @@ export const adminTypeDefs = gql`
     success: Boolean!
     message: String
     error: String
+    token: String
   }
 
   type Mutation {

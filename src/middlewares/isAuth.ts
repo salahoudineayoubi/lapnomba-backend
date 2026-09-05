@@ -1,36 +1,26 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-
-interface JwtPayload {
-  userId: string;
-  role: string;
-}
+import { AdminTokenPayload, getAdminFromAuthHeader } from "../utils/auth";
 
 export interface AuthenticatedRequest extends Request {
-  user?: JwtPayload;
+  admin?: AdminTokenPayload;
 }
 
+/**
+ * Middleware Express — protège les routes REST admin (ex: export Excel).
+ * Réutilise la même vérification JWT que le context GraphQL (voir utils/auth.ts)
+ * pour ne pas dupliquer la logique d'authentification.
+ */
 export const isAuth = (
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const authHeader = req.headers["authorization"];
-    if (!authHeader) {
-      return res.status(401).json({ message: "Accès non autorisé : pas de token" });
-    }
+  const admin = getAdminFromAuthHeader(req.headers["authorization"]);
 
-    const token = authHeader.split(" ")[1]; // Format: Bearer TOKEN
-    if (!token) {
-      return res.status(401).json({ message: "Token manquant" });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secretkey") as JwtPayload;
-
-    req.user = decoded;
-    next();
-  } catch (err) {
-    return res.status(401).json({ message: "Token invalide ou expiré" });
+  if (!admin) {
+    return res.status(401).json({ message: "Accès non autorisé : token admin manquant ou invalide" });
   }
+
+  req.admin = admin;
+  next();
 };

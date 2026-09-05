@@ -9,11 +9,25 @@ import { ApolloServer } from "apollo-server-express";
 import { typeDefs, resolvers } from "./api/endpoints";
 import exportExcelRouter from "./api/endpoints/candidature/exportExcel";
 import smobilpayWebhookRouter from "./api/routes/smobilpayWebhook.routes";
+import { getAdminFromAuthHeader } from "./utils/auth";
+import { verifySmtpConnection } from "./utils/sendMail";
 
 async function startServer() {
   try {
     await connectMongo();
     logger.info("✅ Connecté à MongoDB");
+
+    // Diagnostic non bloquant : vérifie la connexion SMTP au démarrage sans
+    // jamais empêcher le serveur de démarrer si l'email est temporairement
+    // indisponible (voir utils/sendMail — plus de verify() par email envoyé).
+    verifySmtpConnection()
+      .then((ok) => {
+        if (ok) logger.info("✅ SMTP opérationnel");
+        else logger.warn("⚠️ SMTP indisponible au démarrage (les emails échoueront jusqu'à résolution)");
+      })
+      .catch(() => {
+        logger.warn("⚠️ SMTP indisponible au démarrage (les emails échoueront jusqu'à résolution)");
+      });
 
     const app: Application = express();
 
@@ -74,10 +88,17 @@ async function startServer() {
     app.use("/api/smobilpay", smobilpayWebhookRouter);
 
     // --- APOLLO GRAPHQL ---
+    const isProduction = process.env.NODE_ENV === "production";
+
     const server = new ApolloServer({
       typeDefs,
       resolvers,
-      introspection: true,
+      // L'introspection publique en production expose tout le schéma
+      // (y compris les mutations admin) — désactivée hors dev/staging.
+      introspection: !isProduction,
+      context: ({ req }) => ({
+        admin: getAdminFromAuthHeader(req.headers.authorization),
+      }),
     });
 
     await server.start();

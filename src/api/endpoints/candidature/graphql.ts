@@ -8,6 +8,13 @@ export const candidatureTypeDefs = gql`
     refusee: Int!
   }
 
+  type StatusHistoryEntry {
+    from: String!
+    to: String!
+    changedAt: String!
+    changedBy: String!
+  }
+
   type Candidature {
     id: ID!
     nomComplet: String!
@@ -37,6 +44,16 @@ export const candidatureTypeDefs = gql`
     createdAt: String
     updatedAt: String
     statut: String
+    motifRefus: String
+    statusHistory: [StatusHistoryEntry!]!
+  }
+
+  type CandidaturePage {
+    items: [Candidature!]!
+    total: Int!
+    page: Int!
+    limit: Int!
+    totalPages: Int!
   }
 
   input CandidatureInput {
@@ -67,7 +84,12 @@ export const candidatureTypeDefs = gql`
   }
 
   type Query {
+    # Admin only — conservée non paginée pour compatibilité avec l'existant.
     candidatures: [Candidature!]!
+
+    # Admin only — pagination + filtre statut/recherche.
+    candidaturesPaginated(page: Int, limit: Int, statut: String, search: String): CandidaturePage!
+
     candidatureById(id: ID!): Candidature
 
     # 🔥 NEW DASHBOARD STATS
@@ -75,9 +97,12 @@ export const candidatureTypeDefs = gql`
   }
 
   type Mutation {
+    # Public — seule route accessible sans authentification.
     createCandidature(input: CandidatureInput!): Candidature!
+
+    # Admin only ci-dessous.
     deleteCandidature(id: ID!): Boolean!
     approuverCandidature(id: ID!): Candidature!
-    refuserCandidature(id: ID!): Candidature!
+    refuserCandidature(id: ID!, motifRefus: String): Candidature!
   }
 `;

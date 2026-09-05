@@ -1,73 +1,131 @@
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 import { uploadFromBase64 } from "../../../../utils/cloudinary";
 import { sendMail } from "../../../../utils/sendMail";
+import { validateUploadedFile } from "../../../../utils/fileValidation";
+import logger from "../../../../utils/logger";
+
+const BASE_URL =
+  process.env.APP_BASE_URL || "https://lobster-app-vdl5o.ondigitalocean.app";
+
+const ALLOWED_PHOTO_MIMES = ["image/jpeg", "image/png", "image/webp"];
+const ALLOWED_CV_MIMES = [
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+];
+
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024; // 5 Mo
+const MAX_CV_BYTES = 8 * 1024 * 1024; // 8 Mo
 
 /**
  * Gère l'upload des fichiers.
- * Photo -> Cloudinary
- * CV -> Stockage Local
+ * Photo -> Cloudinary (validée : type réel + taille avant envoi)
+ * CV -> Stockage local (validé : type réel + taille avant écriture)
+ *
+ * Ni l'extension ni le Content-Type déclaré par le client ne sont fiables :
+ * le type réel est détecté via signature binaire (voir utils/fileValidation).
+ * Un fichier invalide fait échouer explicitement la candidature plutôt que
+ * d'être silencieusement ignoré.
  */
 export const handleFileUploads = async (input: any) => {
   let photoUrl = input.photo;
   let cvUrl = input.cv;
-const BASE_URL =
-  process.env.APP_BASE_URL || "https://lobster-app-vdl5o.ondigitalocean.app";
 
-  try {
-    if (photoUrl && photoUrl.startsWith("data:")) {
-      const res = await uploadFromBase64(photoUrl, {
-        folder: "candidatures/photos",
-        resource_type: "image",
-      });
+  if (photoUrl && typeof photoUrl === "string" && photoUrl.startsWith("data:")) {
+    validateUploadedFile(photoUrl, {
+      allowedMimes: ALLOWED_PHOTO_MIMES,
+      maxBytes: MAX_PHOTO_BYTES,
+      label: "Photo",
+    });
 
-      photoUrl = res.secure_url;
-    }
+    const res = await uploadFromBase64(photoUrl, {
+      folder: "candidatures/photos",
+      resource_type: "image",
+    });
 
-    if (cvUrl && cvUrl.startsWith("data:")) {
-      const base64Data = cvUrl.split(";base64,").pop();
-      const fileName = `cv-${Date.now()}-${Math.floor(
-        Math.random() * 1000
-      )}.pdf`;
-
-      const uploadDir = path.join(process.cwd(), "public", "uploads", "cv");
-      const filePath = path.join(uploadDir, fileName);
-
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
-
-      fs.writeFileSync(filePath, base64Data!, { encoding: "base64" });
-
-      // ✅ URL complète du backend, sans /graphql
-      cvUrl = `${BASE_URL}/uploads/cv/${fileName}`;
-    }
-
-    if (photoUrl && !photoUrl.startsWith("http")) {
-      photoUrl = null;
-    }
-
-    if (cvUrl && !cvUrl.startsWith("http")) {
-      cvUrl = null;
-    }
-
-    return { photoUrl, cvUrl };
-  } catch (error) {
-    console.error("Erreur lors du traitement des fichiers :", error);
-    return { photoUrl: null, cvUrl: null };
+    photoUrl = res.secure_url;
   }
+
+  if (cvUrl && typeof cvUrl === "string" && cvUrl.startsWith("data:")) {
+    const detected = validateUploadedFile(cvUrl, {
+      allowedMimes: ALLOWED_CV_MIMES,
+      maxBytes: MAX_CV_BYTES,
+      label: "CV",
+    });
+
+    const base64Data = cvUrl.split(";base64,").pop();
+    // Nom de fichier généré côté serveur (jamais dérivé d'une entrée client)
+    const fileName = `cv-${Date.now()}-${crypto.randomUUID()}.${detected.extension}`;
+
+    const uploadDir = path.join(process.cwd(), "public", "uploads", "cv");
+    const filePath = path.join(uploadDir, fileName);
+
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+
+    fs.writeFileSync(filePath, base64Data!, { encoding: "base64" });
+
+    // ✅ URL complète du backend, sans /graphql
+    cvUrl = `${BASE_URL}/uploads/cv/${fileName}`;
+  }
+
+  // Toute valeur restante qui n'est ni une data URI traitée, ni déjà une URL
+  // http(s) existante, est ignorée (comportement inchangé pour compat).
+  if (photoUrl && !photoUrl.startsWith("http")) {
+    photoUrl = null;
+  }
+
+  if (cvUrl && !cvUrl.startsWith("http")) {
+    cvUrl = null;
+  }
+
+  return { photoUrl, cvUrl };
 };
+
+/**
+ * Échappe les caractères HTML spéciaux pour éviter toute injection dans le
+ * template (nom, motif de refus... sont du texte libre non fiable).
+ */
+const escapeHtml = (value: string): string =>
+  value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 
 const buildCandidateStatusMail = (
   type: "CONFIRMATION" | "APPROBATION" | "REFUS",
-  nom: string
+  nom: string,
+  motifRefus?: string
 ): { subject: string; text: string; html: string } => {
-  const safeName = nom?.trim() || "Cher candidat";
+  // Version texte brut : nom tel quel (pas d'échappement HTML pertinent).
+  const plainName = nom?.trim() || "Cher candidat";
+  const plainMotif = motifRefus?.trim() || undefined;
+
+  // Version HTML : échappée pour éviter toute injection via un champ libre.
+  const safeName = escapeHtml(plainName);
+  const safeMotif = plainMotif ? escapeHtml(plainMotif) : undefined;
+
+  const motifTextBlock = plainMotif
+    ? `\n\nMotif communiqué par notre équipe :\n${plainMotif}`
+    : "";
+
+  const motifHtmlBlock = safeMotif
+    ? `
+          <p style="margin-top: 16px; padding: 12px 16px; background: #F9FAFB; border-left: 3px solid #9CA3AF; border-radius: 4px;">
+            <strong>Motif communiqué par notre équipe :</strong><br />
+            ${safeMotif}
+          </p>`
+    : "";
 
   const messages = {
     CONFIRMATION: {
       subject: "Accusé de réception de votre candidature - Fondation Lap Nomba",
-      text: `Bonjour ${safeName},
+      text: `Bonjour ${plainName},
 
 Nous vous confirmons la bonne réception de votre dossier de candidature.
 
@@ -104,7 +162,7 @@ Fondation Lap Nomba`,
 
     APPROBATION: {
       subject: "Validation de votre candidature - Fondation Lap Nomba",
-      text: `Bonjour ${safeName},
+      text: `Bonjour ${plainName},
 
 Nous avons le plaisir de vous informer que votre candidature a été approuvée.
 
@@ -146,11 +204,11 @@ Fondation Lap Nomba`,
 
     REFUS: {
       subject: "Décision concernant votre candidature - Fondation Lap Nomba",
-      text: `Bonjour ${safeName},
+      text: `Bonjour ${plainName},
 
 Après examen attentif de votre dossier, nous sommes au regret de vous informer que nous ne pouvons pas donner une suite favorable à votre candidature pour cette session.
 
-Nous vous remercions pour l’intérêt accordé à nos programmes et vous encourageons à poursuivre vos efforts dans votre parcours.
+Nous vous remercions pour l’intérêt accordé à nos programmes et vous encourageons à poursuivre vos efforts dans votre parcours.${motifTextBlock}
 
 Cordialement,
 La Direction de la Formation
@@ -167,7 +225,7 @@ Fondation Lap Nomba`,
           <p>
             Nous vous remercions pour l’intérêt accordé à nos programmes et vous
             encourageons à poursuivre vos efforts dans votre parcours.
-          </p>
+          </p>${motifHtmlBlock}
           <p>
             Cordialement,<br />
             <strong>La Direction de la Formation</strong><br />
@@ -182,15 +240,21 @@ Fondation Lap Nomba`,
 };
 
 /**
- * Gère l'envoi des emails transactionnels
+ * Gère l'envoi des emails transactionnels.
+ *
+ * Ne doit JAMAIS faire échouer/annuler l'opération métier appelante :
+ * l'erreur est capturée et loggée, jamais propagée. Le statut en base
+ * (déjà écrit avant l'appel) reste la source de vérité — un échec SMTP
+ * ne doit ni revenir en arrière, ni bloquer la réponse API.
  */
 export const sendStatusEmail = async (
   email: string,
   nom: string,
-  type: "CONFIRMATION" | "APPROBATION" | "REFUS"
+  type: "CONFIRMATION" | "APPROBATION" | "REFUS",
+  motifRefus?: string
 ) => {
   try {
-    const { subject, text, html } = buildCandidateStatusMail(type, nom);
+    const { subject, text, html } = buildCandidateStatusMail(type, nom, motifRefus);
 
     await sendMail({
       to: email,
@@ -199,6 +263,9 @@ export const sendStatusEmail = async (
       html,
     });
   } catch (error) {
-    console.error(`Erreur lors de l'envoi de l'email (${type}) à ${email} :`, error);
+    logger.error(`Échec de l'envoi de l'email (${type}) à ${email}`, {
+      type,
+      error: error instanceof Error ? error.message : error,
+    });
   }
 };

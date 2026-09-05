@@ -4,6 +4,7 @@ import * as CandidatureMutations from "./mutation/candidature.mutations";
 export const candidatureResolvers = {
   Query: {
     candidatures: CandidatureQueries.candidatures,
+    candidaturesPaginated: CandidatureQueries.candidaturesPaginated,
     candidatureById: CandidatureQueries.candidatureById,
 
     // 🔥 AJOUT IMPORTANT (dashboard stats ONG)

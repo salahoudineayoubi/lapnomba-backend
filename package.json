@@ -6,7 +6,7 @@
     "dev": "ts-node app.ts",
     "build": "tsc",
     "start": "node dist/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
@@ -38,6 +38,7 @@
     "@types/axios": "^0.9.36",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
+    "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/lodash.merge": "^4.6.9",
     "@types/node": "^24.10.0",
@@ -46,7 +47,9 @@
     "@types/streamifier": "^0.1.2",
     "@types/winston": "^2.4.4",
     "@types/xlsx": "^0.0.35",
+    "jest": "^30.5.1",
     "nodemon": "^3.1.10",
+    "ts-jest": "^29.4.12",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }
