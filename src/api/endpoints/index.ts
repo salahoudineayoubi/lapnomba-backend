@@ -43,6 +43,12 @@ import { materialResolvers } from "./material/resolvers";
 import { academyTypeDefs } from "./academy/graphql";
 import { academyResolvers } from "./academy/resolver";
 
+import { eventTypeDefs } from "./events/graphql";
+import { eventResolvers } from "./events/resolvers";
+
+import { founderVideoTypeDefs } from "./founderVideo/graphql";
+import { founderVideoResolvers } from "./founderVideo/resolvers";
+
 export const typeDefs = [
   rootTypeDefs,
   communityVoiceTypeDefs,
@@ -59,7 +65,9 @@ export const typeDefs = [
   partnerTypeDefs,
   developerTypeDefs,
   materialTypeDefs,
-  academyTypeDefs
+  academyTypeDefs,
+  eventTypeDefs,
+  founderVideoTypeDefs
 ];
 
 export const resolvers = [
@@ -77,4 +85,6 @@ export const resolvers = [
   developerResolvers,
   materialResolvers,
   academyResolvers,
+  eventResolvers,
+  founderVideoResolvers,
 ];

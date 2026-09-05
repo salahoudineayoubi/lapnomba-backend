@@ -9,6 +9,7 @@ import { ApolloServer } from "apollo-server-express";
 import { typeDefs, resolvers } from "./api/endpoints";
 import exportExcelRouter from "./api/endpoints/candidature/exportExcel";
 import smobilpayWebhookRouter from "./api/routes/smobilpayWebhook.routes";
+import founderVideoRouter from "./api/routes/founderVideo.routes";
 import { getAdminFromAuthHeader } from "./utils/auth";
 import { verifySmtpConnection } from "./utils/sendMail";
 
@@ -42,8 +43,9 @@ async function startServer() {
     const receiptsPath = path.join(publicBase, "receipts");
     const uploadsPath = path.join(publicBase, "uploads");
     const cvPath = path.join(uploadsPath, "cv");
+    const videosPath = path.join(uploadsPath, "videos");
 
-    [receiptsPath, uploadsPath, cvPath].forEach((dir) => {
+    [receiptsPath, uploadsPath, cvPath, videosPath].forEach((dir) => {
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
         logger.info(`📁 Dossier créé : ${dir}`);
@@ -86,6 +88,7 @@ async function startServer() {
     // --- ROUTES API ---
     app.use("/api", exportExcelRouter);
     app.use("/api/smobilpay", smobilpayWebhookRouter);
+    app.use("/api/founder-video", founderVideoRouter);
 
     // --- APOLLO GRAPHQL ---
     const isProduction = process.env.NODE_ENV === "production";

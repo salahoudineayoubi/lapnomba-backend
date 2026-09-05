@@ -86,6 +86,72 @@ export const detectFileSignature = (buffer: Buffer): DetectedFile | null => {
 };
 
 /**
+ * Détecte un conteneur vidéo à partir de sa signature binaire (MP4/MOV via
+ * la box "ftyp", WebM via son en-tête EBML). Séparé de `detectFileSignature`
+ * — les vidéos sont validées à partir d'un Buffer déjà en mémoire (upload
+ * multipart), pas d'une data URI.
+ */
+export const detectVideoSignature = (buffer: Buffer): DetectedFile | null => {
+  if (buffer.length < 12) return null;
+
+  // MP4 / MOV / M4V : box "ftyp" à l'offset 4.
+  if (buffer.subarray(4, 8).toString("ascii") === "ftyp") {
+    return { mime: "video/mp4", extension: "mp4" };
+  }
+
+  // WebM (Matroska) : en-tête EBML 1A 45 DF A3.
+  if (
+    buffer[0] === 0x1a &&
+    buffer[1] === 0x45 &&
+    buffer[2] === 0xdf &&
+    buffer[3] === 0xa3
+  ) {
+    return { mime: "video/webm", extension: "webm" };
+  }
+
+  return null;
+};
+
+/**
+ * Valide un Buffer déjà en mémoire (upload multipart, ex: vidéo) contre une
+ * liste de MIME autorisés et une taille maximale, à partir de la signature
+ * binaire réelle. Lève une FileValidationError sinon.
+ */
+export const validateUploadedBuffer = (
+  buffer: Buffer,
+  {
+    allowedMimes,
+    maxBytes,
+    label,
+    detect = detectFileSignature,
+  }: {
+    allowedMimes: string[];
+    maxBytes: number;
+    label: string;
+    detect?: (buffer: Buffer) => DetectedFile | null;
+  }
+): DetectedFile => {
+  if (!buffer || buffer.length === 0) {
+    throw new FileValidationError(`${label} : fichier vide.`);
+  }
+
+  if (buffer.length > maxBytes) {
+    const maxMb = Math.round(maxBytes / (1024 * 1024));
+    throw new FileValidationError(`${label} : fichier trop volumineux (max ${maxMb} Mo).`);
+  }
+
+  const detected = detect(buffer);
+
+  if (!detected || !allowedMimes.includes(detected.mime)) {
+    throw new FileValidationError(
+      `${label} : type de fichier non autorisé. Formats acceptés : ${allowedMimes.join(", ")}.`
+    );
+  }
+
+  return detected;
+};
+
+/**
  * Parse une data URI ("data:<mime>;base64,<data>") en buffer décodé +
  * mime déclaré par le client (non fiable, à ne jamais utiliser seul).
  */
