@@ -108,6 +108,7 @@ async function startServer() {
       introspection: !isProduction,
       context: ({ req }) => ({
         admin: getAdminFromAuthHeader(req.headers.authorization),
+        ip: req.ip,
       }),
     });
 

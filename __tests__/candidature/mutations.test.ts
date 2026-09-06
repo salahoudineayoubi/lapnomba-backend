@@ -49,9 +49,18 @@ const mockedSendMail = sendMail as jest.Mock;
 const adminContext = { admin: { email: "admin@lapnomba.org", role: "admin" as const } };
 const anonymousContext = { admin: null };
 
+// Relatif à "aujourd'hui" plutôt qu'une date fixe : les tests d'âge ne
+// doivent jamais devenir faux avec le temps qui passe (createCandidature
+// utilise l'horloge système réelle comme référence, pas une date figée).
+const isoDateYearsAgo = (years: number): string => {
+  const d = new Date();
+  d.setUTCFullYear(d.getUTCFullYear() - years);
+  return d.toISOString().slice(0, 10);
+};
+
 const validInput = {
   nomComplet: "Jean Dupont",
-  dateNaissance: "1998-01-01",
+  dateNaissance: isoDateYearsAgo(20), // toujours éligible, quelle que soit la date d'exécution
   sexe: "M",
   adresse: "Rue 12",
   ville: "Douala",
@@ -72,8 +81,12 @@ describe("createCandidature (public)", () => {
 
     expect(mockConstructor).toHaveBeenCalledTimes(1);
     expect(candidature.statut).toBe("en attente");
-    expect(mockedSendMail).toHaveBeenCalledTimes(1);
-    expect(mockedSendMail.mock.calls[0][0].subject).toMatch(/Accusé de réception/);
+    // 1 email de confirmation candidat + 1 notification interne équipe formation.
+    expect(mockedSendMail).toHaveBeenCalledTimes(2);
+    const confirmationCall = mockedSendMail.mock.calls.find(
+      (call) => call[0].to === candidature.email
+    );
+    expect(confirmationCall![0].subject).toMatch(/bien été reçue/);
   });
 
   it("2. normalise l'email en lowercase avant sauvegarde", async () => {
@@ -101,6 +114,81 @@ describe("createCandidature (public)", () => {
     ).rejects.toThrow("Adresse email invalide.");
 
     expect(mockConstructor).not.toHaveBeenCalled();
+  });
+
+  it("envoie une notification interne à training@lapnomba.org avec le nom en sujet", async () => {
+    await createCandidature(null, { input: validInput });
+
+    expect(mockedSendMail).toHaveBeenCalledTimes(2); // CONFIRMATION + notification interne
+    const internalCall = mockedSendMail.mock.calls.find(
+      (call) => call[0].to === "training@lapnomba.org"
+    );
+    expect(internalCall).toBeDefined();
+    expect(internalCall![0].subject).toContain("Jean Dupont");
+    expect(internalCall![0].subject).toMatch(/^\[Admissions\]/);
+  });
+
+  describe("éligibilité par âge (règle métier : FREE_TRAINING_MAX_AGE = 25)", () => {
+    it("candidat de 24 ans -> candidature créée normalement", async () => {
+      await createCandidature(null, { input: { ...validInput, dateNaissance: isoDateYearsAgo(24) } });
+      expect(mockConstructor).toHaveBeenCalledTimes(1);
+    });
+
+    it("candidat exactement 25 ans (anniversaire aujourd'hui) -> candidature créée", async () => {
+      await createCandidature(null, { input: { ...validInput, dateNaissance: isoDateYearsAgo(25) } });
+      expect(mockConstructor).toHaveBeenCalledTimes(1);
+    });
+
+    it("candidat de 26 ans -> erreur métier FREE_TRAINING_AGE_NOT_ELIGIBLE, aucune candidature créée, aucun email", async () => {
+      let caught: any = null;
+      try {
+        await createCandidature(null, { input: { ...validInput, dateNaissance: isoDateYearsAgo(26) } });
+      } catch (e) {
+        caught = e;
+      }
+
+      expect(caught).not.toBeNull();
+      expect(caught.extensions?.code).toBe("FREE_TRAINING_AGE_NOT_ELIGIBLE");
+      expect(mockConstructor).not.toHaveBeenCalled();
+      expect(mockedSendMail).not.toHaveBeenCalled();
+    });
+
+    it("candidat de 26 ans appelant directement la mutation (contournement frontend) -> bloqué pareil côté serveur", async () => {
+      // Simule un appel GraphQL brut, sans passer par le frontend admission.
+      let caught: any = null;
+      try {
+        await createCandidature(null, {
+          input: { ...validInput, dateNaissance: isoDateYearsAgo(30) },
+        });
+      } catch (e) {
+        caught = e;
+      }
+
+      expect(caught?.extensions?.code).toBe("FREE_TRAINING_AGE_NOT_ELIGIBLE");
+      expect(mockConstructor).not.toHaveBeenCalled();
+    });
+
+    it("date de naissance manquante -> erreur de validation (pas une erreur d'âge)", async () => {
+      await expect(
+        createCandidature(null, { input: { ...validInput, dateNaissance: "" } })
+      ).rejects.toThrow("La date de naissance est requise.");
+      expect(mockConstructor).not.toHaveBeenCalled();
+    });
+
+    it("date de naissance mal formée -> erreur de validation", async () => {
+      await expect(
+        createCandidature(null, { input: { ...validInput, dateNaissance: "06/09/2001" } })
+      ).rejects.toThrow(/Date de naissance invalide/);
+      expect(mockConstructor).not.toHaveBeenCalled();
+    });
+
+    it("date de naissance future -> erreur de validation", async () => {
+      const nextYear = new Date().getUTCFullYear() + 1;
+      await expect(
+        createCandidature(null, { input: { ...validInput, dateNaissance: `${nextYear}-01-01` } })
+      ).rejects.toThrow(/futur/);
+      expect(mockConstructor).not.toHaveBeenCalled();
+    });
   });
 });
 

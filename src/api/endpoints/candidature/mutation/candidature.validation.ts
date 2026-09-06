@@ -6,6 +6,8 @@
  * les numéros internationaux légitimes.
  */
 
+import { parseDateOfBirth, InvalidDateOfBirthError } from "../../../../utils/ageEligibility";
+
 export class ValidationError extends Error {}
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -76,7 +78,20 @@ export const validateCandidatureInput = (input: any) => {
   const adresse = validateRequiredText(input.adresse, "L'adresse", { min: 2, max: 300 });
   const ville = validateRequiredText(input.ville, "La ville", { min: 2, max: 150 });
   const pays = validateRequiredText(input.pays, "Le pays", { min: 2, max: 150 });
-  const dateNaissance = validateRequiredText(input.dateNaissance, "La date de naissance", { min: 1, max: 40 });
+  // Valide le format réel (AAAA-MM-JJ, date calendaire possible, pas future)
+  // — au-delà de la simple présence vérifiée jusqu'ici. L'éligibilité par
+  // âge est vérifiée séparément (voir candidature.mutations.ts) : ce n'est
+  // pas une erreur de format, c'est une règle métier distincte.
+  let dateNaissance: string;
+  try {
+    parseDateOfBirth(input.dateNaissance);
+    dateNaissance = String(input.dateNaissance).trim();
+  } catch (err) {
+    if (err instanceof InvalidDateOfBirthError) {
+      throw new ValidationError(err.message);
+    }
+    throw err;
+  }
   const sexe = validateRequiredText(input.sexe, "Le sexe", { min: 1, max: 30 });
   const choixFormation = validateRequiredText(input.choixFormation, "Le choix de formation", { min: 1, max: 200 });
   const pourquoiFormation = validateRequiredText(

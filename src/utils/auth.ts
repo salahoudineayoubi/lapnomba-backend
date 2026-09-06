@@ -71,9 +71,12 @@ export const getAdminFromAuthHeader = (
 
 /**
  * Context Apollo — attaché à chaque requête GraphQL (voir app.ts).
+ * `ip` est utilisé pour le rate limiting des mutations publiques
+ * sensibles (ex: createCandidature) — voir utils/rateLimiter.ts.
  */
 export interface GraphQLContext {
   admin: AdminTokenPayload | null;
+  ip?: string;
 }
 
 /**

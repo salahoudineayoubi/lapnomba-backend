@@ -19,6 +19,11 @@ export const candidatureTypeDefs = gql`
     id: ID!
     nomComplet: String!
     dateNaissance: String!
+    # Calculé à la volée depuis dateNaissance à chaque lecture — jamais
+    # stocké (un âge stocké deviendrait faux à chaque anniversaire).
+    # Nullable : certaines candidatures historiques antérieures à la
+    # validation stricte du format de date peuvent ne pas être calculables.
+    age: Int
     sexe: String!
     adresse: String!
     ville: String!

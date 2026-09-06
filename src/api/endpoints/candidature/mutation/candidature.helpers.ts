@@ -124,37 +124,45 @@ const buildCandidateStatusMail = (
 
   const messages = {
     CONFIRMATION: {
-      subject: "Accusé de réception de votre candidature - Fondation Lap Nomba",
+      subject: "Votre candidature a bien été reçue — Lap Nomba Foundation",
       text: `Bonjour ${plainName},
 
-Nous vous confirmons la bonne réception de votre dossier de candidature.
+Nous vous confirmons la bonne réception de votre candidature auprès de Lap Nomba Foundation.
 
-Notre équipe procède actuellement à l’examen de votre profil ainsi qu’à l’évaluation des éléments transmis.
+Notre équipe va maintenant examiner attentivement les informations que vous avez transmises.
 
-Nous vous remercions pour l’intérêt porté à la mission de la Fondation Lap Nomba et reviendrons vers vous très prochainement.
+À l’issue de cette analyse, nous vous contacterons pour vous informer de la suite donnée à votre candidature.
 
-Cordialement,
-La Direction de la Formation
-Fondation Lap Nomba`,
+Aucune action supplémentaire n’est nécessaire pour le moment.
+
+Merci pour votre intérêt envers les programmes de Lap Nomba Foundation.
+
+Lap Nomba Foundation
+Former. Innover. Transformer.`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
-          <h2>Accusé de réception de votre candidature</h2>
+          <h2>Votre candidature a bien été reçue</h2>
           <p>Bonjour <strong>${safeName}</strong>,</p>
           <p>
-            Nous vous confirmons la bonne réception de votre dossier de candidature.
+            Nous vous confirmons la bonne réception de votre candidature auprès de
+            <strong>Lap Nomba Foundation</strong>.
           </p>
           <p>
-            Notre équipe procède actuellement à l’examen de votre profil ainsi qu’à
-            l’évaluation des éléments transmis.
+            Notre équipe va maintenant examiner attentivement les informations que vous avez transmises.
           </p>
           <p>
-            Nous vous remercions pour l’intérêt porté à la mission de la
-            <strong>Fondation Lap Nomba</strong> et reviendrons vers vous très prochainement.
+            À l’issue de cette analyse, nous vous contacterons pour vous informer de la suite
+            donnée à votre candidature.
           </p>
           <p>
-            Cordialement,<br />
-            <strong>La Direction de la Formation</strong><br />
-            Fondation Lap Nomba
+            Aucune action supplémentaire n’est nécessaire pour le moment.
+          </p>
+          <p>
+            Merci pour votre intérêt envers les programmes de Lap Nomba Foundation.
+          </p>
+          <p>
+            <strong>Lap Nomba Foundation</strong><br />
+            <em>Former. Innover. Transformer.</em>
           </p>
         </div>
       `,
@@ -265,6 +273,99 @@ export const sendStatusEmail = async (
   } catch (error) {
     logger.error(`Échec de l'envoi de l'email (${type}) à ${email}`, {
       type,
+      error: error instanceof Error ? error.message : error,
+    });
+  }
+};
+
+const TRAINING_NOTIFICATION_EMAIL =
+  process.env.TRAINING_NOTIFICATION_EMAIL || "training@lapnomba.org";
+
+const formatSubmissionDate = (date: Date): string =>
+  date.toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+/**
+ * Notification interne — envoyée à l'équipe formation à chaque nouvelle
+ * candidature ÉLIGIBLE créée avec succès (jamais pour un candidat >25 ans,
+ * puisqu'aucune candidature n'est créée pour ce cas).
+ *
+ * Résumé opérationnel volontairement compact : ni CV, ni photo, ni
+ * motivation/historique personnel — l'admin reste la source de vérité
+ * complète. Toute valeur libre fournie par le candidat (nom, formation,
+ * ville, pays) est échappée avant insertion HTML.
+ *
+ * Réutilise le même sendMail que les emails candidat (pas de second
+ * transporteur SMTP), et suit la même politique non-bloquante : un échec
+ * ici ne remet jamais en cause la candidature déjà enregistrée.
+ */
+export const sendInternalNotification = async (candidature: any, age: number) => {
+  try {
+    const nom = escapeHtml(candidature.nomComplet?.trim() || "Candidat");
+    const formation = escapeHtml(candidature.choixFormation?.trim() || "—");
+    const ville = escapeHtml(candidature.ville?.trim() || "—");
+    const pays = escapeHtml(candidature.pays?.trim() || "—");
+    const email = escapeHtml(candidature.email || "—");
+    const whatsapp = escapeHtml(candidature.numeroWhatsapp || "—");
+    const submittedAt = formatSubmissionDate(
+      candidature.createdAt ? new Date(candidature.createdAt) : new Date()
+    );
+    const candidatureId = String(candidature._id || candidature.id || "");
+
+    // Sujet : nom complet non échappé HTML (texte brut) mais nettoyé des
+    // sauts de ligne/retours chariot pour empêcher toute injection d'en-tête.
+    const safeSubjectName = (candidature.nomComplet || "Candidat")
+      .replace(/[\r\n]+/g, " ")
+      .trim();
+
+    const subject = `[Admissions] Nouvelle candidature — ${safeSubjectName}`;
+
+    const text = `Nouvelle candidature reçue — Lap Nomba Foundation
+
+Nom complet : ${candidature.nomComplet}
+Formation choisie : ${candidature.choixFormation}
+Âge : ${age} ans
+Ville : ${candidature.ville}
+Pays : ${candidature.pays}
+Email : ${candidature.email}
+WhatsApp : ${candidature.numeroWhatsapp}
+Date de soumission : ${submittedAt}
+Statut : En attente
+Référence candidature : ${candidatureId}
+
+Consultez le tableau de bord admin pour traiter cette candidature.`;
+
+    const html = `
+      <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
+        <h2>Nouvelle candidature — ${nom}</h2>
+        <table style="border-collapse: collapse; width: 100%; max-width: 480px;">
+          <tbody>
+            <tr><td style="padding: 4px 12px 4px 0; color: #6B7280;">Nom complet</td><td><strong>${nom}</strong></td></tr>
+            <tr><td style="padding: 4px 12px 4px 0; color: #6B7280;">Formation choisie</td><td>${formation}</td></tr>
+            <tr><td style="padding: 4px 12px 4px 0; color: #6B7280;">Âge</td><td>${age} ans</td></tr>
+            <tr><td style="padding: 4px 12px 4px 0; color: #6B7280;">Ville</td><td>${ville}</td></tr>
+            <tr><td style="padding: 4px 12px 4px 0; color: #6B7280;">Pays</td><td>${pays}</td></tr>
+            <tr><td style="padding: 4px 12px 4px 0; color: #6B7280;">Email</td><td>${email}</td></tr>
+            <tr><td style="padding: 4px 12px 4px 0; color: #6B7280;">WhatsApp</td><td>${whatsapp}</td></tr>
+            <tr><td style="padding: 4px 12px 4px 0; color: #6B7280;">Date de soumission</td><td>${submittedAt}</td></tr>
+            <tr><td style="padding: 4px 12px 4px 0; color: #6B7280;">Statut</td><td>En attente</td></tr>
+            <tr><td style="padding: 4px 12px 4px 0; color: #6B7280;">Référence</td><td><code>${candidatureId}</code></td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top: 16px; color: #6B7280; font-size: 0.9em;">
+          Consultez le tableau de bord admin pour traiter cette candidature.
+        </p>
+      </div>
+    `;
+
+    await sendMail({ to: TRAINING_NOTIFICATION_EMAIL, subject, text, html });
+  } catch (error) {
+    logger.error("Échec de l'envoi de la notification interne (équipe formation)", {
       error: error instanceof Error ? error.message : error,
     });
   }

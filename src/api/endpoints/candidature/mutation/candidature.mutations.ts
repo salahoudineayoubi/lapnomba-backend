@@ -1,18 +1,50 @@
-import { UserInputError } from "apollo-server-express";
+import { UserInputError, ApolloError } from "apollo-server-express";
 import Candidature from "../../../../models/candidature";
-import { handleFileUploads, sendStatusEmail } from "./candidature.helpers";
+import { handleFileUploads, sendStatusEmail, sendInternalNotification } from "./candidature.helpers";
 import { validateCandidatureInput, ValidationError } from "./candidature.validation";
 import { FileValidationError } from "../../../../utils/fileValidation";
 import { explainTransitionRejection, CandidatureStatut } from "./candidature.stateMachine";
 import { requireAdmin, GraphQLContext, AdminTokenPayload } from "../../../../utils/auth";
+import { calculateAgeFromString, isEligibleForFreeTraining, FREE_TRAINING_MAX_AGE } from "../../../../utils/ageEligibility";
+import { checkRateLimit, RateLimitExceededError } from "../../../../utils/rateLimiter";
+
+export const FREE_TRAINING_AGE_NOT_ELIGIBLE_CODE = "FREE_TRAINING_AGE_NOT_ELIGIBLE";
+
+// 5 soumissions / 15 min / IP : n'affecte jamais un candidat normal (une
+// seule soumission), freine la soumission automatisée en masse.
+const CREATE_CANDIDATURE_RATE_LIMIT = { maxRequests: 5, windowMs: 15 * 60 * 1000 };
 
 /**
  * createCandidature — PUBLIC.
  * Seule opération de ce module accessible sans authentification.
+ *
+ * L'orientation ">25 ans → Academy" est décidée EARLY côté frontend (avant
+ * même que l'utilisateur ne remplisse les 3 étapes suivantes), mais cette
+ * vérification frontend n'est qu'une aide UX — elle est rejouée ici,
+ * intégralement, côté serveur. Un appel direct à cette mutation avec un
+ * candidat de plus de 25 ans est rejeté AVANT tout upload de fichier et
+ * AVANT toute écriture en base : aucune candidature "refusée" n'est créée
+ * pour ce cas, ce n'est pas un refus de candidature, c'est une orientation
+ * de parcours qui n'a jamais dû produire de candidature.
  */
-export const createCandidature = async (_: any, { input }: any) => {
+export const createCandidature = async (_: any, { input }: any, context?: GraphQLContext) => {
   try {
+    if (context?.ip) {
+      checkRateLimit(`createCandidature:${context.ip}`, CREATE_CANDIDATURE_RATE_LIMIT);
+    }
+
     const validatedInput = validateCandidatureInput(input);
+
+    const age = calculateAgeFromString(validatedInput.dateNaissance);
+
+    if (!isEligibleForFreeTraining(age)) {
+      throw new ApolloError(
+        "Candidate exceeds free training age limit.",
+        FREE_TRAINING_AGE_NOT_ELIGIBLE_CODE,
+        { maxAge: FREE_TRAINING_MAX_AGE }
+      );
+    }
+
     const { photoUrl, cvUrl } = await handleFileUploads(validatedInput);
 
     const candidature = new Candidature({
@@ -28,6 +60,7 @@ export const createCandidature = async (_: any, { input }: any) => {
     // Non bloquant : un échec SMTP ne doit jamais annuler/rollback la
     // candidature déjà enregistrée en base (voir sendStatusEmail).
     await sendStatusEmail(candidature.email, candidature.nomComplet, "CONFIRMATION");
+    await sendInternalNotification(candidature, age);
 
     return candidature;
   } catch (error: any) {
@@ -37,6 +70,10 @@ export const createCandidature = async (_: any, { input }: any) => {
 
     if (error instanceof ValidationError || error instanceof FileValidationError) {
       throw new UserInputError(error.message);
+    }
+
+    if (error instanceof RateLimitExceededError) {
+      throw new ApolloError(error.message, "RATE_LIMITED");
     }
 
     throw error;

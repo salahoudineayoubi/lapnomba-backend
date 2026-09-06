@@ -627,37 +627,6 @@ Outils & Méthodes
 
 Maîtriser les outils de gestion de projet (Jira, Trello, MS Project) et les méthodologies agiles (Scrum, Kanban).
 
-Indépendance Financière
-
-Trading & Finance Numérique
-C'est quoi le Trading à la Fondation ? Ce n'est pas un jeu de hasard, c'est une discipline mathématique. Il s'agit d'analyser les flux de capitaux mondiaux pour prendre des décisions d'investissement basées sur des données probantes.
-
-À la Fondation Lap Nomba, nous combattons les arnaques financières en formant les jeunes aux véritables métiers de la finance. Nous apprenons à nos étudiants à construire des algorithmes de trading, à comprendre l'économie globale et surtout à maîtriser le risque. Le but : créer une génération d'investisseurs avertis et éthiques.
-
-Analyse Technique
-
-Lecture de graphiques & indicateurs
-
-Algo-Trading
-
-Automatisation de stratégies
-
-Gestion des Risques
-
-Gouvernance & Conformité
-
-Finance Quantitative
-
-Modélisation mathématique
-
-Cryptographie
-
-Protection des données
-
-Psychologie de Marché
-
-Discipline & Contrôle émotionnel
-
 L'Internet de la Valeur
 
 Blockchain & Smart Contracts
@@ -910,8 +879,6 @@ Cybersécurité (Sécurité réseau, audits, tests d’intrusion)
 Blockchain & Web3 (Smart Contracts, Solidity, DApps)
 
 IoT & Robotique
-
-FinTech & Trading numérique
 
 En intégrant nos jeunes talents, vous contribuez à leur insertion professionnelle tout en bénéficiant de compétences de qualité pour vos projets numériques.
 

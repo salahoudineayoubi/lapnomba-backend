@@ -1,7 +1,19 @@
 import * as CandidatureQueries from "./mutation/candidature.queries";
 import * as CandidatureMutations from "./mutation/candidature.mutations";
+import { calculateAgeFromString } from "../../../utils/ageEligibility";
 
 export const candidatureResolvers = {
+  Candidature: {
+    // Recalculé à chaque requête depuis dateNaissance — jamais persisté.
+    age: (parent: any) => {
+      try {
+        return calculateAgeFromString(parent.dateNaissance);
+      } catch {
+        return null;
+      }
+    },
+  },
+
   Query: {
     candidatures: CandidatureQueries.candidatures,
     candidaturesPaginated: CandidatureQueries.candidaturesPaginated,
