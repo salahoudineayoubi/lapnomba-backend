@@ -32,6 +32,13 @@ async function startServer() {
 
     const app: Application = express();
 
+    // Le serveur tourne derrière le proxy/load balancer de la plateforme
+    // d'hébergement (TLS terminé en amont) — nécessaire pour que
+    // req.protocol/req.get("host") reflètent la vraie requête entrante
+    // (utilisé pour générer des URLs de fichiers toujours valides, voir
+    // api/routes/founderVideo.routes.ts).
+    app.set("trust proxy", 1);
+
     const port = Number(process.env.PORT) || 4000;
 
     const appBaseUrl =

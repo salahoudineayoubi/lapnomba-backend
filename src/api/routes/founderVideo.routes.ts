@@ -28,8 +28,6 @@ const upload = multer({
 });
 
 const VIDEOS_DIR = path.join(process.cwd(), "public", "uploads", "videos");
-const BASE_URL =
-  process.env.APP_BASE_URL || "https://lobster-app-vdl5o.ondigitalocean.app";
 
 const ensureVideosDir = () => {
   if (!fs.existsSync(VIDEOS_DIR)) {
@@ -38,11 +36,13 @@ const ensureVideosDir = () => {
 };
 
 /**
- * Supprime l'ancien fichier vidéo local s'il existe et qu'il pointe bien
- * vers notre dossier d'upload (jamais un chemin arbitraire).
+ * Supprime l'ancien fichier vidéo local s'il existe, en se basant
+ * uniquement sur le nom de fichier après "/uploads/videos/" (jamais un
+ * chemin arbitraire) — indépendant du domaine utilisé pour l'URL, qui peut
+ * changer selon APP_BASE_URL au fil du temps.
  */
 const deleteOldVideoFile = (url?: string | null) => {
-  if (!url || !url.startsWith(`${BASE_URL}/uploads/videos/`)) return;
+  if (!url || !url.includes("/uploads/videos/")) return;
 
   const fileName = url.split("/uploads/videos/").pop();
   if (!fileName) return;
@@ -85,7 +85,12 @@ router.post("/upload", isAuth, upload.single("video"), async (req, res) => {
     const filePath = path.join(VIDEOS_DIR, fileName);
     fs.writeFileSync(filePath, req.file.buffer);
 
-    const videoUrl = `${BASE_URL}/uploads/videos/${fileName}`;
+    // Dérivé de la requête entrante plutôt que d'APP_BASE_URL : si cette
+    // requête a atteint le serveur, le domaine utilisé est nécessairement
+    // valide — contrairement à une variable d'env qui peut pointer vers un
+    // sous-domaine jamais configuré en DNS (ex: api.lapnomba.org).
+    const requestBaseUrl = `${req.protocol}://${req.get("host")}`;
+    const videoUrl = `${requestBaseUrl}/uploads/videos/${fileName}`;
 
     const existing = await getFounderHistoryVideo();
     const previousUrl = lang === "fr" ? existing?.videoFr : existing?.videoEn;
