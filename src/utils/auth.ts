@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken";
 import { AuthenticationError } from "apollo-server-express";
-import config from "../config";
 
 /**
  * Auth partagé — admin uniquement.
@@ -18,11 +17,33 @@ export interface AdminTokenPayload {
   role: "admin";
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || config.jwtSecret;
+/**
+ * Aucun secret par défaut : sans JWT_SECRET, n'importe qui pourrait forger
+ * un token admin. `assertJwtSecretConfigured` est appelé au démarrage du
+ * serveur (app.ts) pour refuser de démarrer sans secret.
+ */
+const MIN_JWT_SECRET_LENGTH = 32;
+
+const getJwtSecret = (): string => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error("JWT_SECRET manquant : impossible de signer ou vérifier les tokens admin.");
+  }
+  return secret;
+};
+
+/** Lève une erreur si JWT_SECRET est absent ; retourne un avertissement s'il est trop court. */
+export const assertJwtSecretConfigured = (): string | null => {
+  const secret = getJwtSecret();
+  if (secret.length < MIN_JWT_SECRET_LENGTH) {
+    return `JWT_SECRET trop court (${secret.length} caractères) : utilisez au moins ${MIN_JWT_SECRET_LENGTH} caractères aléatoires.`;
+  }
+  return null;
+};
 const ADMIN_TOKEN_EXPIRY = process.env.ADMIN_TOKEN_EXPIRY || "12h";
 
 export const signAdminToken = (payload: AdminTokenPayload): string => {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: ADMIN_TOKEN_EXPIRY } as jwt.SignOptions);
+  return jwt.sign(payload, getJwtSecret(), { expiresIn: ADMIN_TOKEN_EXPIRY } as jwt.SignOptions);
 };
 
 /**
@@ -31,7 +52,7 @@ export const signAdminToken = (payload: AdminTokenPayload): string => {
  */
 export const verifyAdminToken = (token: string): AdminTokenPayload | null => {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as AdminTokenPayload;
+    const decoded = jwt.verify(token, getJwtSecret()) as AdminTokenPayload;
 
     if (!decoded || decoded.role !== "admin" || !decoded.email) {
       return null;

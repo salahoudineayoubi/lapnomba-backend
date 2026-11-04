@@ -30,7 +30,7 @@ describe("utils/auth", () => {
     it("rejette un token expiré", () => {
       const expired = jwt.sign(
         { email: "admin@lapnomba.org", role: "admin" },
-        process.env.JWT_SECRET || "your_jwt_secret",
+        process.env.JWT_SECRET as string,
         { expiresIn: -10 }
       );
       expect(verifyAdminToken(expired)).toBeNull();

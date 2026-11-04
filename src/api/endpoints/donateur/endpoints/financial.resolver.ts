@@ -1,21 +1,16 @@
 import { DonationModel } from "../../../../models/donor";
 import logger from "../../../../utils/logger";
-import {
-  createSmobilpayOrderForDonation,
-  verifyAndSyncDonationWithSmobilpay,
-} from "../../../../services/smobilpay/smobilpay.service";
+import { createSmobilpayOrderForDonation } from "../../../../services/smobilpay/smobilpay.service";
 
 import {
   ensureValidFinancialDonationInput,
   ensureValidBankTransferInput,
   createFinancialDonationRecord,
   createBankTransferDonationRecord,
-  ensureCampaignStatsUpdated,
-  markDonationAsCompleted,
   markDonationAsFailed,
 } from "./financia/helpers";
 
-import { sendCompletionNotificationsSilently } from "./financia/notifications";
+import { completeDonationOnce, confirmDonationPayment } from "./financia/completion";
 import { donationMessages } from "./financia/message";
 
 export const financialDonationResolvers = {
@@ -166,37 +161,13 @@ export const financialDonationResolvers = {
       _: any,
       { donationId }: { donationId: string }
     ) => {
-      const before = await DonationModel.findById(donationId);
+      const exists = await DonationModel.exists({ _id: donationId });
 
-      if (!before) {
+      if (!exists) {
         throw new Error(donationMessages.donationNotFound);
       }
 
-      const alreadyCompleted = before.status === "COMPLETED";
-      const donation = await verifyAndSyncDonationWithSmobilpay(donationId);
-
-      if (!alreadyCompleted && donation.status === "COMPLETED") {
-        await ensureCampaignStatsUpdated(donation);
-        sendCompletionNotificationsSilently(donation);
-
-        logger.info("Donation confirmée après vérification", {
-          donationId,
-          status: donation.status,
-          providerReference: donation.providerReference,
-          providerTransactionId: donation.providerTransactionId,
-          providerStatusRaw: donation.providerStatusRaw,
-        });
-      } else {
-        logger.info("Vérification donation effectuée", {
-          donationId,
-          status: donation.status,
-          providerReference: donation.providerReference,
-          providerTransactionId: donation.providerTransactionId,
-          providerStatusRaw: donation.providerStatusRaw,
-        });
-      }
-
-      return donation;
+      return await confirmDonationPayment(donationId);
     },
 
     markBankTransferAsCompleted: async (
@@ -213,20 +184,15 @@ export const financialDonationResolvers = {
         throw new Error(donationMessages.notABankTransfer);
       }
 
-      if (donation.status === "COMPLETED") {
+      const { donation: completed, justCompleted } = await completeDonationOnce(donationId);
+
+      if (!justCompleted) {
         throw new Error(donationMessages.bankTransferAlreadyValidated);
       }
 
-      await markDonationAsCompleted(donation);
-      await ensureCampaignStatsUpdated(donation);
-      sendCompletionNotificationsSilently(donation);
+      logger.info("Virement bancaire validé manuellement", { donationId });
 
-      logger.info("Virement bancaire validé manuellement", {
-        donationId,
-        status: donation.status,
-      });
-
-      return donation;
+      return completed;
     },
 
     markBankTransferAsFailed: async (

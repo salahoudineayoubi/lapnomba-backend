@@ -15,7 +15,6 @@ const config = {
     //   useUnifiedTopology: true,
     // },
   },
-  jwtSecret: process.env.JWT_SECRET || "your_jwt_secret",
   environment: process.env.NODE_ENV || "development",
 };
 

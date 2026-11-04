@@ -49,6 +49,8 @@ import { eventResolvers } from "./events/resolvers";
 import { founderVideoTypeDefs } from "./founderVideo/graphql";
 import { founderVideoResolvers } from "./founderVideo/resolvers";
 
+import { applyAdminGuards, privacyFieldResolvers } from "./accessControl";
+
 export const typeDefs = [
   rootTypeDefs,
   communityVoiceTypeDefs,
@@ -70,7 +72,7 @@ export const typeDefs = [
   founderVideoTypeDefs
 ];
 
-export const resolvers = [
+const rawResolvers = [
   communityVoiceResolvers,
   adminResolvers,
   newsletterResolvers,
@@ -88,3 +90,7 @@ export const resolvers = [
   eventResolvers,
   founderVideoResolvers,
 ];
+
+// Toutes les opérations listées dans accessControl.ts exigent un token admin ;
+// les coordonnées personnelles sont masquées pour les appels publics.
+export const resolvers = [...applyAdminGuards(rawResolvers), privacyFieldResolvers];

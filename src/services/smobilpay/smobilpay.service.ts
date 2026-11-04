@@ -374,9 +374,33 @@ export const getSmobilpayOrderDetailsByTxid = async (
   return response.data;
 };
 
+export type DonationProviderStatus =
+  | "PENDING"
+  | "COMPLETED"
+  | "FAILED"
+  | "CANCELED"
+  | "REFUNDED";
+
+/**
+ * Montant confirmé par Smobilpay, s'il figure dans la réponse de statut.
+ * `undefined` si le provider ne le renvoie pas (le contrôle est alors ignoré).
+ */
+const extractProviderAmount = (data: any): number | undefined => {
+  const raw = data?.amount ?? data?.data?.amount ?? data?.totalAmount;
+  const amount = Number(raw);
+  return raw === undefined || raw === null || Number.isNaN(amount) ? undefined : amount;
+};
+
+/**
+ * Interroge Smobilpay (seule source de vérité) et synchronise les champs
+ * provider du don. Ne passe JAMAIS le don en COMPLETED lui-même : ce passage
+ * est fait de façon atomique par `confirmDonationPayment` (voir
+ * api/endpoints/donateur/endpoints/financia/completion.ts), qui déclenche
+ * aussi une seule fois les stats de campagne et le reçu.
+ */
 export const verifyAndSyncDonationWithSmobilpay = async (
   donationId: string
-): Promise<IDonation> => {
+): Promise<{ donation: IDonation; providerStatus: DonationProviderStatus }> => {
   const donation = await DonationModel.findById(donationId);
 
   if (!donation) {
@@ -410,36 +434,51 @@ export const verifyAndSyncDonationWithSmobilpay = async (
   logger.info("📥 Réponse brute de vérification Smobilpay", statusResponse);
 
   const rawStatus = extractRawStatus(statusResponse);
-  const internalStatus = mapSmobilpayStatusToInternalStatus(rawStatus);
+  let providerStatus: DonationProviderStatus =
+    mapSmobilpayStatusToInternalStatus(rawStatus);
+
+  // Un paiement "réussi" d'un montant différent de celui enregistré n'est
+  // pas accepté : il reste PENDING et doit être examiné par un admin.
+  const providerAmount = extractProviderAmount(statusResponse);
+  if (
+    providerStatus === "COMPLETED" &&
+    providerAmount !== undefined &&
+    providerAmount !== Number(donation.amount)
+  ) {
+    logger.error("❌ Montant Smobilpay différent du don enregistré", {
+      donationId: donation.id,
+      expected: donation.amount,
+      received: providerAmount,
+    });
+    providerStatus = "PENDING";
+  }
 
   donation.providerStatusRaw = rawStatus;
   donation.providerResponse = statusResponse;
 
-  if (internalStatus === "COMPLETED") {
-    if (donation.status !== "COMPLETED") {
-      donation.status = "COMPLETED";
-      donation.paidAt = new Date();
-      donation.failedAt = undefined;
+  // Un don déjà COMPLETED ne peut plus que passer en REFUNDED.
+  if (donation.status !== "COMPLETED") {
+    if (providerStatus === "FAILED") {
+      donation.status = "FAILED";
+      donation.failedAt = new Date();
+    } else if (providerStatus === "CANCELED") {
+      donation.status = "CANCELED";
+    } else if (providerStatus === "PENDING") {
+      donation.status = "PENDING";
     }
-  } else if (internalStatus === "FAILED") {
-    donation.status = "FAILED";
-    donation.failedAt = new Date();
-  } else if (internalStatus === "CANCELED") {
-    donation.status = "CANCELED";
-  } else if (internalStatus === "REFUNDED") {
+  }
+  if (providerStatus === "REFUNDED") {
     donation.status = "REFUNDED";
-  } else {
-    donation.status = "PENDING";
   }
 
-  logger.info("✅ Statut donation après mapping", {
+  logger.info("✅ Statut Smobilpay du don", {
     donationId: donation.id,
     rawStatus,
-    internalStatus,
-    finalStatus: donation.status,
+    providerStatus,
+    currentStatus: donation.status,
   });
 
   await donation.save();
 
-  return donation;
+  return { donation, providerStatus };
 };

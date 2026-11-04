@@ -280,3 +280,91 @@ export const verifyAcademyPaymentByMerchantReference = async (
 
   return response.data;
 };
+// ---------------------------------------------------------------------------
+// Confirmation d'un paiement Academy auprès de Smobilpay
+// ---------------------------------------------------------------------------
+
+export type AcademyPaymentStatus = "pending" | "completed" | "failed" | "canceled" | "refunded";
+
+export const mapSmobilpayStatusToAcademyStatus = (rawStatus?: string): AcademyPaymentStatus => {
+  const normalized = (rawStatus || "").toUpperCase().trim();
+
+  if (["CONFIRMED", "SUCCESS", "SUCCESSFUL", "COMPLETED", "COMPLETE", "PAID", "APPROVED"].includes(normalized)) {
+    return "completed";
+  }
+  if (["FAILED", "FAIL", "ERROR", "DECLINED", "REJECTED"].includes(normalized)) {
+    return "failed";
+  }
+  if (["CANCELED", "CANCELLED"].includes(normalized)) {
+    return "canceled";
+  }
+  if (normalized === "REFUNDED") {
+    return "refunded";
+  }
+  return "pending";
+};
+
+const extractProviderAmount = (data: any): number | undefined => {
+  const raw = data?.amount ?? data?.data?.amount ?? data?.totalAmount;
+  const amount = Number(raw);
+  return raw === undefined || raw === null || Number.isNaN(amount) ? undefined : amount;
+};
+
+export const updateEnrollmentPaymentStatus = async (payment: any) => {
+  if (payment.status !== "completed") return;
+
+  await AcademyEnrollment.findByIdAndUpdate(payment.enrollmentId, {
+    paymentStatus: payment.paymentType === "full" ? "paye" : "partiel",
+  });
+};
+
+/**
+ * Seul chemin de confirmation d'un paiement Academy en ligne : le statut est
+ * toujours relu chez Smobilpay (jamais accepté depuis le client ni depuis le
+ * corps d'un webhook). Utilisé par `verifyAcademyPayment` et par le webhook.
+ */
+export const confirmAcademyPaymentWithProvider = async (paymentId: string) => {
+  const payment = await AcademyPayment.findById(paymentId);
+
+  if (!payment) {
+    throw new Error("Paiement Academy introuvable.");
+  }
+
+  let statusResponse: any = null;
+
+  if (payment.providerTransactionId) {
+    statusResponse = await verifyAcademyPaymentByTxid(payment.providerTransactionId);
+  } else if (payment.providerReference) {
+    statusResponse = await verifyAcademyPaymentByMerchantReference(payment.providerReference);
+  } else {
+    throw new Error("Impossible de vérifier le paiement : aucune référence provider disponible.");
+  }
+
+  const rawStatus = extractRawStatus(statusResponse);
+  let status = mapSmobilpayStatusToAcademyStatus(rawStatus);
+
+  const providerAmount = extractProviderAmount(statusResponse);
+  if (status === "completed" && providerAmount !== undefined && providerAmount !== Number(payment.amount)) {
+    logger.error("❌ Montant Smobilpay différent du paiement Academy", {
+      academyPaymentId: String(payment._id),
+      expected: payment.amount,
+      received: providerAmount,
+    });
+    status = "pending";
+  }
+
+  payment.note = rawStatus;
+
+  // Un paiement déjà confirmé ne peut plus que passer en "refunded".
+  if (payment.status !== "completed" || status === "refunded") {
+    if (status === "completed") {
+      payment.paidAt = new Date();
+    }
+    payment.status = status;
+  }
+
+  await payment.save();
+  await updateEnrollmentPaymentStatus(payment);
+
+  return payment;
+};

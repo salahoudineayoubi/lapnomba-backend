@@ -10,11 +10,15 @@ import { typeDefs, resolvers } from "./api/endpoints";
 import exportExcelRouter from "./api/endpoints/candidature/exportExcel";
 import smobilpayWebhookRouter from "./api/routes/smobilpayWebhook.routes";
 import founderVideoRouter from "./api/routes/founderVideo.routes";
-import { getAdminFromAuthHeader } from "./utils/auth";
+import { getAdminFromAuthHeader, assertJwtSecretConfigured } from "./utils/auth";
 import { verifySmtpConnection } from "./utils/sendMail";
 
 async function startServer() {
   try {
+    // Refuse de démarrer sans secret JWT (sinon tokens admin forgeables).
+    const jwtWarning = assertJwtSecretConfigured();
+    if (jwtWarning) logger.warn(`⚠️ ${jwtWarning}`);
+
     await connectMongo();
     logger.info("✅ Connecté à MongoDB");
 
@@ -66,6 +70,9 @@ async function startServer() {
       "http://localhost:3000",
       "http://localhost:3001",
       "https://lapnomba.org",
+      "https://www.lapnomba.org",
+      "https://volunteer.lapnomba.org",
+      "https://talents.lapnomba.org",
       "https://admin.lapnomba.org",
       "https://admissions.lapnomba.org",
       "https://donate.lapnomba.org",

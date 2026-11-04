@@ -90,10 +90,19 @@ jest.mock("../../src/models/acdemy/progress", () => {
   return { __esModule: true, default: ctor };
 });
 
+// Le service réel est utilisé (la logique de confirmation y vit) ; seuls
+// l'initiation et l'appel réseau vers Smobilpay sont simulés.
+jest.mock("../../src/config/smobilpay", () => ({
+  __esModule: true,
+  default: { orderStatusUrl: "https://smobilpay.test/status" },
+}));
+jest.mock("../../src/services/smobilpay/smobilpay.client", () => ({
+  smobilpayGet: jest.fn(),
+  smobilpayPost: jest.fn(),
+}));
 jest.mock("../../src/services/academyPayment/academyPayment.service", () => ({
+  ...jest.requireActual("../../src/services/academyPayment/academyPayment.service"),
   initiateAcademyPayment: jest.fn().mockResolvedValue({ id: "pay1", status: "pending" }),
-  verifyAcademyPaymentByTxid: jest.fn(),
-  verifyAcademyPaymentByMerchantReference: jest.fn(),
 }));
 
 import AcademyApplication from "../../src/models/acdemy/application";
@@ -280,8 +289,8 @@ describe("Academy — opérations publiques préservées (comportement existant)
       save: jest.fn().mockResolvedValue(undefined),
     });
 
-    const { verifyAcademyPaymentByTxid } = require("../../src/services/academyPayment/academyPayment.service");
-    verifyAcademyPaymentByTxid.mockResolvedValue({ status: "CONFIRMED" });
+    const { smobilpayGet } = require("../../src/services/smobilpay/smobilpay.client");
+    smobilpayGet.mockResolvedValue({ data: { status: "CONFIRMED" } });
 
     const AcademyEnrollment = require("../../src/models/acdemy/enrollment").default;
     AcademyEnrollment.findByIdAndUpdate.mockResolvedValue({});

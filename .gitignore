@@ -4,3 +4,11 @@ dist/
 *.env
 *.log
 .DS_Store
+
+# Fichiers générés à l'exécution / données personnelles (CV, reçus, vidéos)
+public/receipts/
+public/uploads/
+
+# Clés et secrets
+*.key
+*.pem

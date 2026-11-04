@@ -1,12 +1,11 @@
 import AcademyPayment from "../../../../../models/acdemy/payment";
-import AcademyEnrollment from "../../../../../models/acdemy/enrollment";
 import { requireAdmin, GraphQLContext } from "../../../../../utils/auth";
 import { checkRateLimit, RateLimitExceededError } from "../../../../../utils/rateLimiter";
 
 import {
   initiateAcademyPayment,
-  verifyAcademyPaymentByMerchantReference,
-  verifyAcademyPaymentByTxid,
+  confirmAcademyPaymentWithProvider,
+  updateEnrollmentPaymentStatus,
 } from "../../../../../services/academyPayment/academyPayment.service";
 
 // `initiateAcademyPayment`/`verifyAcademyPayment` restent PUBLIC — c'est le
@@ -15,61 +14,6 @@ import {
 // des paiements) est admin-only : la création légitime d'un paiement passe
 // par initiateAcademyPayment, jamais par createAcademyPayment côté client.
 const ACADEMY_PAYMENT_INIT_RATE_LIMIT = { maxRequests: 10, windowMs: 15 * 60 * 1000 };
-
-const mapSmobilpayStatusToAcademyStatus = (
-  rawStatus?: string
-): "pending" | "completed" | "failed" | "canceled" | "refunded" => {
-  const normalized = (rawStatus || "").toUpperCase().trim();
-
-  if (
-    [
-      "CONFIRMED",
-      "SUCCESS",
-      "SUCCESSFUL",
-      "COMPLETED",
-      "COMPLETE",
-      "PAID",
-      "APPROVED",
-    ].includes(normalized)
-  ) {
-    return "completed";
-  }
-
-  if (
-    ["FAILED", "FAIL", "ERROR", "DECLINED", "REJECTED"].includes(normalized)
-  ) {
-    return "failed";
-  }
-
-  if (["CANCELED", "CANCELLED"].includes(normalized)) {
-    return "canceled";
-  }
-
-  if (normalized === "REFUNDED") {
-    return "refunded";
-  }
-
-  return "pending";
-};
-
-const extractRawStatus = (data: any): string => {
-  return (
-    data?.status ||
-    data?.paymentStatus ||
-    data?.transactionStatus ||
-    data?.state ||
-    data?.data?.status ||
-    "PENDING"
-  );
-};
-
-const updateEnrollmentPaymentStatus = async (payment: any) => {
-  if (payment.status !== "completed") return;
-
-  await AcademyEnrollment.findByIdAndUpdate(payment.enrollmentId, {
-    paymentStatus: payment.paymentType === "full" ? "paye" : "partiel",
-  });
-};
 
 export const academyPaymentResolvers = {
   Query: {
@@ -157,43 +101,7 @@ export const academyPaymentResolvers = {
     // (voir academy_payment/return/index.tsx). Le statut réel est vérifié
     // auprès de Smobilpay, jamais accepté tel quel depuis le client.
     verifyAcademyPayment: async (_: any, { id }: { id: string }) => {
-      const payment = await AcademyPayment.findById(id);
-
-      if (!payment) {
-        throw new Error("Paiement Academy introuvable.");
-      }
-
-      let statusResponse: any = null;
-
-      if (payment.providerTransactionId) {
-        statusResponse = await verifyAcademyPaymentByTxid(
-          payment.providerTransactionId
-        );
-      } else if (payment.providerReference) {
-        statusResponse = await verifyAcademyPaymentByMerchantReference(
-          payment.providerReference
-        );
-      } else {
-        throw new Error(
-          "Impossible de vérifier le paiement : aucune référence provider disponible."
-        );
-      }
-
-      const rawStatus = extractRawStatus(statusResponse);
-      const mappedStatus = mapSmobilpayStatusToAcademyStatus(rawStatus);
-
-      payment.note = rawStatus;
-      payment.status = mappedStatus;
-
-      if (mappedStatus === "completed") {
-        payment.paidAt = new Date();
-      }
-
-      await payment.save();
-
-      await updateEnrollmentPaymentStatus(payment);
-
-      return payment;
+      return await confirmAcademyPaymentWithProvider(id);
     },
   },
 };
