@@ -27,6 +27,40 @@ export const normalizePhone = (phone?: string): string | undefined => {
   return cleaned;
 };
 
+// Limites des dons en ligne. Smobilpay (MTN MoMo / Orange Money / carte)
+// ne traite que le franc CFA : toute autre devise est refusée côté serveur.
+export const DONATION_LIMITS = {
+  currencies: ["XAF"],
+  minAmount: 500,
+  maxAmount: 10_000_000,
+} as const;
+
+const MOBILE_MONEY_METHODS = ["MOMO", "ORANGE_MONEY"];
+
+/** Vérifie devise + montant (entier, entre min et max). Lève une erreur sinon. */
+export const ensureValidDonationAmount = (amount: any, currency?: string) => {
+  const normalizedCurrency = normalizeCurrency(currency);
+  if (!(DONATION_LIMITS.currencies as readonly string[]).includes(normalizedCurrency)) {
+    throw new Error(`Devise non prise en charge : ${normalizedCurrency}. Les dons se font en XAF.`);
+  }
+
+  const value = Number(amount);
+  if (!Number.isInteger(value) || value < DONATION_LIMITS.minAmount || value > DONATION_LIMITS.maxAmount) {
+    throw new Error(
+      `Le montant doit être un nombre entier entre ${DONATION_LIMITS.minAmount} et ${DONATION_LIMITS.maxAmount} XAF.`
+    );
+  }
+};
+
+/** MoMo / Orange Money : numéro mobile camerounais obligatoire (6XXXXXXXX). */
+export const ensureValidMobileMoneyPhone = (paymentMethod?: string, phone?: string) => {
+  if (!paymentMethod || !MOBILE_MONEY_METHODS.includes(paymentMethod)) return;
+  const normalized = normalizePhone(phone);
+  if (!normalized || !/^6\d{8}$/.test(normalized)) {
+    throw new Error("Numéro mobile camerounais invalide (format attendu : 6XXXXXXXX).");
+  }
+};
+
 export const ensureValidFinancialDonationInput = (input: any) => {
   if (!input?.donorName?.trim()) {
     throw new Error(donationMessages.donorNameRequired);
@@ -51,6 +85,9 @@ export const ensureValidFinancialDonationInput = (input: any) => {
   if (input.paymentMethod === "CASH") {
     throw new Error(donationMessages.cashNotSupportedHere);
   }
+
+  ensureValidDonationAmount(input.amount, input.currency);
+  ensureValidMobileMoneyPhone(input.paymentMethod, input.donorPhone);
 };
 
 export const ensureValidBankTransferInput = (input: any) => {
@@ -69,6 +106,8 @@ export const ensureValidBankTransferInput = (input: any) => {
   if (!input?.reference?.trim()) {
     throw new Error(donationMessages.bankTransferReferenceRequired);
   }
+
+  ensureValidDonationAmount(input.amount, input.currency);
 };
 
 export const createFinancialDonationRecord = async (input: any) => {

@@ -1,5 +1,6 @@
 import { DonationModel, providerFromPaymentMethod } from "../../../../models/donor";
 import { CrowdfundingCampaignModel } from "../../../../models/crowdfunding_campaign";
+import { ensureValidDonationAmount, ensureValidMobileMoneyPhone } from "./financia/helpers";
 
 const slugify = (text: string): string => {
   return text
@@ -123,6 +124,9 @@ export const campaignResolvers = {
           "Pour un don de campagne par virement, utilise le flux dédié createBankTransferDonation avec campaignId."
         );
       }
+
+      ensureValidDonationAmount(input.amount, input.currency || campaign.currency);
+      ensureValidMobileMoneyPhone(paymentMethod, input.donorPhone);
 
       if (paymentMethod === "CASH") {
         throw new Error("Le paiement CASH n'est pas pris en charge pour ce flux.");

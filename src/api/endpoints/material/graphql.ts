@@ -9,9 +9,26 @@ export const materialTypeDefs = gql`
     typeMateriel: String!
     quantite: Int!
     details: String
+    etatMateriel: MaterialCondition
+    modeLivraison: MaterialDeliveryMode
+    adresse: String
     status: String!
     createdAt: String!
     updatedAt: String!
+  }
+
+  enum MaterialCondition {
+    NEW
+    VERY_GOOD
+    GOOD
+    REPAIRABLE
+    FOR_RECYCLING
+  }
+
+  enum MaterialDeliveryMode {
+    DROP_OFF
+    PICKUP
+    SHIPPING
   }
 
   input CreateMaterialInput {
@@ -21,6 +38,9 @@ export const materialTypeDefs = gql`
     typeMateriel: String!
     quantite: Int!
     details: String
+    etatMateriel: MaterialCondition
+    modeLivraison: MaterialDeliveryMode
+    adresse: String
   }
 
   type Query {

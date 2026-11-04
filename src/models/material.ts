@@ -9,6 +9,10 @@ export interface IMaterialDonation extends Document {
   quantity: number;
   description?: string;
 
+  itemCondition?: "NEW" | "VERY_GOOD" | "GOOD" | "REPAIRABLE" | "FOR_RECYCLING";
+  deliveryMode?: "DROP_OFF" | "PICKUP" | "SHIPPING";
+  address?: string;
+
   status: string;
 
   createdAt: Date;
@@ -48,6 +52,22 @@ const MaterialDonationSchema = new Schema<IMaterialDonation>(
     },
 
     description: {
+      type: String,
+      trim: true,
+    },
+
+    itemCondition: {
+      type: String,
+      enum: ["NEW", "VERY_GOOD", "GOOD", "REPAIRABLE", "FOR_RECYCLING"],
+    },
+
+    deliveryMode: {
+      type: String,
+      enum: ["DROP_OFF", "PICKUP", "SHIPPING"],
+    },
+
+    // Adresse de ramassage / d'expédition (obligatoire sauf dépôt sur place).
+    address: {
       type: String,
       trim: true,
     },

@@ -25,6 +25,15 @@ export const materialResolvers = {
         throw new Error("La quantité doit être supérieure à 0.");
       }
 
+      const needsAddress = input.modeLivraison === "PICKUP" || input.modeLivraison === "SHIPPING";
+      if (needsAddress && !input?.adresse?.trim()) {
+        throw new Error("L'adresse est requise pour un ramassage ou un envoi.");
+      }
+
+      if (!input?.telephone?.trim() && !input?.email?.trim()) {
+        throw new Error("Indiquez au moins un téléphone ou un e-mail pour que nous puissions vous recontacter.");
+      }
+
       const material = await MaterialDonationModel.create({
         donorName: input.nom.trim(),
         donorPhone: input.telephone?.trim(),
@@ -32,6 +41,9 @@ export const materialResolvers = {
         itemType: input.typeMateriel.trim(),
         quantity: input.quantite,
         description: input.details?.trim(),
+        itemCondition: input.etatMateriel || undefined,
+        deliveryMode: input.modeLivraison || undefined,
+        address: needsAddress ? input.adresse.trim() : undefined,
         status: "PENDING",
       });
 
@@ -52,6 +64,9 @@ export const materialResolvers = {
     typeMateriel: (parent: any) => parent.itemType,
     quantite: (parent: any) => parent.quantity,
     details: (parent: any) => parent.description || null,
+    etatMateriel: (parent: any) => parent.itemCondition || null,
+    modeLivraison: (parent: any) => parent.deliveryMode || null,
+    adresse: (parent: any) => parent.address || null,
     status: (parent: any) => parent.status,
     createdAt: (parent: any) =>
       parent.createdAt ? new Date(parent.createdAt).toISOString() : null,
