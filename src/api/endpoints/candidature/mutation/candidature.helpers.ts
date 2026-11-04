@@ -174,7 +174,7 @@ Former. Innover. Transformer.${footerText}`,
     },
 
     APPROBATION: {
-      subject: "Validation de votre candidature - Fondation Lap Nomba",
+      subject: "Validation de votre candidature - Lap Nomba Foundation",
       text: `Bonjour ${plainName},
 
 Nous avons le plaisir de vous informer que votre candidature a été approuvée.
@@ -183,11 +183,11 @@ Vous pouvez désormais contacter notre équipe sur WhatsApp pour rejoindre votre
 
 ${whatsappLink}
 
-Nous vous félicitons pour cette étape et vous souhaitons la bienvenue au sein de l’écosystème de la Fondation Lap Nomba.
+Nous vous félicitons pour cette étape et vous souhaitons la bienvenue au sein de l’écosystème de la Lap Nomba Foundation.
 
 Cordialement,
 La Direction de la Formation
-Fondation Lap Nomba${footerText}`,
+Lap Nomba Foundation${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2>Validation de votre candidature</h2>
@@ -204,19 +204,19 @@ Fondation Lap Nomba${footerText}`,
           </p>
           <p>
             Nous vous félicitons pour cette étape et vous souhaitons la bienvenue au sein
-            de l’écosystème de la <strong>Fondation Lap Nomba</strong>.
+            de l’écosystème de la <strong>Lap Nomba Foundation</strong>.
           </p>
           <p>
             Cordialement,<br />
             <strong>La Direction de la Formation</strong><br />
-            Fondation Lap Nomba
+            Lap Nomba Foundation
           </p>${footerHtml}
         </div>
       `,
     },
 
     REFUS: {
-      subject: "Décision concernant votre candidature - Fondation Lap Nomba",
+      subject: "Décision concernant votre candidature - Lap Nomba Foundation",
       text: `Bonjour ${plainName},
 
 Après examen attentif de votre dossier, nous sommes au regret de vous informer que nous ne pouvons pas donner une suite favorable à votre candidature pour cette session.
@@ -225,7 +225,7 @@ Nous vous remercions pour l’intérêt accordé à nos programmes et vous encou
 
 Cordialement,
 La Direction de la Formation
-Fondation Lap Nomba${footerText}`,
+Lap Nomba Foundation${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2>Décision concernant votre candidature</h2>
@@ -242,7 +242,7 @@ Fondation Lap Nomba${footerText}`,
           <p>
             Cordialement,<br />
             <strong>La Direction de la Formation</strong><br />
-            Fondation Lap Nomba
+            Lap Nomba Foundation
           </p>${footerHtml}
         </div>
       `,

@@ -75,7 +75,7 @@ export async function generateAndSendReceipt(donation: any): Promise<boolean> {
       doc.image(logoPath, 50, 45, { width: 60 });
     }
 
-    doc.fillColor("#1a237e").fontSize(20).text("FONDATION LAP NOMBA", 120, 50);
+    doc.fillColor("#1a237e").fontSize(20).text("LAP NOMBA FOUNDATION", 120, 50);
     doc
       .fillColor("#444")
       .fontSize(10)
@@ -156,7 +156,7 @@ export async function generateAndSendReceipt(donation: any): Promise<boolean> {
       .fontSize(10)
       .fillColor("#444")
       .text(
-        "La Fondation Lap Nomba certifie avoir reçu ce don pour soutenir ses actions de sensibilisation, de formation et d’intégration des jeunes vers des opportunités numériques éthiques et durables.",
+        "La Lap Nomba Foundation certifie avoir reçu ce don pour soutenir ses actions de sensibilisation, de formation et d’intégration des jeunes vers des opportunités numériques éthiques et durables.",
         { align: "justify", lineGap: 2 }
       );
 
@@ -173,7 +173,7 @@ export async function generateAndSendReceipt(donation: any): Promise<boolean> {
       .fontSize(8)
       .fillColor("#999")
       .text(
-        "Document généré automatiquement par le système de gestion de la Fondation Lap Nomba.",
+        "Document généré automatiquement par le système de gestion de la Lap Nomba Foundation.",
         50,
         780,
         { align: "center" }
@@ -210,7 +210,7 @@ export async function generateAndSendReceipt(donation: any): Promise<boolean> {
                 </p>
 
                 <p>
-                  Votre contribution soutient directement les actions de la Fondation Lap Nomba
+                  Votre contribution soutient directement les actions de la Lap Nomba Foundation
                   en faveur de la sensibilisation, de la formation et de l’intégration des jeunes
                   dans des parcours numériques éthiques.
                 </p>
@@ -221,7 +221,7 @@ export async function generateAndSendReceipt(donation: any): Promise<boolean> {
 
                 <p>
                   Avec toute notre gratitude,<br />
-                  <strong>Fondation Lap Nomba</strong>
+                  <strong>Lap Nomba Foundation</strong>
                 </p>${buildSupportFooterHtml()}
               </div>
             `,

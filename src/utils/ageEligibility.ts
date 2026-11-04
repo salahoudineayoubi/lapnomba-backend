@@ -8,6 +8,9 @@
  */
 
 export const FREE_TRAINING_MAX_AGE = 25;
+/** Âge minimum pour candidater ; consentement parental obligatoire jusqu'à ADULT_AGE. */
+export const MIN_APPLICATION_AGE = 16;
+export const ADULT_AGE = 18;
 
 export class InvalidDateOfBirthError extends Error {}
 

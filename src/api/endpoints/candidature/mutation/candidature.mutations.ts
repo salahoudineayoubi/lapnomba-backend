@@ -6,10 +6,17 @@ import AcademyProgram from "../../../../models/acdemy/program";
 import { FileValidationError } from "../../../../utils/fileValidation";
 import { explainTransitionRejection, CandidatureStatut } from "./candidature.stateMachine";
 import { requireAdmin, GraphQLContext, AdminTokenPayload } from "../../../../utils/auth";
-import { calculateAgeFromString, isEligibleForFreeTraining, FREE_TRAINING_MAX_AGE } from "../../../../utils/ageEligibility";
+import {
+  calculateAgeFromString,
+  isEligibleForFreeTraining,
+  FREE_TRAINING_MAX_AGE,
+  MIN_APPLICATION_AGE,
+  ADULT_AGE,
+} from "../../../../utils/ageEligibility";
 import { checkRateLimit, RateLimitExceededError } from "../../../../utils/rateLimiter";
 
 export const FREE_TRAINING_AGE_NOT_ELIGIBLE_CODE = "FREE_TRAINING_AGE_NOT_ELIGIBLE";
+export const MIN_AGE_NOT_MET_CODE = "MIN_AGE_NOT_MET";
 
 // 5 soumissions / 15 min / IP : n'affecte jamais un candidat normal (une
 // seule soumission), freine la soumission automatisée en masse.
@@ -43,7 +50,10 @@ const ensureKnownAcademyProgram = async (choixFormation: string) => {
     $or: [{ title: exact }, { slug: value.toLowerCase() }],
   });
   if (!found) {
-    throw new ValidationError("Cette formation n'est pas proposée actuellement. Choisissez une formation dans la liste.");
+    throw new ValidationError(
+      "Cette formation n'est pas proposée actuellement. Choisissez une formation dans la liste.",
+      "UNKNOWN_PROGRAM"
+    );
   }
 };
 
@@ -58,11 +68,33 @@ export const createCandidature = async (_: any, { input }: any, context?: GraphQ
 
     const age = calculateAgeFromString(validatedInput.dateNaissance);
 
+    if (age < MIN_APPLICATION_AGE) {
+      throw new ApolloError(
+        `Il faut avoir au moins ${MIN_APPLICATION_AGE} ans pour candidater.`,
+        MIN_AGE_NOT_MET_CODE,
+        { minAge: MIN_APPLICATION_AGE }
+      );
+    }
+
     if (!isEligibleForFreeTraining(age)) {
       throw new ApolloError(
         "Candidate exceeds free training age limit.",
         FREE_TRAINING_AGE_NOT_ELIGIBLE_CODE,
         { maxAge: FREE_TRAINING_MAX_AGE }
+      );
+    }
+
+    // Consentements (RGPD / données de mineurs) : obligatoires, horodatés.
+    if (input?.consentementDonnees !== true) {
+      throw new ValidationError(
+        "Vous devez accepter le traitement de vos données pour candidater.",
+        "DATA_CONSENT_REQUIRED"
+      );
+    }
+    if (age < ADULT_AGE && input?.autorisationParentale !== true) {
+      throw new ValidationError(
+        "L'autorisation d'un parent ou tuteur est obligatoire avant 18 ans.",
+        "PARENTAL_CONSENT_REQUIRED"
       );
     }
 
@@ -74,6 +106,9 @@ export const createCandidature = async (_: any, { input }: any, context?: GraphQ
       cv: cvUrl,
       statut: "en attente",
       statusHistory: [],
+      consentementDonnees: true,
+      consentementDonneesAt: new Date(),
+      autorisationParentale: age < ADULT_AGE ? true : undefined,
     });
 
     await candidature.save();
@@ -86,11 +121,15 @@ export const createCandidature = async (_: any, { input }: any, context?: GraphQ
     return candidature;
   } catch (error: any) {
     if (error.code === 11000) {
-      throw new UserInputError("Cet email est déjà enregistré.");
+      throw new UserInputError("Cet email est déjà enregistré.", { reason: "DUPLICATE_EMAIL" });
     }
 
-    if (error instanceof ValidationError || error instanceof FileValidationError) {
-      throw new UserInputError(error.message);
+    if (error instanceof ValidationError) {
+      throw new UserInputError(error.message, { reason: error.reason ?? "INVALID_INPUT" });
+    }
+
+    if (error instanceof FileValidationError) {
+      throw new UserInputError(error.message, { reason: "INVALID_FILE" });
     }
 
     if (error instanceof RateLimitExceededError) {

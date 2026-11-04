@@ -8,7 +8,12 @@
 
 import { parseDateOfBirth, InvalidDateOfBirthError } from "../../../../utils/ageEligibility";
 
-export class ValidationError extends Error {}
+/** `reason` : code stable renvoyé au frontend (extensions.reason) pour cibler le bon champ. */
+export class ValidationError extends Error {
+  constructor(message: string, public reason?: string) {
+    super(message);
+  }
+}
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

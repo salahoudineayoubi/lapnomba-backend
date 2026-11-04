@@ -86,6 +86,8 @@ export const candidatureTypeDefs = gql`
     competencesCles: String
     accesInternet: String
     frequenceUtilisation: String
+    consentementDonnees: Boolean
+    autorisationParentale: Boolean
   }
 
   type Query {

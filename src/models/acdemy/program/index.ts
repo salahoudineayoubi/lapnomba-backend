@@ -60,7 +60,7 @@ const AcademyProgramSchema = new Schema<IAcademyProgram>(
     jobPathNote: {
       type: String,
       default:
-        "Parcours avec insertion professionnelle progressive via Lap Nomba Enterprise pour les profils validés.",
+        "Parcours avec insertion professionnelle progressive via Lap Nomba Engineering pour les profils validés.",
     },
 
     isActive: { type: Boolean, default: true },

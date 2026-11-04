@@ -12,17 +12,17 @@ const buildPsychosocialMail = (
 
   const messages = {
     CONFIRMATION: {
-      subject: "Confirmation de réception de votre engagement psychosocial - Fondation Lap Nomba",
+      subject: "Confirmation de réception de votre engagement psychosocial - Lap Nomba Foundation",
       text: `Bonjour ${safeName},
 
-Nous vous remercions sincèrement pour votre disponibilité et votre volonté d’accompagner les jeunes dans le cadre des actions de la Fondation Lap Nomba.
+Nous vous remercions sincèrement pour votre disponibilité et votre volonté d’accompagner les jeunes dans le cadre des actions de la Lap Nomba Foundation.
 
 Votre candidature à l’engagement psychosocial a bien été reçue et sera examinée avec attention par notre équipe.
 
 Nous reviendrons vers vous très prochainement pour la suite du processus.
 
 Cordialement,
-Fondation Lap Nomba${footerText}`,
+Lap Nomba Foundation${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2>Confirmation de réception de votre engagement psychosocial</h2>
@@ -30,7 +30,7 @@ Fondation Lap Nomba${footerText}`,
           <p>
             Nous vous remercions sincèrement pour votre disponibilité et votre volonté
             d’accompagner les jeunes dans le cadre des actions de la
-            <strong>Fondation Lap Nomba</strong>.
+            <strong>Lap Nomba Foundation</strong>.
           </p>
           <p>
             Votre candidature à l’engagement psychosocial a bien été reçue et sera
@@ -41,14 +41,14 @@ Fondation Lap Nomba${footerText}`,
           </p>
           <p>
             Cordialement,<br />
-            <strong>Fondation Lap Nomba</strong>
+            <strong>Lap Nomba Foundation</strong>
           </p>${footerHtml}
         </div>
       `,
     },
 
     APPROVAL: {
-      subject: "Validation de votre engagement psychosocial - Fondation Lap Nomba",
+      subject: "Validation de votre engagement psychosocial - Lap Nomba Foundation",
       text: `Bonjour ${safeName},
 
 Nous avons le plaisir de vous informer que votre candidature à l’engagement psychosocial a été approuvée.
@@ -58,7 +58,7 @@ Nous vous remercions pour votre disponibilité à contribuer à l’accompagneme
 Notre équipe vous contactera prochainement pour vous transmettre les prochaines étapes de collaboration.
 
 Cordialement,
-Fondation Lap Nomba${footerText}`,
+Lap Nomba Foundation${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2>Validation de votre engagement psychosocial</h2>
@@ -77,31 +77,31 @@ Fondation Lap Nomba${footerText}`,
           </p>
           <p>
             Cordialement,<br />
-            <strong>Fondation Lap Nomba</strong>
+            <strong>Lap Nomba Foundation</strong>
           </p>${footerHtml}
         </div>
       `,
     },
 
     REJECTION: {
-      subject: "Suivi de votre candidature psychosociale - Fondation Lap Nomba",
+      subject: "Suivi de votre candidature psychosociale - Lap Nomba Foundation",
       text: `Bonjour ${safeName},
 
-Nous vous remercions sincèrement pour l’intérêt porté à la mission de la Fondation Lap Nomba.
+Nous vous remercions sincèrement pour l’intérêt porté à la mission de la Lap Nomba Foundation.
 
 Après étude de votre candidature, nous sommes au regret de vous informer qu’elle n’a pas été retenue pour cette phase.
 
 Nous vous remercions pour votre engagement et vous encourageons à rester proche de nos initiatives.
 
 Cordialement,
-Fondation Lap Nomba${footerText}`,
+Lap Nomba Foundation${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2>Suivi de votre candidature psychosociale</h2>
           <p>Bonjour <strong>${safeName}</strong>,</p>
           <p>
             Nous vous remercions sincèrement pour l’intérêt porté à la mission de la
-            <strong>Fondation Lap Nomba</strong>.
+            <strong>Lap Nomba Foundation</strong>.
           </p>
           <p>
             Après étude de votre candidature, nous sommes au regret de vous informer
@@ -113,7 +113,7 @@ Fondation Lap Nomba${footerText}`,
           </p>
           <p>
             Cordialement,<br />
-            <strong>Fondation Lap Nomba</strong>
+            <strong>Lap Nomba Foundation</strong>
           </p>${footerHtml}
         </div>
       `,

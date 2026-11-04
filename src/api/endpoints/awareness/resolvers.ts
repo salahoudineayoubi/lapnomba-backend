@@ -14,10 +14,10 @@ const buildAwarenessMail = (
 
   const messages = {
     CONFIRMATION: {
-      subject: "Confirmation de réception de votre candidature - Fondation Lap Nomba",
+      subject: "Confirmation de réception de votre candidature - Lap Nomba Foundation",
       text: `Bonjour ${safeName},
 
-Nous vous remercions pour votre engagement en faveur de la mission de la Fondation Lap Nomba.
+Nous vous remercions pour votre engagement en faveur de la mission de la Lap Nomba Foundation.
 
 Votre candidature en tant qu’Agent de Sensibilisation a bien été reçue et enregistrée par notre équipe.
 
@@ -26,14 +26,14 @@ Nous préparons actuellement l’étude de votre dossier ainsi que les élément
 Nous reviendrons vers vous très prochainement pour la suite du processus.
 
 Cordialement,
-Fondation Lap Nomba${footerText}`,
+Lap Nomba Foundation${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2>Confirmation de réception de votre candidature</h2>
           <p>Bonjour <strong>${safeName}</strong>,</p>
           <p>
             Nous vous remercions pour votre engagement en faveur de la mission de la
-            <strong>Fondation Lap Nomba</strong>.
+            <strong>Lap Nomba Foundation</strong>.
           </p>
           <p>
             Votre candidature en tant qu’<strong>Agent de Sensibilisation</strong> a bien
@@ -48,24 +48,24 @@ Fondation Lap Nomba${footerText}`,
           </p>
           <p>
             Cordialement,<br />
-            <strong>Fondation Lap Nomba</strong>
+            <strong>Lap Nomba Foundation</strong>
           </p>${footerHtml}
         </div>
       `,
     },
 
     APPROBATION: {
-      subject: "Validation de votre candidature - Fondation Lap Nomba",
+      subject: "Validation de votre candidature - Lap Nomba Foundation",
       text: `Bonjour ${safeName},
 
 Nous avons le plaisir de vous informer que votre candidature en tant qu’Agent de Sensibilisation a été approuvée.
 
-Nous vous remercions pour votre disponibilité à contribuer aux actions de terrain de la Fondation Lap Nomba.
+Nous vous remercions pour votre disponibilité à contribuer aux actions de terrain de la Lap Nomba Foundation.
 
 Notre équipe vous contactera prochainement afin de vous transmettre les consignes de mobilisation, les éléments de travail et les prochaines étapes relatives à votre zone d’intervention.
 
 Cordialement,
-Fondation Lap Nomba${footerText}`,
+Lap Nomba Foundation${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2>Validation de votre candidature</h2>
@@ -76,7 +76,7 @@ Fondation Lap Nomba${footerText}`,
           </p>
           <p>
             Nous vous remercions pour votre disponibilité à contribuer aux actions de
-            terrain de la <strong>Fondation Lap Nomba</strong>.
+            terrain de la <strong>Lap Nomba Foundation</strong>.
           </p>
           <p>
             Notre équipe vous contactera prochainement afin de vous transmettre les
@@ -85,31 +85,31 @@ Fondation Lap Nomba${footerText}`,
           </p>
           <p>
             Cordialement,<br />
-            <strong>Fondation Lap Nomba</strong>
+            <strong>Lap Nomba Foundation</strong>
           </p>${footerHtml}
         </div>
       `,
     },
 
     REFUS: {
-      subject: "Suivi de votre candidature - Fondation Lap Nomba",
+      subject: "Suivi de votre candidature - Lap Nomba Foundation",
       text: `Bonjour ${safeName},
 
-Nous vous remercions sincèrement pour l’intérêt porté aux actions de la Fondation Lap Nomba.
+Nous vous remercions sincèrement pour l’intérêt porté aux actions de la Lap Nomba Foundation.
 
 Après examen de votre candidature, nous sommes au regret de vous informer qu’elle n’a pas été retenue pour cette phase.
 
 Nous saluons votre volonté de contribuer à la sensibilisation des jeunes et vous encourageons à rester proche de nos initiatives futures.
 
 Cordialement,
-Fondation Lap Nomba${footerText}`,
+Lap Nomba Foundation${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2>Suivi de votre candidature</h2>
           <p>Bonjour <strong>${safeName}</strong>,</p>
           <p>
             Nous vous remercions sincèrement pour l’intérêt porté aux actions de la
-            <strong>Fondation Lap Nomba</strong>.
+            <strong>Lap Nomba Foundation</strong>.
           </p>
           <p>
             Après examen de votre candidature, nous sommes au regret de vous informer
@@ -121,7 +121,7 @@ Fondation Lap Nomba${footerText}`,
           </p>
           <p>
             Cordialement,<br />
-            <strong>Fondation Lap Nomba</strong>
+            <strong>Lap Nomba Foundation</strong>
           </p>${footerHtml}
         </div>
       `,

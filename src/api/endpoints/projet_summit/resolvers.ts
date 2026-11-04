@@ -30,7 +30,7 @@
 //         "Votre projet a bien été soumis !",
 //         `Bonjour ${nomComplet},
 
-// Merci pour la soumission de votre projet "${nomProjet}" à la Fondation Lap Nomba.
+// Merci pour la soumission de votre projet "${nomProjet}" à la Lap Nomba Foundation.
 // Notre équipe va analyser votre proposition et vous contactera très prochainement
 // afin d’échanger sur les détails, les objectifs et les modalités de collaboration éventuelle.
 
@@ -46,7 +46,7 @@
 
 //     <h2 style="color:#222;">Bonjour ${nomComplet},</h2>
 //     <p style="font-size:16px; line-height:1.6;">
-//       Merci pour la soumission de votre projet <b>${nomProjet}</b> à la Fondation Lap Nomba.<br><br>
+//       Merci pour la soumission de votre projet <b>${nomProjet}</b> à la Lap Nomba Foundation.<br><br>
 //       Notre équipe va examiner attentivement votre proposition et vous contactera
 //       très prochainement pour discuter des modalités, des besoins techniques et
 //       des perspectives d’accompagnement.

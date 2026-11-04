@@ -13,10 +13,10 @@ const buildAmbassadorEmailContent = (
 
   const contents = {
     CONFIRMATION: {
-      subject: "Confirmation de réception de votre candidature - Fondation Lap Nomba",
+      subject: "Confirmation de réception de votre candidature - Lap Nomba Foundation",
       text: `Bonjour ${safeName},
 
-Nous vous remercions sincèrement pour l’intérêt que vous portez à la Fondation Lap Nomba.
+Nous vous remercions sincèrement pour l’intérêt que vous portez à la Lap Nomba Foundation.
 
 Votre candidature au programme Ambassadeur Digital a bien été reçue et enregistrée par notre équipe.
 
@@ -26,14 +26,14 @@ Vous serez recontacté très prochainement pour la suite du processus.
 
 Cordialement,
 Le Responsable de la Communication
-Fondation Lap Nomba${footerText}`,
+Lap Nomba Foundation${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2 style="margin-bottom: 16px;">Confirmation de réception de votre candidature</h2>
           <p>Bonjour <strong>${safeName}</strong>,</p>
           <p>
             Nous vous remercions sincèrement pour l’intérêt que vous portez à la
-            <strong>Fondation Lap Nomba</strong>.
+            <strong>Lap Nomba Foundation</strong>.
           </p>
           <p>
             Votre candidature au programme <strong>Ambassadeur Digital</strong> a bien été
@@ -49,34 +49,34 @@ Fondation Lap Nomba${footerText}`,
           <p>
             Cordialement,<br />
             <strong>Le Responsable de la Communication</strong><br />
-            Fondation Lap Nomba
+            Lap Nomba Foundation
           </p>${footerHtml}
         </div>
       `,
     },
 
     APPROBATION: {
-      subject: "Validation de votre candidature - Fondation Lap Nomba",
+      subject: "Validation de votre candidature - Lap Nomba Foundation",
       text: `Bonjour ${safeName},
 
-Nous avons le plaisir de vous informer que votre candidature au programme Ambassadeur Digital de la Fondation Lap Nomba a été approuvée.
+Nous avons le plaisir de vous informer que votre candidature au programme Ambassadeur Digital de la Lap Nomba Foundation a été approuvée.
 
 Nous vous remercions pour votre engagement et votre disponibilité à porter notre vision, nos valeurs et nos actions auprès du public.
 
 Notre équipe prendra contact avec vous très prochainement, notamment via WhatsApp, afin de vous transmettre les informations utiles, votre kit de démarrage ainsi que les prochaines étapes de collaboration.
 
-Bienvenue dans la communauté des Ambassadeurs de la Fondation Lap Nomba.
+Bienvenue dans la communauté des Ambassadeurs de la Lap Nomba Foundation.
 
 Cordialement,
 Le Responsable de la Communication
-Fondation Lap Nomba${footerText}`,
+Lap Nomba Foundation${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2 style="margin-bottom: 16px;">Validation de votre candidature</h2>
           <p>Bonjour <strong>${safeName}</strong>,</p>
           <p>
             Nous avons le plaisir de vous informer que votre candidature au programme
-            <strong>Ambassadeur Digital</strong> de la <strong>Fondation Lap Nomba</strong>
+            <strong>Ambassadeur Digital</strong> de la <strong>Lap Nomba Foundation</strong>
             a été approuvée.
           </p>
           <p>
@@ -89,22 +89,22 @@ Fondation Lap Nomba${footerText}`,
             démarrage ainsi que les prochaines étapes de collaboration.
           </p>
           <p>
-            <strong>Bienvenue dans la communauté des Ambassadeurs de la Fondation Lap Nomba.</strong>
+            <strong>Bienvenue dans la communauté des Ambassadeurs de la Lap Nomba Foundation.</strong>
           </p>
           <p>
             Cordialement,<br />
             <strong>Le Responsable de la Communication</strong><br />
-            Fondation Lap Nomba
+            Lap Nomba Foundation
           </p>${footerHtml}
         </div>
       `,
     },
 
     REFUS: {
-      subject: "Suivi de votre candidature - Fondation Lap Nomba",
+      subject: "Suivi de votre candidature - Lap Nomba Foundation",
       text: `Bonjour ${safeName},
 
-Nous vous remercions sincèrement pour votre intérêt envers la Fondation Lap Nomba et pour le temps consacré à votre candidature.
+Nous vous remercions sincèrement pour votre intérêt envers la Lap Nomba Foundation et pour le temps consacré à votre candidature.
 
 Après examen de votre dossier, nous sommes au regret de vous informer que votre candidature n’a pas été retenue pour cette phase du programme Ambassadeur Digital.
 
@@ -114,14 +114,14 @@ Nous vous remercions pour votre compréhension.
 
 Cordialement,
 Le Responsable de la Communication
-Fondation Lap Nomba${footerText}`,
+Lap Nomba Foundation${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2 style="margin-bottom: 16px;">Suivi de votre candidature</h2>
           <p>Bonjour <strong>${safeName}</strong>,</p>
           <p>
             Nous vous remercions sincèrement pour votre intérêt envers la
-            <strong>Fondation Lap Nomba</strong> et pour le temps consacré à votre candidature.
+            <strong>Lap Nomba Foundation</strong> et pour le temps consacré à votre candidature.
           </p>
           <p>
             Après examen de votre dossier, nous sommes au regret de vous informer que
@@ -137,7 +137,7 @@ Fondation Lap Nomba${footerText}`,
           <p>
             Cordialement,<br />
             <strong>Le Responsable de la Communication</strong><br />
-            Fondation Lap Nomba
+            Lap Nomba Foundation
           </p>${footerHtml}
         </div>
       `,

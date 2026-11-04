@@ -36,6 +36,10 @@ export interface ICandidature extends Document {
   accesInternet?: string;
   frequenceUtilisation?: string;
 
+  consentementDonnees?: boolean;
+  consentementDonneesAt?: Date;
+  autorisationParentale?: boolean;
+
   // AJOUT DU CHAMP STATUT
   statut: "en attente" | "approuvée" | "refusée";
 
@@ -87,6 +91,11 @@ const CandidatureSchema = new Schema<ICandidature>({
   competencesCles: { type: String },
   accesInternet: { type: String },
   frequenceUtilisation: { type: String },
+
+  // Consentements recueillis par le formulaire d'admission
+  consentementDonnees: { type: Boolean },
+  consentementDonneesAt: { type: Date },
+  autorisationParentale: { type: Boolean },
 
   // CONFIGURATION DU STATUT
   statut: {

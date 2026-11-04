@@ -76,6 +76,7 @@ const validInput = {
   email: "Jean.Dupont@Example.COM",
   choixFormation: "Développement web",
   pourquoiFormation: "Je veux apprendre à coder pour changer complètement de carrière.",
+  consentementDonnees: true,
 };
 
 beforeEach(() => {
@@ -114,6 +115,40 @@ describe("createCandidature (public)", () => {
       "Cet email est déjà enregistré."
     );
     expect(mockedSendMail).not.toHaveBeenCalled();
+  });
+
+  it("refuse un candidat de moins de 16 ans (code MIN_AGE_NOT_MET), sans rien enregistrer", async () => {
+    await expect(
+      createCandidature(null, { input: { ...validInput, dateNaissance: isoDateYearsAgo(15) } })
+    ).rejects.toMatchObject({ extensions: expect.objectContaining({ code: "MIN_AGE_NOT_MET" }) });
+    expect(mockConstructor).not.toHaveBeenCalled();
+  });
+
+  it("exige l'accord parental entre 16 et 18 ans", async () => {
+    await expect(
+      createCandidature(null, { input: { ...validInput, dateNaissance: isoDateYearsAgo(17) } })
+    ).rejects.toMatchObject({ extensions: expect.objectContaining({ reason: "PARENTAL_CONSENT_REQUIRED" }) });
+
+    await createCandidature(null, {
+      input: { ...validInput, dateNaissance: isoDateYearsAgo(17), autorisationParentale: true },
+    });
+    expect(mockConstructor).toHaveBeenCalledWith(expect.objectContaining({ autorisationParentale: true }));
+  });
+
+  it("exige le consentement au traitement des données", async () => {
+    await expect(
+      createCandidature(null, { input: { ...validInput, consentementDonnees: false } })
+    ).rejects.toMatchObject({ extensions: expect.objectContaining({ reason: "DATA_CONSENT_REQUIRED" }) });
+    expect(mockConstructor).not.toHaveBeenCalled();
+  });
+
+  it("renvoie reason DUPLICATE_EMAIL pour un e-mail déjà utilisé", async () => {
+    (Candidature as unknown as jest.Mock).mockImplementationOnce(() => ({
+      save: jest.fn().mockRejectedValue(Object.assign(new Error("duplicate"), { code: 11000 })),
+    }));
+    await expect(createCandidature(null, { input: validInput })).rejects.toMatchObject({
+      extensions: expect.objectContaining({ reason: "DUPLICATE_EMAIL" }),
+    });
   });
 
   it("rejette une formation qui n'est pas au catalogue (avant tout upload ou écriture)", async () => {

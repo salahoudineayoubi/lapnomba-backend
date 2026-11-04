@@ -12,24 +12,24 @@ const buildCommunityVoiceMail = (
 
   const messages = {
     CONFIRMATION: {
-      subject: "Confirmation de réception de votre avis - Fondation Lap Nomba",
+      subject: "Confirmation de réception de votre avis - Lap Nomba Foundation",
       text: `Bonjour ${safeName},
 
-Nous vous remercions pour votre contribution à la Fondation Lap Nomba.
+Nous vous remercions pour votre contribution à la Lap Nomba Foundation.
 
 Votre avis a bien été reçu et est actuellement en attente de modération par notre équipe.
 
 Nous vous informerons dès qu’il sera approuvé et publié.
 
 Cordialement,
-Fondation Lap Nomba${footerText}`,
+Lap Nomba Foundation${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2>Confirmation de réception de votre avis</h2>
           <p>Bonjour <strong>${safeName}</strong>,</p>
           <p>
             Nous vous remercions pour votre contribution à la
-            <strong>Fondation Lap Nomba</strong>.
+            <strong>Lap Nomba Foundation</strong>.
           </p>
           <p>
             Votre avis a bien été reçu et est actuellement en attente de modération
@@ -40,14 +40,14 @@ Fondation Lap Nomba${footerText}`,
           </p>
           <p>
             Cordialement,<br />
-            <strong>Fondation Lap Nomba</strong>
+            <strong>Lap Nomba Foundation</strong>
           </p>${footerHtml}
         </div>
       `,
     },
 
     APPROVAL: {
-      subject: "Votre avis a été approuvé - Fondation Lap Nomba",
+      subject: "Votre avis a été approuvé - Lap Nomba Foundation",
       text: `Bonjour ${safeName},
 
 Bonne nouvelle.
@@ -57,7 +57,7 @@ Votre avis a été approuvé et publié sur notre plateforme.
 Nous vous remercions pour votre contribution à la communauté Lap Nomba et pour votre confiance.
 
 Cordialement,
-Fondation Lap Nomba${footerText}`,
+Lap Nomba Foundation${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2>Votre avis a été approuvé</h2>
@@ -74,24 +74,24 @@ Fondation Lap Nomba${footerText}`,
           </p>
           <p>
             Cordialement,<br />
-            <strong>Fondation Lap Nomba</strong>
+            <strong>Lap Nomba Foundation</strong>
           </p>${footerHtml}
         </div>
       `,
     },
 
     REJECTION: {
-      subject: "Mise à jour concernant votre avis - Fondation Lap Nomba",
+      subject: "Mise à jour concernant votre avis - Lap Nomba Foundation",
       text: `Bonjour ${safeName},
 
 Nous vous remercions pour votre contribution.
 
 Après examen, votre avis n’a pas été retenu pour publication sur notre plateforme.
 
-Nous vous remercions pour votre compréhension et pour l’intérêt que vous portez aux actions de la Fondation Lap Nomba.
+Nous vous remercions pour votre compréhension et pour l’intérêt que vous portez aux actions de la Lap Nomba Foundation.
 
 Cordialement,
-Fondation Lap Nomba${footerText}`,
+Lap Nomba Foundation${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2>Mise à jour concernant votre avis</h2>
@@ -104,11 +104,11 @@ Fondation Lap Nomba${footerText}`,
           </p>
           <p>
             Nous vous remercions pour votre compréhension et pour l’intérêt que vous
-            portez aux actions de la Fondation Lap Nomba.
+            portez aux actions de la Lap Nomba Foundation.
           </p>
           <p>
             Cordialement,<br />
-            <strong>Fondation Lap Nomba</strong>
+            <strong>Lap Nomba Foundation</strong>
           </p>${footerHtml}
         </div>
       `,
