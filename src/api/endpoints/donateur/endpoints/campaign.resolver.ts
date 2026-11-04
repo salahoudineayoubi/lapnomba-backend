@@ -69,6 +69,21 @@ export const campaignResolvers = {
         throw new Error("Le montant cible doit être supérieur à 0.");
       }
 
+      // Couverture : uniquement les images proposées par le site (« preset:<id> »),
+      // jamais une URL externe arbitraire fournie par le public.
+      const coverImage =
+        typeof input?.coverImage === "string" && /^preset:[a-z]{2,30}$/.test(input.coverImage.trim())
+          ? input.coverImage.trim()
+          : undefined;
+
+      if (input.title.trim().length > 90) {
+        throw new Error("Le titre ne doit pas dépasser 90 caractères.");
+      }
+      if (input.story && input.story.length > 3000) {
+        throw new Error("L'histoire ne doit pas dépasser 3000 caractères.");
+      }
+      ensureValidDonationAmount(input.goalAmount, input.currency);
+
       const slug = await generateUniqueSlug(input.title);
 
       const campaign = await CrowdfundingCampaignModel.create({
@@ -79,7 +94,7 @@ export const campaignResolvers = {
         story: input.story?.trim(),
         organizerName: input.organizerName.trim(),
         organizerEmail: input.organizerEmail.trim().toLowerCase(),
-        coverImage: input.coverImage?.trim(),
+        coverImage,
         totalRaised: 0,
         donorsCount: 0,
         status: "ACTIVE",
