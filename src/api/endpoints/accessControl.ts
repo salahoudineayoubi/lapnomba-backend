@@ -40,6 +40,8 @@ export const ADMIN_ONLY_OPERATIONS = {
     "partner",
     // Voix de la communauté (modération)
     "getAllVoicesForAdmin",
+    // Mentors bénévoles
+    "mentorApplications",
   ],
   Mutation: [
     // Dons
@@ -65,6 +67,8 @@ export const ADMIN_ONLY_OPERATIONS = {
     // Voix de la communauté
     "approveVoice",
     "deleteVoice",
+    // Mentors bénévoles
+    "updateMentorApplicationStatus",
   ],
 } as const;
 

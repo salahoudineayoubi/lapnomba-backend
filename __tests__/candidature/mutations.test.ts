@@ -22,6 +22,13 @@ jest.mock("../../src/models/candidature", () => {
   return { __esModule: true, default: ctor };
 });
 
+// Catalogue Academy : la formation choisie doit exister et être active.
+const mockProgramExists = jest.fn();
+jest.mock("../../src/models/acdemy/program", () => ({
+  __esModule: true,
+  default: { exists: (...args: any[]) => mockProgramExists(...args) },
+}));
+
 jest.mock("../../src/utils/sendMail", () => ({
   sendMail: jest.fn().mockResolvedValue({ messageId: "mock-message-id" }),
   verifySmtpConnection: jest.fn().mockResolvedValue(true),
@@ -73,6 +80,7 @@ const validInput = {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockProgramExists.mockResolvedValue({ _id: "program-1" });
 });
 
 describe("createCandidature (public)", () => {
@@ -105,6 +113,17 @@ describe("createCandidature (public)", () => {
     await expect(createCandidature(null, { input: validInput })).rejects.toThrow(
       "Cet email est déjà enregistré."
     );
+    expect(mockedSendMail).not.toHaveBeenCalled();
+  });
+
+  it("rejette une formation qui n'est pas au catalogue (avant tout upload ou écriture)", async () => {
+    mockProgramExists.mockResolvedValue(null);
+
+    await expect(
+      createCandidature(null, { input: { ...validInput, choixFormation: "Formation inventée" } })
+    ).rejects.toThrow(/n'est pas proposée/);
+
+    expect(mockConstructor).not.toHaveBeenCalled();
     expect(mockedSendMail).not.toHaveBeenCalled();
   });
 

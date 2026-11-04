@@ -49,6 +49,9 @@ import { eventResolvers } from "./events/resolvers";
 import { founderVideoTypeDefs } from "./founderVideo/graphql";
 import { founderVideoResolvers } from "./founderVideo/resolvers";
 
+import { mentorTypeDefs } from "./mentor/graphql";
+import { mentorResolvers } from "./mentor/resolvers";
+
 import { applyAdminGuards, privacyFieldResolvers } from "./accessControl";
 
 export const typeDefs = [
@@ -69,7 +72,8 @@ export const typeDefs = [
   materialTypeDefs,
   academyTypeDefs,
   eventTypeDefs,
-  founderVideoTypeDefs
+  founderVideoTypeDefs,
+  mentorTypeDefs,
 ];
 
 const rawResolvers = [
@@ -89,6 +93,7 @@ const rawResolvers = [
   academyResolvers,
   eventResolvers,
   founderVideoResolvers,
+  mentorResolvers,
 ];
 
 // Toutes les opérations listées dans accessControl.ts exigent un token admin ;
