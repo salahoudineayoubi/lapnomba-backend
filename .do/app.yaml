@@ -22,7 +22,8 @@ services:
     envs:
       - { key: NODE_ENV, value: production, scope: RUN_TIME }
       - { key: PORT, value: "4000", scope: RUN_TIME }
-      - { key: APP_BASE_URL, value: "https://api.lapnomba.org", scope: RUN_TIME }
+      # Tant que le DNS api.lapnomba.org n'existe pas, utiliser l'URL DigitalOcean (sinon webhooks et liens cassés).
+      - { key: APP_BASE_URL, value: "https://lobster-app-vdl5o.ondigitalocean.app", scope: RUN_TIME }
       - { key: MONGO_URI, type: SECRET, scope: RUN_TIME }
       - { key: JWT_SECRET, type: SECRET, scope: RUN_TIME }
       - { key: ADMIN_EMAIL, type: SECRET, scope: RUN_TIME }
@@ -44,7 +45,7 @@ services:
       - { key: SMOBILPAY_ORDER_URL, scope: RUN_TIME }
       - { key: SMOBILPAY_ORDER_STATUS_URL, scope: RUN_TIME }
       - { key: SMOBILPAY_ORDER_DETAILS_URL, scope: RUN_TIME }
-      - { key: SMOBILPAY_CALLBACK_URL, value: "https://api.lapnomba.org/api/smobilpay/webhook", scope: RUN_TIME }
+      - { key: SMOBILPAY_CALLBACK_URL, value: "https://lobster-app-vdl5o.ondigitalocean.app/api/smobilpay/webhook", scope: RUN_TIME }
       - { key: SMOBILPAY_RETURN_URL, value: "https://donate.lapnomba.org/payment/return", scope: RUN_TIME }
       - { key: ACADEMY_PAYMENT_RETURN_URL, scope: RUN_TIME }
       - { key: SMOBILPAY_MTN_MERCHANT_CODE, scope: RUN_TIME }
@@ -53,6 +54,7 @@ services:
       - { key: SMOBILPAY_ORANGE_SERVICE_ID, scope: RUN_TIME }
       - { key: SMOBILPAY_CARD_MERCHANT_CODE, scope: RUN_TIME }
       - { key: SMOBILPAY_CARD_SERVICE_ID, scope: RUN_TIME }
-domains:
-  - domain: api.lapnomba.org
-    type: PRIMARY
+# Domaine à ajouter quand le DNS sera prêt (CNAME api → lobster-app-vdl5o.ondigitalocean.app) :
+# domains:
+#   - domain: api.lapnomba.org
+#     type: PRIMARY
