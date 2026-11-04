@@ -1,18 +1,14 @@
 import PDFDocument from "pdfkit";
 import fs from "fs";
 import path from "path";
-import nodemailer from "nodemailer";
 import { DonationModel } from "../models/donor";
+import { sendMail } from "./sendMail";
+import { buildSupportFooterHtml, getSupportContact } from "./emailSupport";
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || "smtp.gmail.com",
-  port: Number(process.env.SMTP_PORT) || 465,
-  secure: true,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+// Utilise désormais le transporteur SMTP centralisé (utils/sendMail) au lieu
+// d'un second transporteur dédié : même config host/port/secure/STARTTLS,
+// mêmes en-têtes From/Reply-To institutionnels pour tout email automatique
+// (voir "Global Transactional Email & Contact Standardization").
 
 function generateReceiptNumber(donation: any): string {
   const year = new Date().getFullYear();
@@ -91,7 +87,7 @@ export async function generateAndSendReceipt(donation: any): Promise<boolean> {
       .fillColor("#000")
       .fontSize(9)
       .text("Quartier Essomba – Yaoundé, Cameroun", 120, 95)
-      .text("Email: contact@lapnomba.org | Site: www.lapnomba.org", 120, 110);
+      .text(`Email: ${getSupportContact().email} | Site: www.lapnomba.org`, 120, 110);
 
     doc.rect(50, 140, 500, 2).fill("#1a237e");
 
@@ -200,10 +196,7 @@ export async function generateAndSendReceipt(donation: any): Promise<boolean> {
         );
 
         if (donation.donorEmail) {
-          await transporter.sendMail({
-            from: `"Fondation Lap Nomba" <${
-              process.env.SMTP_USER || "contact@lapnomba.org"
-            }>`,
+          await sendMail({
             to: donation.donorEmail,
             subject: `Votre reçu officiel de don - ${receiptNumber}`,
             html: `
@@ -229,7 +222,7 @@ export async function generateAndSendReceipt(donation: any): Promise<boolean> {
                 <p>
                   Avec toute notre gratitude,<br />
                   <strong>Fondation Lap Nomba</strong>
-                </p>
+                </p>${buildSupportFooterHtml()}
               </div>
             `,
             attachments: [{ filename: fileName, path: pdfPath }],

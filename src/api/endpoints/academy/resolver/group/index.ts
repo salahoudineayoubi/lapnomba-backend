@@ -1,19 +1,25 @@
 import AcademyGroup from "../../../../../models/acdemy/groupe";
 import AcademyEnrollment from "../../../../../models/acdemy/enrollment";
+import { requireAdmin, GraphQLContext } from "../../../../../utils/auth";
 
+// Groupes de formation — gestion admin uniquement, aucune consommation
+// publique dans le frontend Academy actuel.
 export const academyGroupResolvers = {
   Query: {
-    academyGroups: async () => {
+    academyGroups: async (_: any, __: any, context: GraphQLContext) => {
+      requireAdmin(context);
       return await AcademyGroup.find().sort({ createdAt: -1 });
     },
 
-    academyGroupById: async (_: any, { id }: { id: string }) => {
+    academyGroupById: async (_: any, { id }: { id: string }, context: GraphQLContext) => {
+      requireAdmin(context);
       return await AcademyGroup.findById(id);
     },
   },
 
   Mutation: {
-    createAcademyGroup: async (_: any, { input }: any) => {
+    createAcademyGroup: async (_: any, { input }: any, context: GraphQLContext) => {
+      requireAdmin(context);
       const group = new AcademyGroup({
         ...input,
         currentStudents: 0,
@@ -24,7 +30,9 @@ export const academyGroupResolvers = {
       return group;
     },
 
-    updateAcademyGroup: async (_: any, { input }: any) => {
+    updateAcademyGroup: async (_: any, { input }: any, context: GraphQLContext) => {
+      requireAdmin(context);
+
       const { id, ...updates } = input;
 
       const group = await AcademyGroup.findByIdAndUpdate(id, updates, {
@@ -38,7 +46,9 @@ export const academyGroupResolvers = {
       return group;
     },
 
-    deleteAcademyGroup: async (_: any, { id }: { id: string }) => {
+    deleteAcademyGroup: async (_: any, { id }: { id: string }, context: GraphQLContext) => {
+      requireAdmin(context);
+
       const hasStudents = await AcademyEnrollment.exists({ groupId: id });
 
       if (hasStudents) {

@@ -3,10 +3,12 @@ import AcademyApplication from "../../../../../models/acdemy/application";
 import AcademyEnrollment from "../../../../../models/acdemy/enrollment";
 import AcademyPayment from "../../../../../models/acdemy/payment";
 import AcademyProgress from "../../../../../models/acdemy/progress";
+import { requireAdmin, GraphQLContext } from "../../../../../utils/auth";
 
 export const academyStatsResolvers = {
   Query: {
-    academyStats: async () => {
+    academyStats: async (_: any, __: any, context: GraphQLContext) => {
+      requireAdmin(context);
       const [
         programs,
         applications,

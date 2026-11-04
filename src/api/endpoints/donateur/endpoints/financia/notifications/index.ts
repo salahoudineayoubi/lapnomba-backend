@@ -1,6 +1,7 @@
 import logger from "../../../../../../utils/logger";
 import { generateAndSendReceipt } from "../../../../../../utils/receipt";
 import { sendMail } from "../../../../../../utils/sendMail";
+import { buildSupportFooterHtml, buildSupportFooterText } from "../../../../../../utils/emailSupport";
 import { donationMessages } from "../message";
 
 const buildThankYouEmailHtml = (donation: any): string => {
@@ -29,7 +30,7 @@ const buildThankYouEmailHtml = (donation: any): string => {
       <p>
         Avec toute notre gratitude,<br />
         <strong>Lap Nomba Foundation</strong>
-      </p>
+      </p>${buildSupportFooterHtml()}
     </div>
   `;
 };
@@ -50,7 +51,7 @@ Votre paiement a bien été confirmé. Un reçu vous sera également transmis.
 
 Avec toute notre gratitude,
 Lap Nomba Foundation
-  `.trim();
+  `.trim() + buildSupportFooterText();
 };
 
 export const sendReceiptSilently = (donation: any) => {

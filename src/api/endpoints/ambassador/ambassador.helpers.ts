@@ -1,4 +1,5 @@
 import { sendMail } from "../../../utils/sendMail";
+import { buildSupportFooterHtml, buildSupportFooterText } from "../../../utils/emailSupport";
 
 type AmbassadorMailType = "CONFIRMATION" | "APPROBATION" | "REFUS";
 
@@ -7,6 +8,8 @@ const buildAmbassadorEmailContent = (
   type: AmbassadorMailType
 ): { subject: string; text: string; html: string } => {
   const safeName = nom?.trim() || "Cher candidat";
+  const footerHtml = buildSupportFooterHtml();
+  const footerText = buildSupportFooterText();
 
   const contents = {
     CONFIRMATION: {
@@ -23,7 +26,7 @@ Vous serez recontacté très prochainement pour la suite du processus.
 
 Cordialement,
 Le Responsable de la Communication
-Fondation Lap Nomba`,
+Fondation Lap Nomba${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2 style="margin-bottom: 16px;">Confirmation de réception de votre candidature</h2>
@@ -47,7 +50,7 @@ Fondation Lap Nomba`,
             Cordialement,<br />
             <strong>Le Responsable de la Communication</strong><br />
             Fondation Lap Nomba
-          </p>
+          </p>${footerHtml}
         </div>
       `,
     },
@@ -66,7 +69,7 @@ Bienvenue dans la communauté des Ambassadeurs de la Fondation Lap Nomba.
 
 Cordialement,
 Le Responsable de la Communication
-Fondation Lap Nomba`,
+Fondation Lap Nomba${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2 style="margin-bottom: 16px;">Validation de votre candidature</h2>
@@ -92,7 +95,7 @@ Fondation Lap Nomba`,
             Cordialement,<br />
             <strong>Le Responsable de la Communication</strong><br />
             Fondation Lap Nomba
-          </p>
+          </p>${footerHtml}
         </div>
       `,
     },
@@ -111,7 +114,7 @@ Nous vous remercions pour votre compréhension.
 
 Cordialement,
 Le Responsable de la Communication
-Fondation Lap Nomba`,
+Fondation Lap Nomba${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2 style="margin-bottom: 16px;">Suivi de votre candidature</h2>
@@ -135,7 +138,7 @@ Fondation Lap Nomba`,
             Cordialement,<br />
             <strong>Le Responsable de la Communication</strong><br />
             Fondation Lap Nomba
-          </p>
+          </p>${footerHtml}
         </div>
       `,
     },

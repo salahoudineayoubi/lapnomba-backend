@@ -1,11 +1,14 @@
 import Psychosocial from "../../../models/psychosocial";
 import { sendMail } from "../../../utils/sendMail";
+import { buildSupportFooterHtml, buildSupportFooterText } from "../../../utils/emailSupport";
 
 const buildPsychosocialMail = (
   type: "CONFIRMATION" | "APPROVAL" | "REJECTION",
   nomComplet: string
 ): { subject: string; text: string; html: string } => {
   const safeName = nomComplet?.trim() || "Cher candidat";
+  const footerHtml = buildSupportFooterHtml();
+  const footerText = buildSupportFooterText();
 
   const messages = {
     CONFIRMATION: {
@@ -19,7 +22,7 @@ Votre candidature à l’engagement psychosocial a bien été reçue et sera exa
 Nous reviendrons vers vous très prochainement pour la suite du processus.
 
 Cordialement,
-Fondation Lap Nomba`,
+Fondation Lap Nomba${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2>Confirmation de réception de votre engagement psychosocial</h2>
@@ -39,7 +42,7 @@ Fondation Lap Nomba`,
           <p>
             Cordialement,<br />
             <strong>Fondation Lap Nomba</strong>
-          </p>
+          </p>${footerHtml}
         </div>
       `,
     },
@@ -55,7 +58,7 @@ Nous vous remercions pour votre disponibilité à contribuer à l’accompagneme
 Notre équipe vous contactera prochainement pour vous transmettre les prochaines étapes de collaboration.
 
 Cordialement,
-Fondation Lap Nomba`,
+Fondation Lap Nomba${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2>Validation de votre engagement psychosocial</h2>
@@ -75,7 +78,7 @@ Fondation Lap Nomba`,
           <p>
             Cordialement,<br />
             <strong>Fondation Lap Nomba</strong>
-          </p>
+          </p>${footerHtml}
         </div>
       `,
     },
@@ -91,7 +94,7 @@ Après étude de votre candidature, nous sommes au regret de vous informer qu’
 Nous vous remercions pour votre engagement et vous encourageons à rester proche de nos initiatives.
 
 Cordialement,
-Fondation Lap Nomba`,
+Fondation Lap Nomba${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2>Suivi de votre candidature psychosociale</h2>
@@ -111,7 +114,7 @@ Fondation Lap Nomba`,
           <p>
             Cordialement,<br />
             <strong>Fondation Lap Nomba</strong>
-          </p>
+          </p>${footerHtml}
         </div>
       `,
     },

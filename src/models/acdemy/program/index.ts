@@ -24,6 +24,14 @@ export interface IAcademyProgram extends Document {
   jobPathNote?: string;
 
   isActive: boolean;
+
+  // Ajoutés en Phase 3 pour permettre au catalogue Mongo de devenir la
+  // source canonique du catalogue public (voir academy/constants/trainingCatalog.ts,
+  // migré). `image` reste optionnel : les 9 programmes historiques gardent
+  // leur visuel local (bundle frontend) tant qu'aucun upload admin n'a été
+  // fait ; un programme créé depuis l'admin peut fournir sa propre image.
+  image?: string;
+  displayOrder: number;
 }
 
 const AcademyProgramSchema = new Schema<IAcademyProgram>(
@@ -56,9 +64,14 @@ const AcademyProgramSchema = new Schema<IAcademyProgram>(
     },
 
     isActive: { type: Boolean, default: true },
+
+    image: { type: String, trim: true },
+    displayOrder: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
+
+AcademyProgramSchema.index({ isActive: 1, displayOrder: 1 });
 
 export default models.AcademyProgram ||
   model<IAcademyProgram>("AcademyProgram", AcademyProgramSchema);

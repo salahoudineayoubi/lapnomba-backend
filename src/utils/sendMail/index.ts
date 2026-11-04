@@ -1,22 +1,42 @@
 import nodemailer, { Transporter } from "nodemailer";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
+import type Mail from "nodemailer/lib/mailer";
 import logger from "../logger";
+import { getDefaultReplyTo } from "../emailSupport";
 
 type SendMailParams = {
   to: string;
   subject: string;
   text?: string;
   html?: string;
+  /**
+   * Remplace le Reply-To par défaut (support@lapnomba.org). Réservé aux cas
+   * genuinement particuliers — un email automatique standard n'a jamais
+   * besoin de le fournir, voir DEFAULT_REPLY_TO ci-dessous.
+   */
+  replyTo?: string;
+  /** Pièces jointes (ex: reçu PDF) — voir utils/receipt.ts. */
+  attachments?: Mail.Attachment[];
 };
 
 /**
  * Configuration SMTP — 100% pilotée par variables d'environnement.
  * Aucun mot de passe, aucun host/utilisateur institutionnel codé en dur.
  *
- * SMTP_HOST, SMTP_USER, SMTP_PASS sont obligatoires pour envoyer un email.
- * SMTP_PORT par défaut à 465 (valeur technique, pas un secret).
- * SMTP_FROM_NAME / SMTP_FROM_EMAIL pilotent l'expéditeur affiché ; à défaut
- * de SMTP_FROM_EMAIL, on retombe sur SMTP_USER (la boîte qui authentifie).
+ * SMTP_HOST, SMTP_USER, SMTP_PASS sont obligatoires pour envoyer un email :
+ * c'est l'identité d'AUTHENTIFICATION SMTP, distincte de l'identité
+ * affichée dans "From". SMTP_PORT par défaut à 465 (valeur technique, pas
+ * un secret).
+ *
+ * SMTP_FROM_NAME / SMTP_FROM_EMAIL pilotent l'expéditeur "From" affiché à
+ * TOUS les destinataires (candidat, support, équipe interne...) — cette
+ * valeur doit être noreply@lapnomba.org en production (voir .env.example).
+ * À défaut de SMTP_FROM_EMAIL, on retombe sur SMTP_USER (la boîte qui
+ * authentifie) plutôt que d'inventer une adresse : si le serveur mail exige
+ * que la boîte authentifiée corresponde à "From", ou si noreply@lapnomba.org
+ * n'est pas encore une boîte/alias autorisé côté serveur, ce repli l'expose
+ * clairement au lieu de faire semblant d'envoyer depuis noreply (voir
+ * rapport — "Deployment Requirements").
  */
 const getMailConfig = () => {
   const host = process.env.SMTP_HOST;
@@ -87,7 +107,20 @@ export const verifySmtpConnection = async (): Promise<boolean> => {
   }
 };
 
-export const sendMail = async ({ to, subject, text, html }: SendMailParams) => {
+/**
+ * Point d'envoi unique de tout le backend.
+ *
+ * "from" n'est délibérément PAS un paramètre exposé à l'appelant : tout
+ * email automatique part de la même identité institutionnelle
+ * (SMTP_FROM_NAME/SMTP_FROM_EMAIL), pour qu'aucun workflow ne puisse
+ * accidentellement envoyer depuis support@/training@/une adresse
+ * personnelle (voir "Do not trust callers for From address").
+ *
+ * "replyTo" a en revanche un défaut centralisé (support@lapnomba.org, voir
+ * utils/emailSupport.ts) mais reste surchargeable pour un besoin
+ * opérationnel réel et explicite.
+ */
+export const sendMail = async ({ to, subject, text, html, replyTo, attachments }: SendMailParams) => {
   const { fromName, fromEmail } = getMailConfig();
   const transporter = getTransporter();
 
@@ -97,5 +130,7 @@ export const sendMail = async ({ to, subject, text, html }: SendMailParams) => {
     subject,
     text,
     html,
+    replyTo: replyTo || getDefaultReplyTo(),
+    attachments,
   });
 };

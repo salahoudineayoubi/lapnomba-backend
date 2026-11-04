@@ -17,6 +17,8 @@ export const academyProgramTypeDefs = gql`
     isJobPath: Boolean!
     jobPathNote: String
     isActive: Boolean!
+    image: String
+    displayOrder: Int!
     createdAt: String
     updatedAt: String
   }
@@ -36,6 +38,8 @@ export const academyProgramTypeDefs = gql`
     isJobPath: Boolean
     jobPathNote: String
     isActive: Boolean
+    image: String
+    displayOrder: Int
   }
 
   input UpdateAcademyProgramInput {
@@ -54,6 +58,8 @@ export const academyProgramTypeDefs = gql`
     isJobPath: Boolean
     jobPathNote: String
     isActive: Boolean
+    image: String
+    displayOrder: Int
   }
 
   extend type Query {

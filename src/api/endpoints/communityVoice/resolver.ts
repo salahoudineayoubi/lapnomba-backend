@@ -1,11 +1,14 @@
 import { sendMail } from "../../../utils/sendMail";
 import { CommunityVoiceModel } from "../../../models/communityvoice";
+import { buildSupportFooterHtml, buildSupportFooterText } from "../../../utils/emailSupport";
 
 const buildCommunityVoiceMail = (
   type: "CONFIRMATION" | "APPROVAL" | "REJECTION",
   name: string
 ): { subject: string; text: string; html: string } => {
   const safeName = name?.trim() || "Cher contributeur";
+  const footerHtml = buildSupportFooterHtml();
+  const footerText = buildSupportFooterText();
 
   const messages = {
     CONFIRMATION: {
@@ -19,7 +22,7 @@ Votre avis a bien été reçu et est actuellement en attente de modération par 
 Nous vous informerons dès qu’il sera approuvé et publié.
 
 Cordialement,
-Fondation Lap Nomba`,
+Fondation Lap Nomba${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2>Confirmation de réception de votre avis</h2>
@@ -38,7 +41,7 @@ Fondation Lap Nomba`,
           <p>
             Cordialement,<br />
             <strong>Fondation Lap Nomba</strong>
-          </p>
+          </p>${footerHtml}
         </div>
       `,
     },
@@ -54,7 +57,7 @@ Votre avis a été approuvé et publié sur notre plateforme.
 Nous vous remercions pour votre contribution à la communauté Lap Nomba et pour votre confiance.
 
 Cordialement,
-Fondation Lap Nomba`,
+Fondation Lap Nomba${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2>Votre avis a été approuvé</h2>
@@ -72,7 +75,7 @@ Fondation Lap Nomba`,
           <p>
             Cordialement,<br />
             <strong>Fondation Lap Nomba</strong>
-          </p>
+          </p>${footerHtml}
         </div>
       `,
     },
@@ -88,7 +91,7 @@ Après examen, votre avis n’a pas été retenu pour publication sur notre plat
 Nous vous remercions pour votre compréhension et pour l’intérêt que vous portez aux actions de la Fondation Lap Nomba.
 
 Cordialement,
-Fondation Lap Nomba`,
+Fondation Lap Nomba${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2>Mise à jour concernant votre avis</h2>
@@ -106,7 +109,7 @@ Fondation Lap Nomba`,
           <p>
             Cordialement,<br />
             <strong>Fondation Lap Nomba</strong>
-          </p>
+          </p>${footerHtml}
         </div>
       `,
     },

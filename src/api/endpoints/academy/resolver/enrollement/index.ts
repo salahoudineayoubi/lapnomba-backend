@@ -1,18 +1,28 @@
 import AcademyEnrollment from "../../../../../models/acdemy/enrollment";
 import AcademyApplication from "../../../../../models/acdemy/application";
 import AcademyProgress from "../../../../../models/acdemy/progress";
+import { requireAdmin, GraphQLContext } from "../../../../../utils/auth";
 
+// Toute cette table (inscriptions) est admin-only : le chemin de création
+// légitime passe par `approveAcademyApplication`, jamais par ces
+// opérations directes. `academyEnrollmentsByEmail` n'est utilisée par
+// aucune page publique actuelle (vérifié dans le frontend Academy) — pas
+// d'authentification apprenant existante pour la sécuriser autrement, donc
+// admin-only pour l'instant plutôt qu'une fuite d'IDOR par email.
 export const academyEnrollmentResolvers = {
   Query: {
-    academyEnrollments: async () => {
+    academyEnrollments: async (_: any, __: any, context: GraphQLContext) => {
+      requireAdmin(context);
       return await AcademyEnrollment.find().sort({ createdAt: -1 });
     },
 
-    academyEnrollmentById: async (_: any, { id }: { id: string }) => {
+    academyEnrollmentById: async (_: any, { id }: { id: string }, context: GraphQLContext) => {
+      requireAdmin(context);
       return await AcademyEnrollment.findById(id);
     },
 
-    academyEnrollmentsByEmail: async (_: any, { email }: { email: string }) => {
+    academyEnrollmentsByEmail: async (_: any, { email }: { email: string }, context: GraphQLContext) => {
+      requireAdmin(context);
       return await AcademyEnrollment.find({
         email: email.toLowerCase().trim(),
       }).sort({ createdAt: -1 });
@@ -20,7 +30,8 @@ export const academyEnrollmentResolvers = {
   },
 
   Mutation: {
-    createAcademyEnrollment: async (_: any, { input }: any) => {
+    createAcademyEnrollment: async (_: any, { input }: any, context: GraphQLContext) => {
+      requireAdmin(context);
       const enrollment = new AcademyEnrollment({
         ...input,
         currency: input.currency || "XAF",
@@ -48,7 +59,9 @@ export const academyEnrollmentResolvers = {
       return enrollment;
     },
 
-    updateAcademyEnrollment: async (_: any, { input }: any) => {
+    updateAcademyEnrollment: async (_: any, { input }: any, context: GraphQLContext) => {
+      requireAdmin(context);
+
       const { id, ...updates } = input;
 
       const enrollment = await AcademyEnrollment.findByIdAndUpdate(
@@ -64,7 +77,9 @@ export const academyEnrollmentResolvers = {
       return enrollment;
     },
 
-    deleteAcademyEnrollment: async (_: any, { id }: { id: string }) => {
+    deleteAcademyEnrollment: async (_: any, { id }: { id: string }, context: GraphQLContext) => {
+      requireAdmin(context);
+
       await AcademyProgress.findOneAndDelete({ enrollmentId: id });
 
       const deleted = await AcademyEnrollment.findByIdAndDelete(id);

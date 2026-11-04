@@ -1,9 +1,14 @@
 import AcademyProgram from "../../../../../models/acdemy/program";
+import { requireAdmin, GraphQLContext } from "../../../../../utils/auth";
 
 export const academyProgramResolvers = {
   Query: {
-    academyPrograms: async () => {
-      return await AcademyProgram.find().sort({ createdAt: -1 });
+    // Catalogue public — consommé par le site Academy (catalogue, détail
+    // programme, sélecteur de formation). Ne retourne que des programmes
+    // actifs pour un appel non-admin (voir Phase 3, "Canonical Catalog").
+    academyPrograms: async (_: any, __: any, context: GraphQLContext) => {
+      const filter = context?.admin ? {} : { isActive: true };
+      return await AcademyProgram.find(filter).sort({ displayOrder: 1, createdAt: 1 });
     },
 
     academyProgramById: async (_: any, { id }: { id: string }) => {
@@ -16,7 +21,9 @@ export const academyProgramResolvers = {
   },
 
   Mutation: {
-    createAcademyProgram: async (_: any, { input }: any) => {
+    createAcademyProgram: async (_: any, { input }: any, context: GraphQLContext) => {
+      requireAdmin(context);
+
       const exists = await AcademyProgram.findOne({ slug: input.slug });
 
       if (exists) {
@@ -36,8 +43,17 @@ export const academyProgramResolvers = {
       return program;
     },
 
-    updateAcademyProgram: async (_: any, { input }: any) => {
+    updateAcademyProgram: async (_: any, { input }: any, context: GraphQLContext) => {
+      requireAdmin(context);
+
       const { id, ...updates } = input;
+
+      if (updates.slug) {
+        const exists = await AcademyProgram.findOne({ slug: updates.slug, _id: { $ne: id } });
+        if (exists) {
+          throw new Error("Un programme avec ce slug existe déjà.");
+        }
+      }
 
       const program = await AcademyProgram.findByIdAndUpdate(id, updates, {
         new: true,
@@ -50,7 +66,8 @@ export const academyProgramResolvers = {
       return program;
     },
 
-    deleteAcademyProgram: async (_: any, { id }: { id: string }) => {
+    deleteAcademyProgram: async (_: any, { id }: { id: string }, context: GraphQLContext) => {
+      requireAdmin(context);
       const deleted = await AcademyProgram.findByIdAndDelete(id);
       return !!deleted;
     },

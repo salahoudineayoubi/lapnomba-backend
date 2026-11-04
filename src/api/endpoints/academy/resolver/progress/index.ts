@@ -1,16 +1,22 @@
 import AcademyProgress from "../../../../../models/acdemy/progress";
 import AcademyEnrollment from "../../../../../models/acdemy/enrollment";
+import { requireAdmin, GraphQLContext } from "../../../../../utils/auth";
 
+// Suivi pédagogique — aucune page apprenant authentifiée n'existe
+// aujourd'hui, tout ceci reste admin-only.
 export const academyProgressResolvers = {
   Query: {
     academyProgressByEnrollment: async (
       _: any,
-      { enrollmentId }: { enrollmentId: string }
+      { enrollmentId }: { enrollmentId: string },
+      context: GraphQLContext
     ) => {
+      requireAdmin(context);
       return await AcademyProgress.findOne({ enrollmentId });
     },
 
-    academyReadyForTalentPlatform: async () => {
+    academyReadyForTalentPlatform: async (_: any, __: any, context: GraphQLContext) => {
+      requireAdmin(context);
       return await AcademyProgress.find({
         readyForTalentPlatform: true,
         transferredToTalentPlatform: false,
@@ -19,7 +25,8 @@ export const academyProgressResolvers = {
   },
 
   Mutation: {
-    updateAcademyProgress: async (_: any, { input }: any) => {
+    updateAcademyProgress: async (_: any, { input }: any, context: GraphQLContext) => {
+      requireAdmin(context);
       const { enrollmentId, ...updates } = input;
 
       const progress = await AcademyProgress.findOneAndUpdate(
@@ -66,8 +73,11 @@ export const academyProgressResolvers = {
 
     markAcademyStudentReadyForTalent: async (
       _: any,
-      { enrollmentId }: { enrollmentId: string }
+      { enrollmentId }: { enrollmentId: string },
+      context: GraphQLContext
     ) => {
+      requireAdmin(context);
+
       const enrollment = await AcademyEnrollment.findById(enrollmentId);
 
       if (!enrollment) {

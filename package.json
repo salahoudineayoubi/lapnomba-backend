@@ -6,7 +6,8 @@
     "dev": "ts-node app.ts",
     "build": "tsc",
     "start": "node dist/app.js",
-    "test": "jest"
+    "test": "jest",
+    "seed:academy-programs": "ts-node src/scripts/seedAcademyPrograms.ts"
   },
   "keywords": [],
   "author": "",

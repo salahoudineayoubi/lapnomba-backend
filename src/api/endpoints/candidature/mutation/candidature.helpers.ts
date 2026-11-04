@@ -5,6 +5,7 @@ import { uploadFromBase64 } from "../../../../utils/cloudinary";
 import { sendMail } from "../../../../utils/sendMail";
 import { validateUploadedFile } from "../../../../utils/fileValidation";
 import logger from "../../../../utils/logger";
+import { buildSupportFooterHtml, buildSupportFooterText, getSupportContact } from "../../../../utils/emailSupport";
 
 const BASE_URL =
   process.env.APP_BASE_URL || "https://lobster-app-vdl5o.ondigitalocean.app";
@@ -122,6 +123,10 @@ const buildCandidateStatusMail = (
           </p>`
     : "";
 
+  const { whatsappLink, whatsappDisplay } = getSupportContact();
+  const footerHtml = buildSupportFooterHtml();
+  const footerText = buildSupportFooterText();
+
   const messages = {
     CONFIRMATION: {
       subject: "Votre candidature a bien été reçue — Lap Nomba Foundation",
@@ -138,7 +143,7 @@ Aucune action supplémentaire n’est nécessaire pour le moment.
 Merci pour votre intérêt envers les programmes de Lap Nomba Foundation.
 
 Lap Nomba Foundation
-Former. Innover. Transformer.`,
+Former. Innover. Transformer.${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2>Votre candidature a bien été reçue</h2>
@@ -163,7 +168,7 @@ Former. Innover. Transformer.`,
           <p>
             <strong>Lap Nomba Foundation</strong><br />
             <em>Former. Innover. Transformer.</em>
-          </p>
+          </p>${footerHtml}
         </div>
       `,
     },
@@ -176,13 +181,13 @@ Nous avons le plaisir de vous informer que votre candidature a été approuvée.
 
 Vous pouvez désormais contacter notre équipe sur WhatsApp pour rejoindre votre groupe de formation et recevoir les prochaines consignes :
 
-https://wa.me/237672018999
+${whatsappLink}
 
 Nous vous félicitons pour cette étape et vous souhaitons la bienvenue au sein de l’écosystème de la Fondation Lap Nomba.
 
 Cordialement,
 La Direction de la Formation
-Fondation Lap Nomba`,
+Fondation Lap Nomba${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2>Validation de votre candidature</h2>
@@ -195,7 +200,7 @@ Fondation Lap Nomba`,
             votre groupe de formation et recevoir les prochaines consignes :
           </p>
           <p>
-            <a href="https://wa.me/237672018999">https://wa.me/237672018999</a>
+            <a href="${whatsappLink}">${whatsappDisplay}</a>
           </p>
           <p>
             Nous vous félicitons pour cette étape et vous souhaitons la bienvenue au sein
@@ -205,7 +210,7 @@ Fondation Lap Nomba`,
             Cordialement,<br />
             <strong>La Direction de la Formation</strong><br />
             Fondation Lap Nomba
-          </p>
+          </p>${footerHtml}
         </div>
       `,
     },
@@ -220,7 +225,7 @@ Nous vous remercions pour l’intérêt accordé à nos programmes et vous encou
 
 Cordialement,
 La Direction de la Formation
-Fondation Lap Nomba`,
+Fondation Lap Nomba${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2>Décision concernant votre candidature</h2>
@@ -238,7 +243,7 @@ Fondation Lap Nomba`,
             Cordialement,<br />
             <strong>La Direction de la Formation</strong><br />
             Fondation Lap Nomba
-          </p>
+          </p>${footerHtml}
         </div>
       `,
     },

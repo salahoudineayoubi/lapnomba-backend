@@ -1,5 +1,6 @@
 import AwarenessAgent from "../../../models/awarenessAgent";
 import { sendMail } from "../../../utils/sendMail";
+import { buildSupportFooterHtml, buildSupportFooterText } from "../../../utils/emailSupport";
 
 const buildAwarenessMail = (
   type: "CONFIRMATION" | "APPROBATION" | "REFUS",
@@ -8,6 +9,8 @@ const buildAwarenessMail = (
 ): { subject: string; text: string; html: string } => {
   const safeName = nomComplet?.trim() || "Cher candidat";
   const safeZone = zoneIntervention?.trim() || "votre zone d’intervention";
+  const footerHtml = buildSupportFooterHtml();
+  const footerText = buildSupportFooterText();
 
   const messages = {
     CONFIRMATION: {
@@ -23,7 +26,7 @@ Nous préparons actuellement l’étude de votre dossier ainsi que les élément
 Nous reviendrons vers vous très prochainement pour la suite du processus.
 
 Cordialement,
-Fondation Lap Nomba`,
+Fondation Lap Nomba${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2>Confirmation de réception de votre candidature</h2>
@@ -46,7 +49,7 @@ Fondation Lap Nomba`,
           <p>
             Cordialement,<br />
             <strong>Fondation Lap Nomba</strong>
-          </p>
+          </p>${footerHtml}
         </div>
       `,
     },
@@ -62,7 +65,7 @@ Nous vous remercions pour votre disponibilité à contribuer aux actions de terr
 Notre équipe vous contactera prochainement afin de vous transmettre les consignes de mobilisation, les éléments de travail et les prochaines étapes relatives à votre zone d’intervention.
 
 Cordialement,
-Fondation Lap Nomba`,
+Fondation Lap Nomba${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2>Validation de votre candidature</h2>
@@ -83,7 +86,7 @@ Fondation Lap Nomba`,
           <p>
             Cordialement,<br />
             <strong>Fondation Lap Nomba</strong>
-          </p>
+          </p>${footerHtml}
         </div>
       `,
     },
@@ -99,7 +102,7 @@ Après examen de votre candidature, nous sommes au regret de vous informer qu’
 Nous saluons votre volonté de contribuer à la sensibilisation des jeunes et vous encourageons à rester proche de nos initiatives futures.
 
 Cordialement,
-Fondation Lap Nomba`,
+Fondation Lap Nomba${footerText}`,
       html: `
         <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
           <h2>Suivi de votre candidature</h2>
@@ -119,7 +122,7 @@ Fondation Lap Nomba`,
           <p>
             Cordialement,<br />
             <strong>Fondation Lap Nomba</strong>
-          </p>
+          </p>${footerHtml}
         </div>
       `,
     },

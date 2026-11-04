@@ -1,69 +1,84 @@
+import { ApolloError } from "apollo-server-express";
+
 import AcademyApplication from "../../../../../models/acdemy/application";
 import AcademyEnrollment from "../../../../../models/acdemy/enrollment";
 import AcademyProgress from "../../../../../models/acdemy/progress";
 import AcademyProgram from "../../../../../models/acdemy/program";
 
-const getAmountByMode = (program: any, mode: string) => {
-  if (!program) return 0;
+import { requireAdmin, GraphQLContext } from "../../../../../utils/auth";
+import { checkRateLimit, RateLimitExceededError } from "../../../../../utils/rateLimiter";
+import {
+  validateAcademyApplicationInput,
+  ValidationError,
+} from "../../validation/academyApplication.validation";
+import { computeAcademyPricing, computeRequiresQuote } from "../../pricing/academy.pricing";
 
-  if (mode === "online") return program.onlinePrice || 500000;
-
-  if (mode === "hybrid") return program.hybridPrice || 800000;
-
-  if (mode === "onsite") {
-    return program.onsitePrice || program.hybridPrice || 800000;
-  }
-
-  return 0;
-};
+// createAcademyApplication est public (formulaire candidat) — throttle léger
+// contre la soumission automatisée, même logique que createCandidature.
+const ACADEMY_APPLICATION_RATE_LIMIT = { maxRequests: 5, windowMs: 15 * 60 * 1000 };
 
 export const academyApplicationResolvers = {
   Query: {
-    academyApplications: async () => {
+    academyApplications: async (_: any, __: any, context: GraphQLContext) => {
+      requireAdmin(context);
       return await AcademyApplication.find().sort({ createdAt: -1 });
     },
 
+    // Volontairement PUBLIC : réutilisée juste après la création d'une
+    // candidature (voir academy_payment/index.tsx) pour réafficher le
+    // récapitulatif avant paiement — comportement existant préservé
+    // (voir rapport Phase 3, section "Public GraphQL Operations").
     academyApplicationById: async (_: any, { id }: { id: string }) => {
       return await AcademyApplication.findById(id);
     },
   },
 
   Mutation: {
-    createAcademyApplication: async (_: any, { input }: any) => {
-      let program = null;
+    createAcademyApplication: async (_: any, { input }: any, context: GraphQLContext) => {
+      try {
+        checkRateLimit(`academy-application:${context?.ip || "unknown"}`, ACADEMY_APPLICATION_RATE_LIMIT);
 
-      if (input.programId) {
-        program = await AcademyProgram.findById(input.programId);
+        const validated = validateAcademyApplicationInput(input);
+
+        let program = null;
+        if (validated.programId) {
+          program = await AcademyProgram.findById(validated.programId);
+        }
+
+        // Tarif et exigence de devis : jamais repris du client, toujours
+        // recalculés côté serveur à partir du programme (protection
+        // anti-manipulation de prix — voir Phase 3 "Payment Security").
+        const requiresQuote = computeRequiresQuote(
+          validated.applicantType,
+          validated.trainingMode,
+          program
+        );
+        const pricing = computeAcademyPricing(program, validated.trainingMode);
+
+        const application = new AcademyApplication({
+          ...validated,
+          requiresQuote,
+          ...pricing,
+          status: "nouvelle",
+        });
+
+        await application.save();
+
+        return application;
+      } catch (err) {
+        if (err instanceof ValidationError) {
+          throw new ApolloError(err.message, "VALIDATION_ERROR");
+        }
+        if (err instanceof RateLimitExceededError) {
+          throw new ApolloError(err.message, "RATE_LIMITED");
+        }
+        throw err;
       }
-
-      const isOrganization =
-        input.applicantType === "entreprise" || input.applicantType === "ong";
-
-      const isCustom = input.trainingMode === "custom";
-
-      const requiresQuote =
-        input.requiresQuote ?? (isOrganization || isCustom);
-
-      const expectedAmount =
-        input.expectedAmount ??
-        getAmountByMode(program, input.trainingMode);
-
-      const application = new AcademyApplication({
-        ...input,
-        requiresQuote,
-        expectedAmount,
-        monthlyPrice: input.monthlyPrice ?? program?.monthlyPrice ?? 30000,
-        currency: input.currency || "XAF",
-        status: "nouvelle",
-        understandsImpactModel: input.understandsImpactModel ?? true,
-      });
-
-      await application.save();
-
-      return application;
     },
 
-    updateAcademyApplication: async (_: any, { input }: any) => {
+    updateAcademyApplication: async (_: any, { input }: any, context: GraphQLContext) => {
+      requireAdmin(context);
+
       const { id, ...updates } = input;
 
       const application = await AcademyApplication.findByIdAndUpdate(
@@ -79,11 +94,21 @@ export const academyApplicationResolvers = {
       return application;
     },
 
-    deleteAcademyApplication: async (_: any, { id }: { id: string }) => {
+    deleteAcademyApplication: async (_: any, { id }: { id: string }, context: GraphQLContext) => {
+      requireAdmin(context);
       const deleted = await AcademyApplication.findByIdAndDelete(id);
       return !!deleted;
     },
 
+    // Volontairement PUBLIC malgré son nom : dans le flux actuel, le
+    // frontend Academy appelle cette mutation immédiatement après
+    // `createAcademyApplication` pour convertir la candidature en
+    // inscription et pouvoir déclencher le paiement (voir
+    // academy_payment/index.tsx). Ce n'est pas une validation manuelle par
+    // un admin — la protéger avec requireAdmin casserait le paiement en
+    // ligne. Documenté comme déviation explicite dans le rapport Phase 3.
+    // Idempotente (voir `existingEnrollment` ci-dessous) et implicitement
+    // throttlée par le rate limit de createAcademyApplication en amont.
     approveAcademyApplication: async (_: any, { id }: { id: string }) => {
       const application = await AcademyApplication.findById(id);
 
