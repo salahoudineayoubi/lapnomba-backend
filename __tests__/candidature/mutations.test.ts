@@ -135,6 +135,14 @@ describe("createCandidature (public)", () => {
     expect(mockConstructor).toHaveBeenCalledWith(expect.objectContaining({ autorisationParentale: true }));
   });
 
+  it("transition : un ancien client sans consentement reste accepté (sans contrôle du catalogue)", async () => {
+    const { consentementDonnees, ...legacyInput } = validInput;
+    mockProgramExists.mockResolvedValue(null);
+    const candidature = await createCandidature(null, { input: legacyInput });
+    expect(candidature.statut).toBe("en attente");
+    expect(mockProgramExists).not.toHaveBeenCalled();
+  });
+
   it("exige le consentement au traitement des données", async () => {
     await expect(
       createCandidature(null, { input: { ...validInput, consentementDonnees: false } })

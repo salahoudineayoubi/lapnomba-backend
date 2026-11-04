@@ -15,9 +15,15 @@ import { verifySmtpConnection } from "./utils/sendMail";
 
 async function startServer() {
   try {
-    // Refuse de démarrer sans secret JWT (sinon tokens admin forgeables).
-    const jwtWarning = assertJwtSecretConfigured();
-    if (jwtWarning) logger.warn(`⚠️ ${jwtWarning}`);
+    // Sans JWT_SECRET, aucun token admin ne peut être signé ni vérifié :
+    // l'admin est désactivé (jamais de secret par défaut), le site public
+    // continue de fonctionner.
+    try {
+      const jwtWarning = assertJwtSecretConfigured();
+      if (jwtWarning) logger.warn(`⚠️ ${jwtWarning}`);
+    } catch (err: any) {
+      logger.error(`❌ ${err?.message} Connexion admin désactivée jusqu'à configuration de JWT_SECRET.`);
+    }
 
     await connectMongo();
     logger.info("✅ Connecté à MongoDB");

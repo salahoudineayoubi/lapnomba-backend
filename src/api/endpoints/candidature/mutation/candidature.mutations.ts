@@ -3,6 +3,7 @@ import Candidature from "../../../../models/candidature";
 import { handleFileUploads, sendStatusEmail, sendInternalNotification } from "./candidature.helpers";
 import { validateCandidatureInput, ValidationError } from "./candidature.validation";
 import AcademyProgram from "../../../../models/acdemy/program";
+import logger from "../../../../utils/logger";
 import { FileValidationError } from "../../../../utils/fileValidation";
 import { explainTransitionRejection, CandidatureStatut } from "./candidature.stateMachine";
 import { requireAdmin, GraphQLContext, AdminTokenPayload } from "../../../../utils/auth";
@@ -64,7 +65,18 @@ export const createCandidature = async (_: any, { input }: any, context?: GraphQ
     }
 
     const validatedInput = validateCandidatureInput(input);
-    await ensureKnownAcademyProgram(validatedInput.choixFormation);
+
+    // Transition : l'ancien site admissions n'envoie ni les consentements ni
+    // le titre exact du programme. Tant qu'il est en ligne, ses candidatures
+    // sont acceptées comme avant ; le nouveau formulaire (qui envoie
+    // toujours consentementDonnees) est soumis aux règles complètes.
+    // À retirer une fois le nouveau site admissions déployé.
+    const isLegacyClient = input?.consentementDonnees === undefined || input?.consentementDonnees === null;
+    if (isLegacyClient) {
+      logger.warn("Candidature reçue d'un ancien client (sans consentement) : règles de transition appliquées.");
+    } else {
+      await ensureKnownAcademyProgram(validatedInput.choixFormation);
+    }
 
     const age = calculateAgeFromString(validatedInput.dateNaissance);
 
@@ -85,13 +97,13 @@ export const createCandidature = async (_: any, { input }: any, context?: GraphQ
     }
 
     // Consentements (RGPD / données de mineurs) : obligatoires, horodatés.
-    if (input?.consentementDonnees !== true) {
+    if (!isLegacyClient && input?.consentementDonnees !== true) {
       throw new ValidationError(
         "Vous devez accepter le traitement de vos données pour candidater.",
         "DATA_CONSENT_REQUIRED"
       );
     }
-    if (age < ADULT_AGE && input?.autorisationParentale !== true) {
+    if (!isLegacyClient && age < ADULT_AGE && input?.autorisationParentale !== true) {
       throw new ValidationError(
         "L'autorisation d'un parent ou tuteur est obligatoire avant 18 ans.",
         "PARENTAL_CONSENT_REQUIRED"
@@ -106,9 +118,9 @@ export const createCandidature = async (_: any, { input }: any, context?: GraphQ
       cv: cvUrl,
       statut: "en attente",
       statusHistory: [],
-      consentementDonnees: true,
-      consentementDonneesAt: new Date(),
-      autorisationParentale: age < ADULT_AGE ? true : undefined,
+      consentementDonnees: isLegacyClient ? undefined : true,
+      consentementDonneesAt: isLegacyClient ? undefined : new Date(),
+      autorisationParentale: !isLegacyClient && age < ADULT_AGE ? true : undefined,
     });
 
     await candidature.save();

@@ -45,6 +45,10 @@ export const adminResolvers = {
         return failure("Email ou mot de passe incorrect");
       }
 
+      if (!process.env.JWT_SECRET) {
+        return failure("Connexion admin indisponible : configuration serveur incomplète (JWT_SECRET).");
+      }
+
       return {
         success: true,
         message: "Connexion réussie",
