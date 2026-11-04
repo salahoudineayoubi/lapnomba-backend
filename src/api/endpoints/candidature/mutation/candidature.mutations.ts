@@ -2,6 +2,7 @@ import { UserInputError, ApolloError } from "apollo-server-express";
 import Candidature from "../../../../models/candidature";
 import { handleFileUploads, sendStatusEmail, sendInternalNotification } from "./candidature.helpers";
 import { validateCandidatureInput, ValidationError } from "./candidature.validation";
+import AcademyProgram from "../../../../models/acdemy/program";
 import { FileValidationError } from "../../../../utils/fileValidation";
 import { explainTransitionRejection, CandidatureStatut } from "./candidature.stateMachine";
 import { requireAdmin, GraphQLContext, AdminTokenPayload } from "../../../../utils/auth";
@@ -27,6 +28,25 @@ const CREATE_CANDIDATURE_RATE_LIMIT = { maxRequests: 5, windowMs: 15 * 60 * 1000
  * pour ce cas, ce n'est pas un refus de candidature, c'est une orientation
  * de parcours qui n'a jamais dû produire de candidature.
  */
+const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * Le programme choisi doit exister dans le catalogue de l'Academy (actif),
+ * identifié par son titre ou son slug (insensible à la casse). Évite les
+ * candidatures pour des formations qui ne sont pas proposées.
+ */
+const ensureKnownAcademyProgram = async (choixFormation: string) => {
+  const value = choixFormation.trim();
+  const exact = new RegExp(`^${escapeRegex(value)}$`, "i");
+  const found = await AcademyProgram.exists({
+    isActive: true,
+    $or: [{ title: exact }, { slug: value.toLowerCase() }],
+  });
+  if (!found) {
+    throw new ValidationError("Cette formation n'est pas proposée actuellement. Choisissez une formation dans la liste.");
+  }
+};
+
 export const createCandidature = async (_: any, { input }: any, context?: GraphQLContext) => {
   try {
     if (context?.ip) {
@@ -34,6 +54,7 @@ export const createCandidature = async (_: any, { input }: any, context?: GraphQ
     }
 
     const validatedInput = validateCandidatureInput(input);
+    await ensureKnownAcademyProgram(validatedInput.choixFormation);
 
     const age = calculateAgeFromString(validatedInput.dateNaissance);
 
