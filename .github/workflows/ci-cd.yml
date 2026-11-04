@@ -1,0 +1,47 @@
+# Push sur main → vérifications → déploiement DigitalOcean (uniquement si tout passe).
+# Pull request vers main → vérifications seulement.
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-cd-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Types, tests et build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Vérification des types
+        run: npx tsc --noEmit -p .
+      - name: Tests
+        run: npx jest --ci
+      - name: Build
+        run: npm run build
+      - name: Image Docker
+        run: docker build -t lapnomba-backend:ci .
+
+  deploy:
+    name: Déployer sur DigitalOcean
+    needs: verify
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      - name: Lancer le déploiement et attendre la fin
+        run: doctl apps create-deployment "${{ secrets.DO_APP_ID }}" --wait

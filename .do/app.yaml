@@ -1,0 +1,58 @@
+# Spécification DigitalOcean App Platform — API Lap Nomba.
+#
+# Création (une seule fois) :  doctl apps create --spec .do/app.yaml
+# Ensuite, les déploiements sont lancés par GitHub Actions (.github/workflows/ci-cd.yml)
+# après chaque push sur main, uniquement si les tests passent
+# (d'où deploy_on_push: false). Les valeurs des secrets se renseignent dans
+# la console DigitalOcean (Settings → Environment variables), jamais ici.
+name: lapnomba-backend
+region: fra
+services:
+  - name: api
+    github:
+      repo: salahoudineayoubi/lapnomba-backend
+      branch: main
+      deploy_on_push: false
+    dockerfile_path: Dockerfile
+    http_port: 4000
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-1gb
+    health_check:
+      http_path: /health
+    envs:
+      - { key: NODE_ENV, value: production, scope: RUN_TIME }
+      - { key: PORT, value: "4000", scope: RUN_TIME }
+      - { key: APP_BASE_URL, value: "https://api.lapnomba.org", scope: RUN_TIME }
+      - { key: MONGO_URI, type: SECRET, scope: RUN_TIME }
+      - { key: JWT_SECRET, type: SECRET, scope: RUN_TIME }
+      - { key: ADMIN_EMAIL, type: SECRET, scope: RUN_TIME }
+      - { key: ADMIN_PASSWORD, type: SECRET, scope: RUN_TIME }
+      - { key: SMTP_HOST, scope: RUN_TIME }
+      - { key: SMTP_PORT, scope: RUN_TIME }
+      - { key: SMTP_USER, type: SECRET, scope: RUN_TIME }
+      - { key: SMTP_PASS, type: SECRET, scope: RUN_TIME }
+      - { key: SMTP_FROM_NAME, value: "Lap Nomba Foundation", scope: RUN_TIME }
+      - { key: SMTP_FROM_EMAIL, value: "noreply@lapnomba.org", scope: RUN_TIME }
+      - { key: SUPPORT_EMAIL, value: "support@lapnomba.org", scope: RUN_TIME }
+      - { key: CLOUDINARY_CLOUD_NAME, type: SECRET, scope: RUN_TIME }
+      - { key: CLOUDINARY_API_KEY, type: SECRET, scope: RUN_TIME }
+      - { key: CLOUDINARY_API_SECRET, type: SECRET, scope: RUN_TIME }
+      - { key: OPENAI_API_KEY, type: SECRET, scope: RUN_TIME }
+      - { key: SMOBILPAY_CONSUMER_KEY, type: SECRET, scope: RUN_TIME }
+      - { key: SMOBILPAY_CONSUMER_SECRET, type: SECRET, scope: RUN_TIME }
+      - { key: SMOBILPAY_TOKEN_URL, scope: RUN_TIME }
+      - { key: SMOBILPAY_ORDER_URL, scope: RUN_TIME }
+      - { key: SMOBILPAY_ORDER_STATUS_URL, scope: RUN_TIME }
+      - { key: SMOBILPAY_ORDER_DETAILS_URL, scope: RUN_TIME }
+      - { key: SMOBILPAY_CALLBACK_URL, value: "https://api.lapnomba.org/api/smobilpay/webhook", scope: RUN_TIME }
+      - { key: SMOBILPAY_RETURN_URL, value: "https://donate.lapnomba.org/payment/return", scope: RUN_TIME }
+      - { key: ACADEMY_PAYMENT_RETURN_URL, scope: RUN_TIME }
+      - { key: SMOBILPAY_MTN_MERCHANT_CODE, scope: RUN_TIME }
+      - { key: SMOBILPAY_MTN_SERVICE_ID, scope: RUN_TIME }
+      - { key: SMOBILPAY_ORANGE_MERCHANT_CODE, scope: RUN_TIME }
+      - { key: SMOBILPAY_ORANGE_SERVICE_ID, scope: RUN_TIME }
+      - { key: SMOBILPAY_CARD_MERCHANT_CODE, scope: RUN_TIME }
+      - { key: SMOBILPAY_CARD_SERVICE_ID, scope: RUN_TIME }
+domains:
+  - domain: api.lapnomba.org
+    type: PRIMARY

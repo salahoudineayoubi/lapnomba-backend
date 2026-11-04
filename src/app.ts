@@ -101,6 +101,11 @@ async function startServer() {
 
     // --- ROUTES API ---
     app.use("/api", exportExcelRouter);
+    // Sonde de santé (utilisée par DigitalOcean App Platform).
+    app.get("/health", (_req, res) => {
+      res.status(200).json({ ok: true, service: "lapnomba-backend" });
+    });
+
     app.use("/api/smobilpay", smobilpayWebhookRouter);
     app.use("/api/founder-video", founderVideoRouter);
 
