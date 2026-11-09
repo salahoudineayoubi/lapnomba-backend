@@ -2,6 +2,13 @@ import { adminTypeDefs } from "./admin/graphql";
 import { adminResolvers } from "./admin/resolvers";
 
 import { projectSummitTypeDefs } from "./projet_summit/graphql";
+import { projectSummitResolvers } from "./projet_summit/resolvers";
+
+import { joinTeamRequestTypeDefs } from "./joint_team_request/graphql";
+import { joinTeamRequestResolvers } from "./joint_team_request/resolvers";
+
+import { studentTypeDefs } from "./students/graphql";
+import { studentResolvers } from "./students/resolvers";
 
 import { communityVoiceTypeDefs } from "./communityVoice/graphql";
 import { communityVoiceResolvers } from "./communityVoice/resolver";
@@ -74,6 +81,8 @@ export const typeDefs = [
   eventTypeDefs,
   founderVideoTypeDefs,
   mentorTypeDefs,
+  joinTeamRequestTypeDefs,
+  studentTypeDefs,
 ];
 
 const rawResolvers = [
@@ -94,6 +103,9 @@ const rawResolvers = [
   eventResolvers,
   founderVideoResolvers,
   mentorResolvers,
+  projectSummitResolvers,
+  joinTeamRequestResolvers,
+  studentResolvers,
 ];
 
 // Toutes les opérations listées dans accessControl.ts exigent un token admin ;

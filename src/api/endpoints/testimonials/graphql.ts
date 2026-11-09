@@ -16,11 +16,22 @@ export const testimonialTypeDefs = gql`
     ar: String
   }
 
+  """
+  Témoignage écrit avec photo (nomComplet, avatar, temoignage), géré depuis
+  l'admin. Les champs titre/description/video/poster appartiennent à l'ancien
+  format vidéo et ne sont renseignés que pour les anciens enregistrements.
+  """
   type Testimonial {
     id: ID!
-    titre: String!
-    description: String!
-    video: String!   # URL ou identifiant de la vidéo
+    nomComplet: String
+    poste: String
+    posteI18n: LocalizedText
+    avatar: String
+    temoignage: String
+    temoignageI18n: LocalizedText
+    titre: String
+    description: String
+    video: String
     poster: String
     titreI18n: LocalizedText
     descriptionI18n: LocalizedText
@@ -34,23 +45,24 @@ export const testimonialTypeDefs = gql`
   }
 
   type Mutation {
+    "avatar : data URI (image JPEG/PNG/WebP, 2 Mo max) envoyée sur Cloudinary, ou URL https existante."
     createTestimonial(
-      titre: String!
-      description: String!
-      video: String!
-      poster: String
-      titreI18n: LocalizedTextInput
-      descriptionI18n: LocalizedTextInput
+      nomComplet: String!
+      poste: String
+      posteI18n: LocalizedTextInput
+      avatar: String!
+      temoignage: String!
+      temoignageI18n: LocalizedTextInput
     ): Testimonial!
 
     updateTestimonial(
       id: ID!
-      titre: String
-      description: String
-      video: String
-      poster: String
-      titreI18n: LocalizedTextInput
-      descriptionI18n: LocalizedTextInput
+      nomComplet: String
+      poste: String
+      posteI18n: LocalizedTextInput
+      avatar: String
+      temoignage: String
+      temoignageI18n: LocalizedTextInput
     ): Testimonial!
 
     deleteTestimonial(id: ID!): Boolean!

@@ -8,7 +8,9 @@
     "start": "node dist/app.js",
     "test": "jest",
     "seed:academy-programs": "ts-node src/scripts/seedAcademyPrograms.ts",
-    "translate:campaigns": "ts-node src/scripts/translateCampaigns.ts"
+    "translate:campaigns": "ts-node src/scripts/translateCampaigns.ts",
+    "seed:testimonials": "ts-node src/scripts/seedTestimonials.ts",
+    "translate:community": "ts-node src/scripts/translateCommunityContent.ts"
   },
   "keywords": [],
   "author": "",

@@ -127,8 +127,10 @@ export const createCandidature = async (_: any, { input }: any, context?: GraphQ
 
     // Non bloquant : un échec SMTP ne doit jamais annuler/rollback la
     // candidature déjà enregistrée en base (voir sendStatusEmail).
-    await sendStatusEmail(candidature.email, candidature.nomComplet, "CONFIRMATION");
-    await sendInternalNotification(candidature, age);
+    // Les deux helpers capturent leurs propres erreurs : on ne les attend pas
+    // pour que le candidat n'attende pas le serveur SMTP (jusqu'à 2 × 30 s).
+    void sendStatusEmail(candidature.email, candidature.nomComplet, "CONFIRMATION");
+    void sendInternalNotification(candidature, age);
 
     return candidature;
   } catch (error: any) {

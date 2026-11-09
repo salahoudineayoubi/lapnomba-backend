@@ -13,9 +13,18 @@ const LocalizedTextSchema = new Schema<LocalizedText>(
 );
 
 export interface ITestimonial extends Document {
-  titre: string;
-  description: string;
-  video: string;
+  /** Format actuel : témoignage écrit avec photo, géré depuis l'admin. */
+  nomComplet?: string;
+  /** Poste / situation actuelle, ex. « Développeur web full-stack ». */
+  poste?: string;
+  posteI18n?: LocalizedText;
+  avatar?: string;
+  temoignage?: string;
+  temoignageI18n?: LocalizedText;
+  /** Ancien format vidéo — conservé pour les enregistrements existants. */
+  titre?: string;
+  description?: string;
+  video?: string;
   /** Image d'aperçu facultative (affichée avant la lecture). */
   poster?: string;
   /** Traductions facultatives du titre et de la description (fr | en | tr | ar). */
@@ -27,9 +36,15 @@ export interface ITestimonial extends Document {
 
 const TestimonialSchema = new Schema<ITestimonial>(
   {
-    titre: { type: String, required: true },
-    description: { type: String, required: true },
-    video: { type: String, required: true },
+    nomComplet: { type: String, trim: true },
+    poste: { type: String, trim: true },
+    posteI18n: { type: LocalizedTextSchema, required: false },
+    avatar: { type: String },
+    temoignage: { type: String, trim: true },
+    temoignageI18n: { type: LocalizedTextSchema, required: false },
+    titre: { type: String },
+    description: { type: String },
+    video: { type: String },
     poster: { type: String, required: false },
     titreI18n: { type: LocalizedTextSchema, required: false },
     descriptionI18n: { type: LocalizedTextSchema, required: false },

@@ -1,6 +1,21 @@
 import { sendMail } from "../../../utils/sendMail";
 import { CommunityVoiceModel } from "../../../models/communityvoice";
 import { cleanLocalized } from "../testimonials/resolvers";
+import { hasAllLanguages, mergeTranslations, runTranslationInBackground, translateShortTexts } from "../../../services/textTranslation";
+
+/**
+ * Traduction IA d'un avis dans les 4 langues (langues vides seulement :
+ * les corrections faites dans l'admin sont conservées).
+ */
+export const translateVoice = async (id: string, client: Parameters<typeof translateShortTexts>[0]) => {
+  const voice = await CommunityVoiceModel.findById(id);
+  if (!voice || hasAllLanguages(voice.commentI18n)) return;
+  const result = await translateShortTexts(client, "short community review of the foundation", { comment: voice.comment });
+  voice.commentI18n = mergeTranslations(voice.commentI18n, result.i18n.comment);
+  if (!voice.language && result.sourceLanguage) voice.language = result.sourceLanguage;
+  await voice.save();
+};
+
 import { buildSupportFooterHtml, buildSupportFooterText } from "../../../utils/emailSupport";
 
 const buildCommunityVoiceMail = (
@@ -208,6 +223,9 @@ export const communityVoiceResolvers = {
             message: "Avis introuvable.",
           };
         }
+
+        // Avis publié : traduction automatique FR/EN/TR/AR en arrière-plan.
+        runTranslationInBackground(`avis ${id}`, (client) => translateVoice(id, client));
 
         if (voice.email) {
           try {

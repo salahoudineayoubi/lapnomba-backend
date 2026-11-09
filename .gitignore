@@ -12,3 +12,6 @@ public/uploads/
 # Clés et secrets
 *.key
 *.pem
+
+# Photos et textes de témoignages (données personnelles) : importés via npm run seed:testimonials, jamais commités
+seed-data/testimonials/

@@ -42,6 +42,13 @@ export const ADMIN_ONLY_OPERATIONS = {
     "getAllVoicesForAdmin",
     // Mentors bénévoles
     "mentorApplications",
+    // Formulaires du site principal
+    "joinTeamRequests",
+    "joinTeamRequest",
+    "projectSummits",
+    "projectSummit",
+    "students",
+    "student",
   ],
   Mutation: [
     // Dons
@@ -73,6 +80,12 @@ export const ADMIN_ONLY_OPERATIONS = {
     "deleteVoice",
     // Mentors bénévoles
     "updateMentorApplicationStatus",
+    // Formulaires du site principal
+    "updateJoinTeamRequest",
+    "deleteJoinTeamRequest",
+    "updateProjectSummit",
+    "deleteProjectSummit",
+    "deleteStudent",
   ],
 } as const;
 
