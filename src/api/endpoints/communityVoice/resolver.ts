@@ -1,5 +1,6 @@
 import { sendMail } from "../../../utils/sendMail";
 import { CommunityVoiceModel } from "../../../models/communityvoice";
+import { cleanLocalized } from "../testimonials/resolvers";
 import { buildSupportFooterHtml, buildSupportFooterText } from "../../../utils/emailSupport";
 
 const buildCommunityVoiceMail = (
@@ -177,6 +178,20 @@ export const communityVoiceResolvers = {
           message: "Erreur lors de la soumission.",
         };
       }
+    },
+
+    updateVoiceTranslations: async (
+      _: any,
+      { id, language, commentI18n }: { id: string; language?: string; commentI18n?: any }
+    ) => {
+      if (language && !["fr", "en", "tr", "ar"].includes(language)) {
+        return { success: false, message: "Langue non prise en charge." };
+      }
+      const update: Record<string, unknown> = { commentI18n: cleanLocalized(commentI18n) ?? {} };
+      if (language) update.language = language;
+      const voice = await CommunityVoiceModel.findByIdAndUpdate(id, update, { new: true });
+      if (!voice) return { success: false, message: "Avis introuvable." };
+      return { success: true, message: "Traductions enregistrées." };
     },
 
     approveVoice: async (_: any, { id }: { id: string }) => {

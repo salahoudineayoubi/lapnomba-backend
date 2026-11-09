@@ -66,6 +66,7 @@ export const ADMIN_ONLY_OPERATIONS = {
     "deletePartner",
     // Voix de la communauté
     "approveVoice",
+    "updateVoiceTranslations",
     "deleteVoice",
     // Mentors bénévoles
     "updateMentorApplicationStatus",
@@ -131,6 +132,10 @@ const adminOr = <T>(context: GraphQLContext, value: T, masked: T): T =>
   context?.admin ? value : masked;
 
 export const privacyFieldResolvers: ResolverMap = {
+  // Avis publics : l'email du contributeur n'est visible que de l'admin.
+  CommunityVoice: {
+    email: (v: any, _: any, ctx: GraphQLContext) => adminOr(ctx, v.email ?? null, null),
+  },
   Donation: {
     donorEmail: (d: any, _: any, ctx: GraphQLContext) => adminOr(ctx, d.donorEmail, maskEmail(d.donorEmail)),
     donorPhone: (d: any, _: any, ctx: GraphQLContext) => adminOr(ctx, d.donorPhone ?? null, maskPhone(d.donorPhone)),

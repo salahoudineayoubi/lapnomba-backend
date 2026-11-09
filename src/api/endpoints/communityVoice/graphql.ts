@@ -8,6 +8,10 @@ export const communityVoiceTypeDefs = gql`
     rating: Int!
     comment: String!
     isApproved: Boolean!
+    "Langue d'origine du commentaire (fr | en | tr | ar)."
+    language: String
+    "Traductions du commentaire saisies depuis l'admin."
+    commentI18n: LocalizedText
     createdAt: String
   }
 
@@ -30,6 +34,7 @@ export const communityVoiceTypeDefs = gql`
     ): VoiceResponse!
 
     approveVoice(id: ID!): VoiceResponse!
+    updateVoiceTranslations(id: ID!, language: String, commentI18n: LocalizedTextInput): VoiceResponse!
     deleteVoice(id: ID!): VoiceResponse!
   }
 `;

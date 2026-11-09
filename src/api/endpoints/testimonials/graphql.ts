@@ -1,11 +1,29 @@
 import { gql } from "apollo-server-express";
 
 export const testimonialTypeDefs = gql`
+  "Texte traduit (chaque langue est facultative ; le site retombe sur l'original)."
+  type LocalizedText {
+    fr: String
+    en: String
+    tr: String
+    ar: String
+  }
+
+  input LocalizedTextInput {
+    fr: String
+    en: String
+    tr: String
+    ar: String
+  }
+
   type Testimonial {
     id: ID!
     titre: String!
     description: String!
     video: String!   # URL ou identifiant de la vidéo
+    poster: String
+    titreI18n: LocalizedText
+    descriptionI18n: LocalizedText
     createdAt: String
     updatedAt: String
   }
@@ -20,6 +38,9 @@ export const testimonialTypeDefs = gql`
       titre: String!
       description: String!
       video: String!
+      poster: String
+      titreI18n: LocalizedTextInput
+      descriptionI18n: LocalizedTextInput
     ): Testimonial!
 
     updateTestimonial(
@@ -27,6 +48,9 @@ export const testimonialTypeDefs = gql`
       titre: String
       description: String
       video: String
+      poster: String
+      titreI18n: LocalizedTextInput
+      descriptionI18n: LocalizedTextInput
     ): Testimonial!
 
     deleteTestimonial(id: ID!): Boolean!
