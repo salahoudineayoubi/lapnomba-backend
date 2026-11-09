@@ -25,4 +25,9 @@ export const newsletterResolvers = {
       return result.deletedCount !== 0;
     },
   },
+
+  // .lean() : le document brut n'a que `_id`.
+  NewsletterSubscribe: {
+    id: (n: any) => String(n.id ?? n._id),
+  },
 };

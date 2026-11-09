@@ -122,4 +122,11 @@ export const testimonialResolvers = {
       return result.deletedCount !== 0;
     },
   },
+
+  // Les requêtes utilisent .lean() : le document brut n'a que `_id`.
+  Testimonial: {
+    id: (t: any) => String(t.id ?? t._id),
+    createdAt: (t: any) => (t.createdAt ? new Date(t.createdAt).toISOString() : null),
+    updatedAt: (t: any) => (t.updatedAt ? new Date(t.updatedAt).toISOString() : null),
+  },
 };
