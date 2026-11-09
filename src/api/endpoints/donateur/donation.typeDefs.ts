@@ -72,6 +72,14 @@ export const donateurTypeDefs = gql`
     organizerName: String!
     organizerEmail: String!
     coverImage: String
+    "Langue du texte original (fr | en | tr | ar), détectée automatiquement."
+    originalLanguage: String
+    "Traductions du titre (le site retombe sur title si une langue manque)."
+    titleI18n: LocalizedText
+    "Traductions de l'histoire (le site retombe sur story si une langue manque)."
+    storyI18n: LocalizedText
+    translationPending: Boolean
+    translationError: String
     totalRaised: Float!
     donorsCount: Int!
     status: String!
@@ -164,6 +172,8 @@ type DonationStats {
     organizerName: String!
     organizerEmail: String!
     coverImage: String
+    "Langue de l'interface au moment de la saisie (indice pour la traduction)."
+    originalLanguage: String
   }
 
   input CreateBankTransferDonationInput {
@@ -213,6 +223,9 @@ type DonationStats {
     # Campagnes
     createCampaign(input: CreateCampaignInput!): CrowdfundingCampaign!
     donateToCampaign(input: DonateToCampaignInput!): Donation!
+    # Traductions des collectes (admin)
+    updateCampaignTranslations(id: ID!, originalLanguage: String, titleI18n: LocalizedTextInput, storyI18n: LocalizedTextInput): CrowdfundingCampaign!
+    retranslateCampaign(id: ID!): CrowdfundingCampaign!
 
     # Dons financiers
     createFinancialDonation(input: CreateFinancialDonationInput!): Donation!

@@ -1,4 +1,18 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
+import { LocalizedText } from "./testimonial";
+
+export const CAMPAIGN_LANGUAGES = ["fr", "en", "tr", "ar"] as const;
+export type CampaignLanguage = (typeof CAMPAIGN_LANGUAGES)[number];
+
+const LocalizedTextSchema = new Schema<LocalizedText>(
+  {
+    fr: { type: String, trim: true },
+    en: { type: String, trim: true },
+    tr: { type: String, trim: true },
+    ar: { type: String, trim: true },
+  },
+  { _id: false }
+);
 
 export interface ICrowdfundingCampaign extends Document {
   title: string;
@@ -9,6 +23,21 @@ export interface ICrowdfundingCampaign extends Document {
   organizerName: string;
   organizerEmail: string;
   coverImage?: string;
+
+  /**
+   * Traductions (fr/en/tr/ar). `title` et `story` restent le texte ORIGINAL
+   * saisi par l'organisateur (rétrocompatible) ; les traductions sont
+   * produites en arrière-plan (services/campaignTranslation) ou corrigées
+   * par l'équipe (mutation admin updateCampaignTranslations).
+   */
+  originalLanguage?: CampaignLanguage;
+  titleI18n?: LocalizedText;
+  storyI18n?: LocalizedText;
+  translationPending?: boolean;
+  /** Empreinte du texte original traduit : évite de retraduire un texte inchangé. */
+  translationSourceHash?: string;
+  translationError?: string;
+  translatedAt?: Date;
 
   totalRaised: number;
   donorsCount: number;
@@ -70,6 +99,14 @@ const CrowdfundingCampaignSchema = new Schema<ICrowdfundingCampaign>(
       type: String,
       trim: true,
     },
+
+    originalLanguage: { type: String, enum: CAMPAIGN_LANGUAGES, required: false },
+    titleI18n: { type: LocalizedTextSchema, required: false },
+    storyI18n: { type: LocalizedTextSchema, required: false },
+    translationPending: { type: Boolean, default: false },
+    translationSourceHash: { type: String, required: false },
+    translationError: { type: String, required: false },
+    translatedAt: { type: Date, required: false },
 
     totalRaised: {
       type: Number,

@@ -10,6 +10,7 @@ import { typeDefs, resolvers } from "./api/endpoints";
 import exportExcelRouter from "./api/endpoints/candidature/exportExcel";
 import smobilpayWebhookRouter from "./api/routes/smobilpayWebhook.routes";
 import founderVideoRouter from "./api/routes/founderVideo.routes";
+import campaignShareRouter from "./api/routes/campaignShare.routes";
 import { getAdminFromAuthHeader, assertJwtSecretConfigured } from "./utils/auth";
 import { verifySmtpConnection } from "./utils/sendMail";
 
@@ -114,6 +115,9 @@ async function startServer() {
 
     app.use("/api/smobilpay", smobilpayWebhookRouter);
     app.use("/api/founder-video", founderVideoRouter);
+    // Aperçus de partage des collectes (balises Open Graph pour WhatsApp,
+    // Facebook, X, LinkedIn, Telegram) : GET /share/collecte/:slug, /s/c/:slug.
+    app.use(campaignShareRouter);
 
     // --- APOLLO GRAPHQL ---
     const isProduction = process.env.NODE_ENV === "production";

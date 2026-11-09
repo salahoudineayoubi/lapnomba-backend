@@ -49,6 +49,9 @@ export const ADMIN_ONLY_OPERATIONS = {
     "markBankTransferAsFailed",
     "deleteDonation",
     "deleteMaterial",
+    // Collectes : correction / relance des traductions
+    "updateCampaignTranslations",
+    "retranslateCampaign",
     // Newsletter
     "updateNewsletterSubscriber",
     "deleteNewsletterSubscriber",
@@ -144,5 +147,7 @@ export const privacyFieldResolvers: ResolverMap = {
   CrowdfundingCampaign: {
     organizerEmail: (c: any, _: any, ctx: GraphQLContext) =>
       adminOr(ctx, c.organizerEmail, maskEmail(c.organizerEmail)),
+    // Détail technique (message d'erreur API) réservé à l'équipe.
+    translationError: (c: any, _: any, ctx: GraphQLContext) => adminOr(ctx, c.translationError ?? null, null),
   },
 };

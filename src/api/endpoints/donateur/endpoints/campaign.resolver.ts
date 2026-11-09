@@ -1,6 +1,13 @@
 import { DonationModel, providerFromPaymentMethod } from "../../../../models/donor";
 import { CrowdfundingCampaignModel } from "../../../../models/crowdfunding_campaign";
 import { ensureValidDonationAmount, ensureValidMobileMoneyPhone } from "./financia/helpers";
+import { cleanLocalized } from "../../testimonials/resolvers";
+import {
+  isCampaignLanguage,
+  isTranslationEnabled,
+  scheduleCampaignTranslation,
+  translateCampaign,
+} from "../../../../services/campaignTranslation";
 
 const slugify = (text: string): string => {
   return text
@@ -95,11 +102,49 @@ export const campaignResolvers = {
         organizerName: input.organizerName.trim(),
         organizerEmail: input.organizerEmail.trim().toLowerCase(),
         coverImage,
+        // Indice seulement (langue de l'interface) : la langue réelle est
+        // détectée lors de la traduction automatique.
+        originalLanguage: isCampaignLanguage(input.originalLanguage) ? input.originalLanguage : undefined,
+        translationPending: isTranslationEnabled(),
         totalRaised: 0,
         donorsCount: 0,
         status: "ACTIVE",
       });
 
+      // Traduction fr/en/tr/ar en arrière-plan : ne bloque jamais la création.
+      scheduleCampaignTranslation(String(campaign._id));
+
+      return campaign;
+    },
+
+    // --- ADMIN (voir accessControl.ts) ---------------------------------
+
+    /** Correction manuelle des traductions par l'équipe. */
+    updateCampaignTranslations: async (
+      _: any,
+      { id, originalLanguage, titleI18n, storyI18n }: { id: string; originalLanguage?: string; titleI18n?: any; storyI18n?: any }
+    ) => {
+      if (originalLanguage && !isCampaignLanguage(originalLanguage)) {
+        throw new Error("Langue non prise en charge.");
+      }
+      const update: Record<string, unknown> = { translationPending: false, translationError: null };
+      if (originalLanguage) update.originalLanguage = originalLanguage;
+      if (titleI18n !== undefined) update.titleI18n = cleanLocalized(titleI18n) ?? {};
+      if (storyI18n !== undefined) update.storyI18n = cleanLocalized(storyI18n) ?? {};
+      const campaign = await CrowdfundingCampaignModel.findByIdAndUpdate(id, update, { new: true });
+      if (!campaign) throw new Error("Campagne introuvable.");
+      return campaign;
+    },
+
+    /** Relance la traduction automatique (écrase les traductions existantes). */
+    retranslateCampaign: async (_: any, { id }: { id: string }) => {
+      if (!isTranslationEnabled()) {
+        throw new Error("Traduction automatique indisponible (OPENAI_API_KEY non configurée).");
+      }
+      const status = await translateCampaign(id, { force: true });
+      const campaign = await CrowdfundingCampaignModel.findById(id);
+      if (!campaign) throw new Error("Campagne introuvable.");
+      if (status === "failed") throw new Error(campaign.translationError || "Échec de la traduction.");
       return campaign;
     },
 
