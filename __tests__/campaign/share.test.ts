@@ -83,7 +83,7 @@ describe("aperçu de partage des collectes", () => {
     const res = await get("/s/c/t?lang=en", "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1");
     const html = await res.text();
     expect(res.status).toBe(200);
-    expect(html).toContain('<meta http-equiv="refresh" content="0; url=https://donate.lapnomba.org/collecte/t">');
+    expect(html).toContain('<meta http-equiv="refresh" content="0; url=https://donate.lapnomba.org/collecte/t?lang=en">');
     expect(meta(html, "og:url")).toMatch(/^https?:\/\/[^/]+\/share\/collecte\/t\?lang=en$/);
   });
 
