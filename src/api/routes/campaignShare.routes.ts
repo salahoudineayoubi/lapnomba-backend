@@ -23,7 +23,7 @@ const DESCRIPTION_MAX = 180;
 const SLUG_RE = /^[A-Za-z0-9_-]{1,160}$/;
 
 /** Couvertures proposées par le site (« preset:<id> ») → JPEG 1200×630 servis par le site de dons. */
-export const PRESET_COVER_IDS = ["awareness", "field", "youth", "equipment"] as const;
+export const PRESET_COVER_IDS = ["laptop", "training", "students", "coding", "stopzaguina", "awareness", "field", "youth", "equipment"] as const;
 
 type Lang = "fr" | "en" | "tr" | "ar";
 
@@ -112,11 +112,21 @@ export type ShareImage = { url: string; width?: number; height?: number; type?: 
  *  - chemin /uploads/… → servi par ce backend
  *  - rien / ancienne URL de build webpack (/static/media/…) → image par défaut du site
  */
-export const resolveShareImage = (coverImage: string | undefined | null, req?: Request): ShareImage => {
+/** Même règle que le site de dons (covers/index.ts) : image adaptée au titre. */
+export const coverIdForTitle = (title?: string | null): string => {
+  const t = (title || "").toLowerCase();
+  if (/ordinateur|laptop|computer|\bpc\b|matériel|materiel|équipement|equipement|bilgisayar|حاسوب|كمبيوتر/.test(t)) return "laptop";
+  if (/zaguina|sensibilis|awareness|prévention|prevention|école|ecole|school|étudiant|etudiant|élève|eleve/.test(t)) return "students";
+  if (/code|coder|développeur|developpeur|developer|numérique|numerique|digital|tech/.test(t)) return "coding";
+  return "training";
+};
+
+export const resolveShareImage = (coverImage: string | undefined | null, req?: Request, title?: string | null): ShareImage => {
   const donate = getDonateSiteUrl();
   const fallback: ShareImage = { url: `${donate}/og-donate.jpg`, width: 1200, height: 630, type: "image/jpeg" };
-  const value = (coverImage || "").trim();
-  if (!value) return fallback;
+  let value = (coverImage || "").trim();
+  // Pas d'image choisie (ou ancienne image par défaut identique partout) : image adaptée au titre.
+  if (!value || value === "preset:awareness" || value.startsWith("/static/media/")) value = `preset:${coverIdForTitle(title)}`;
 
   if (value.startsWith("preset:")) {
     const id = value.slice("preset:".length);
@@ -269,7 +279,7 @@ export const campaignShareHandler = async (req: Request, res: Response) => {
         description,
         pageUrl: `${donate}/collecte/${encodeURIComponent(campaign.slug)}`,
         shareUrl: shareUrlFor(campaign.slug),
-        image: resolveShareImage(campaign.coverImage, req),
+        image: resolveShareImage(campaign.coverImage, req, campaign.title),
         imageAlt: title,
         redirect,
       })

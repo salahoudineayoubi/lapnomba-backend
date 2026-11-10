@@ -10,7 +10,7 @@ type SendMailParams = {
   text?: string;
   html?: string;
   /**
-   * Remplace le Reply-To par défaut (support@lapnomba.org). Réservé aux cas
+   * Remplace le Reply-To par défaut (contact@lapnomba.org). Réservé aux cas
    * genuinement particuliers — un email automatique standard n'a jamais
    * besoin de le fournir, voir DEFAULT_REPLY_TO ci-dessous.
    */
@@ -116,7 +116,7 @@ export const verifySmtpConnection = async (): Promise<boolean> => {
  * accidentellement envoyer depuis support@/training@/une adresse
  * personnelle (voir "Do not trust callers for From address").
  *
- * "replyTo" a en revanche un défaut centralisé (support@lapnomba.org, voir
+ * "replyTo" a en revanche un défaut centralisé (contact@lapnomba.org, voir
  * utils/emailSupport.ts) mais reste surchargeable pour un besoin
  * opérationnel réel et explicite.
  */

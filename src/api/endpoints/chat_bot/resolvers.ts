@@ -58,7 +58,7 @@ const LANGUAGE_NAMES: Record<Lang, string> = { fr: "French", en: "English", tr: 
 
 /** Message de secours (jamais d'écran vide côté site). */
 export const fallbackMessage = (lang: Lang, reason: "unavailable" | "rate_limited"): string => {
-  const contact = "https://wa.me/237657588317\nsupport@lapnomba.org";
+  const contact = "https://wa.me/237657588317\ncontact@lapnomba.org";
   const messages: Record<Lang, Record<typeof reason, string>> = {
     fr: {
       unavailable: `Je ne peux pas répondre pour le moment 🙏 Notre équipe reste disponible :\n${contact}`,

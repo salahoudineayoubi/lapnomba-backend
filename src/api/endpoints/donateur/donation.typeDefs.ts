@@ -226,6 +226,8 @@ type DonationStats {
     # Traductions des collectes (admin)
     updateCampaignTranslations(id: ID!, originalLanguage: String, titleI18n: LocalizedTextInput, storyI18n: LocalizedTextInput): CrowdfundingCampaign!
     retranslateCampaign(id: ID!): CrowdfundingCampaign!
+    "ADMIN : image de couverture (preset:<id>, URL https ou image en data URI ≤ 4 Mo)."
+    updateCampaignCover(id: ID!, coverImage: String!): CrowdfundingCampaign!
 
     # Dons financiers
     createFinancialDonation(input: CreateFinancialDonationInput!): Donation!

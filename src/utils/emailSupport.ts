@@ -8,7 +8,7 @@
  * Contact Standardization") :
  *  - noreply@lapnomba.org : expéditeur de tout email automatique (géré dans
  *    utils/sendMail, pas ici).
- *  - support@lapnomba.org : canal humain, adresse Reply-To par défaut.
+ *  - contact@lapnomba.org : canal humain, adresse Reply-To par défaut.
  *  - +237 657 588 317 : numéro WhatsApp support officiel (affichage), même
  *    numéro en format machine (237657588317) pour les liens wa.me.
  *
@@ -17,7 +17,7 @@
  * pas dupliqués ailleurs.
  */
 
-const DEFAULT_SUPPORT_EMAIL = "support@lapnomba.org";
+const DEFAULT_SUPPORT_EMAIL = "contact@lapnomba.org";
 const DEFAULT_SUPPORT_WHATSAPP = "+237657588317";
 
 export interface SupportContact {

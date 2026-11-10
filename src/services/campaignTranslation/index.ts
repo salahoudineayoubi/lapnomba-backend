@@ -308,3 +308,26 @@ export const scheduleCampaignTranslation = (campaignId: string) => {
     void translateCampaign(campaignId);
   });
 };
+
+/**
+ * Rattrapage au démarrage du serveur : traduit les collectes jamais traduites
+ * (ou dont le texte a changé). Une à la fois, en arrière-plan, plafonné.
+ * Les collectes en erreur ne sont pas retentées ici (script ou admin).
+ */
+export const translateUntranslatedCampaigns = async (limit = 25): Promise<number> => {
+  if (!isTranslationEnabled()) return 0;
+  const campaigns = await CrowdfundingCampaignModel.find({ translationError: { $in: [null, ""] } })
+    .select("title story translationSourceHash")
+    .sort({ createdAt: -1 })
+    .limit(200);
+  const todo = campaigns
+    .filter((c) => c.translationSourceHash !== computeSourceHash(c.title, c.story))
+    .slice(0, limit);
+  let done = 0;
+  for (const c of todo) {
+    const status = await translateCampaign(String(c._id));
+    if (status === "translated" || status === "partial") done++;
+  }
+  if (todo.length) logger.info(`Traduction des collectes au démarrage : ${done}/${todo.length} traduite(s).`);
+  return done;
+};

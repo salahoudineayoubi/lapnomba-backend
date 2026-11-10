@@ -134,10 +134,10 @@ describe("aperçu de partage des collectes", () => {
     expect(meta(html, "og:title")).toBe("Tom &amp; &quot;Jerry&quot; &lt;3 &#39;ok&#39; — Soutenez cette collecte");
   });
 
-  it("sans image → image par défaut du site", async () => {
+  it("sans image → image adaptée au titre", async () => {
     mockFindOne({ title: "Sans image", slug: "sans-image", story: "" });
     const html = await (await get("/share/collecte/sans-image?lang=en")).text();
-    expect(meta(html, "og:image")).toBe("https://donate.lapnomba.org/og-donate.jpg");
+    expect(meta(html, "og:image")).toBe("https://donate.lapnomba.org/og/collecte/training.jpg");
     expect(meta(html, "og:title")).toBe("Sans image — Support this fundraiser");
     expect(meta(html, "og:description")).toMatch(/^Support this fundraiser/);
   });
@@ -192,9 +192,11 @@ describe("helpers", () => {
 
   it("resolveShareImage", () => {
     process.env.APP_BASE_URL = "https://api.example.org";
-    expect(resolveShareImage(undefined).url).toBe("https://donate.lapnomba.org/og-donate.jpg");
+    expect(resolveShareImage(undefined).url).toBe("https://donate.lapnomba.org/og/collecte/training.jpg");
+    expect(resolveShareImage(undefined, undefined, "Un ordinateur pour former un jeune").url).toBe("https://donate.lapnomba.org/og/collecte/laptop.jpg");
+    expect(resolveShareImage("preset:awareness", undefined, "Sortir les jeunes du Zaguina").url).toBe("https://donate.lapnomba.org/og/collecte/students.jpg");
     expect(resolveShareImage("preset:unknown").url).toBe("https://donate.lapnomba.org/og-donate.jpg");
-    expect(resolveShareImage("/static/media/old.123.webp").url).toBe("https://donate.lapnomba.org/og-donate.jpg");
+    expect(resolveShareImage("/static/media/old.123.webp").url).toBe("https://donate.lapnomba.org/og/collecte/training.jpg");
     expect(resolveShareImage("http://insecure.example/x.jpg").url).toBe("https://donate.lapnomba.org/og-donate.jpg");
     expect(resolveShareImage("https://res.cloudinary.com/demo/a.jpg")).toEqual({ url: "https://res.cloudinary.com/demo/a.jpg" });
     expect(resolveShareImage("/uploads/c/a.jpg").url).toBe("https://api.example.org/uploads/c/a.jpg");

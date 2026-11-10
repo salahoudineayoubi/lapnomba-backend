@@ -42,7 +42,7 @@ beforeEach(() => {
   process.env.SMTP_PASS = "test-pass";
   process.env.SMTP_FROM_NAME = "Lap Nomba Foundation";
   process.env.SMTP_FROM_EMAIL = "noreply@lapnomba.org";
-  process.env.SUPPORT_EMAIL = "support@lapnomba.org";
+  process.env.SUPPORT_EMAIL = "contact@lapnomba.org";
   process.env.SUPPORT_WHATSAPP = "+237657588317";
   process.env.TRAINING_NOTIFICATION_EMAIL = "training@lapnomba.org";
 });
@@ -57,7 +57,7 @@ describe("emailSupport — contact centralisé", () => {
   it("expose le bon email et le bon numéro WhatsApp (affichage + lien wa.me)", () => {
     const contact = getSupportContact();
 
-    expect(contact.email).toBe("support@lapnomba.org");
+    expect(contact.email).toBe("contact@lapnomba.org");
     expect(contact.whatsappDisplay).toBe("+237 657 588 317");
     expect(contact.whatsappDigits).toBe("237657588317");
     expect(contact.whatsappLink).toBe("https://wa.me/237657588317");
@@ -66,7 +66,7 @@ describe("emailSupport — contact centralisé", () => {
   });
 
   it("Reply-To par défaut pointe vers le support, pas vers noreply", () => {
-    expect(getDefaultReplyTo()).toBe("Lap Nomba Support <support@lapnomba.org>");
+    expect(getDefaultReplyTo()).toBe("Lap Nomba Support <contact@lapnomba.org>");
   });
 });
 
@@ -76,11 +76,11 @@ describe("Emails candidat (confirmation/approbation/refus) — architecture From
 
     const call = lastCall();
     expect(call.from).toBe('"Lap Nomba Foundation" <noreply@lapnomba.org>');
-    expect(call.replyTo).toBe("Lap Nomba Support <support@lapnomba.org>");
+    expect(call.replyTo).toBe("Lap Nomba Support <contact@lapnomba.org>");
     expect(call.to).toBe("candidat@example.com");
-    expect(call.html).toContain("support@lapnomba.org");
+    expect(call.html).toContain("contact@lapnomba.org");
     expect(call.html).toContain("+237 657 588 317");
-    expect(call.text).toContain("support@lapnomba.org");
+    expect(call.text).toContain("contact@lapnomba.org");
   });
 
   it("APPROBATION : From noreply, Reply-To support, lien WhatsApp migré vers le nouveau numéro", async () => {
@@ -88,7 +88,7 @@ describe("Emails candidat (confirmation/approbation/refus) — architecture From
 
     const call = lastCall();
     expect(call.from).toBe('"Lap Nomba Foundation" <noreply@lapnomba.org>');
-    expect(call.replyTo).toBe("Lap Nomba Support <support@lapnomba.org>");
+    expect(call.replyTo).toBe("Lap Nomba Support <contact@lapnomba.org>");
     expect(call.html).toContain("https://wa.me/237657588317");
     expect(call.text).toContain("https://wa.me/237657588317");
     // L'ancien numéro ne doit plus apparaître nulle part
@@ -101,8 +101,8 @@ describe("Emails candidat (confirmation/approbation/refus) — architecture From
 
     const call = lastCall();
     expect(call.from).toBe('"Lap Nomba Foundation" <noreply@lapnomba.org>');
-    expect(call.replyTo).toBe("Lap Nomba Support <support@lapnomba.org>");
-    expect(call.html).toContain("support@lapnomba.org");
+    expect(call.replyTo).toBe("Lap Nomba Support <contact@lapnomba.org>");
+    expect(call.html).toContain("contact@lapnomba.org");
   });
 });
 
@@ -124,8 +124,8 @@ describe("Notification interne (équipe formation)", () => {
     const call = lastCall();
     expect(call.from).toBe('"Lap Nomba Foundation" <noreply@lapnomba.org>');
     expect(call.to).toBe("training@lapnomba.org");
-    expect(call.to).not.toBe("support@lapnomba.org");
-    expect(call.replyTo).toBe("Lap Nomba Support <support@lapnomba.org>");
+    expect(call.to).not.toBe("contact@lapnomba.org");
+    expect(call.replyTo).toBe("Lap Nomba Support <contact@lapnomba.org>");
   });
 
   it("reste concise — pas de pied de page support commercial (voir politique notifications internes)", async () => {
@@ -149,9 +149,9 @@ describe("Autres workflows automatiques (représentatif : Awareness) — même p
 
     const call = lastCall();
     expect(call.from).toBe('"Lap Nomba Foundation" <noreply@lapnomba.org>');
-    expect(call.replyTo).toBe("Lap Nomba Support <support@lapnomba.org>");
+    expect(call.replyTo).toBe("Lap Nomba Support <contact@lapnomba.org>");
     expect(call.to).toBe("fatima.bello@example.com");
-    expect(call.html).toContain("support@lapnomba.org");
+    expect(call.html).toContain("contact@lapnomba.org");
     expect(call.html).toContain("+237 657 588 317");
   });
 });

@@ -22,7 +22,7 @@ describe("Pemi AI", () => {
 
   it("a un message de secours dans les 4 langues", () => {
     for (const lang of ["fr", "en", "tr", "ar"] as const) {
-      expect(fallbackMessage(lang, "unavailable")).toContain("support@lapnomba.org");
+      expect(fallbackMessage(lang, "unavailable")).toContain("contact@lapnomba.org");
       expect(fallbackMessage(lang, "rate_limited")).toContain("https://wa.me/237657588317");
     }
   });

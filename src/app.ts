@@ -12,6 +12,7 @@ import smobilpayWebhookRouter from "./api/routes/smobilpayWebhook.routes";
 import founderVideoRouter from "./api/routes/founderVideo.routes";
 import campaignShareRouter from "./api/routes/campaignShare.routes";
 import { getAdminFromAuthHeader, assertJwtSecretConfigured } from "./utils/auth";
+import { translateUntranslatedCampaigns } from "./services/campaignTranslation";
 import { verifySmtpConnection } from "./utils/sendMail";
 
 async function startServer() {
@@ -149,6 +150,10 @@ async function startServer() {
       logger.info(`📂 CV : ${appBaseUrl}/uploads/cv/`);
       logger.info(`💳 Smobilpay webhook : ${appBaseUrl}/api/smobilpay/webhook`);
       logger.info(`🔍 Smobilpay health : ${appBaseUrl}/api/smobilpay/health`);
+      // Collectes pas encore traduites (fr/en/tr/ar) : rattrapage en arrière-plan.
+      setTimeout(() => {
+        translateUntranslatedCampaigns().catch((e) => logger.error(`Rattrapage des traductions : ${e?.message ?? e}`));
+      }, 15_000);
     });
   } catch (err: any) {
     logger.error("❌ Erreur au démarrage du serveur :", err);

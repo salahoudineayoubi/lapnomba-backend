@@ -59,6 +59,7 @@ export const ADMIN_ONLY_OPERATIONS = {
     // Collectes : correction / relance des traductions
     "updateCampaignTranslations",
     "retranslateCampaign",
+    "updateCampaignCover",
     // Newsletter
     "updateNewsletterSubscriber",
     "deleteNewsletterSubscriber",

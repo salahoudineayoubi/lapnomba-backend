@@ -34,7 +34,7 @@ services:
       - { key: SMTP_PASS, type: SECRET, scope: RUN_TIME }
       - { key: SMTP_FROM_NAME, value: "Lap Nomba Foundation", scope: RUN_TIME }
       - { key: SMTP_FROM_EMAIL, value: "noreply@lapnomba.org", scope: RUN_TIME }
-      - { key: SUPPORT_EMAIL, value: "support@lapnomba.org", scope: RUN_TIME }
+      - { key: SUPPORT_EMAIL, value: "contact@lapnomba.org", scope: RUN_TIME }
       - { key: CLOUDINARY_CLOUD_NAME, type: SECRET, scope: RUN_TIME }
       - { key: CLOUDINARY_API_KEY, type: SECRET, scope: RUN_TIME }
       - { key: CLOUDINARY_API_SECRET, type: SECRET, scope: RUN_TIME }

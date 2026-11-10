@@ -2,6 +2,33 @@ import { DonationModel, providerFromPaymentMethod } from "../../../../models/don
 import { CrowdfundingCampaignModel } from "../../../../models/crowdfunding_campaign";
 import { ensureValidDonationAmount, ensureValidMobileMoneyPhone } from "./financia/helpers";
 import { cleanLocalized } from "../../testimonials/resolvers";
+import { UserInputError } from "apollo-server-express";
+import { uploadFromBase64 } from "../../../../utils/cloudinary";
+import { validateUploadedFile, FileValidationError } from "../../../../utils/fileValidation";
+
+const COVER_MIMES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_COVER_BYTES = 4 * 1024 * 1024;
+
+/**
+ * Image de couverture choisie dans le back office :
+ *  - « preset:<id> » (images proposées par le site de dons) ;
+ *  - URL https (ex. image déjà sur Cloudinary) ;
+ *  - image envoyée en data URI → téléversée sur Cloudinary (dossier « campaigns »).
+ */
+export const processCampaignCover = async (value: unknown): Promise<string> => {
+  const v = typeof value === "string" ? value.trim() : "";
+  if (/^preset:[a-z]{2,30}$/.test(v)) return v;
+  if (/^https:\/\//i.test(v)) return v;
+  if (!v.startsWith("data:")) throw new UserInputError("Image de couverture invalide.");
+  try {
+    validateUploadedFile(v, { allowedMimes: COVER_MIMES, maxBytes: MAX_COVER_BYTES, label: "Image" });
+  } catch (error: any) {
+    if (error instanceof FileValidationError) throw new UserInputError(error.message);
+    throw error;
+  }
+  const uploaded = await uploadFromBase64(v, { folder: "campaigns", resource_type: "image" });
+  return uploaded.secure_url;
+};
 import {
   isCampaignLanguage,
   isTranslationEnabled,
@@ -132,6 +159,14 @@ export const campaignResolvers = {
       if (titleI18n !== undefined) update.titleI18n = cleanLocalized(titleI18n) ?? {};
       if (storyI18n !== undefined) update.storyI18n = cleanLocalized(storyI18n) ?? {};
       const campaign = await CrowdfundingCampaignModel.findByIdAndUpdate(id, update, { new: true });
+      if (!campaign) throw new Error("Campagne introuvable.");
+      return campaign;
+    },
+
+    /** Change l'image de couverture d'une collecte (back office). */
+    updateCampaignCover: async (_: any, { id, coverImage }: { id: string; coverImage: string }) => {
+      const cover = await processCampaignCover(coverImage);
+      const campaign = await CrowdfundingCampaignModel.findByIdAndUpdate(id, { coverImage: cover }, { new: true });
       if (!campaign) throw new Error("Campagne introuvable.");
       return campaign;
     },
