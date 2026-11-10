@@ -32,25 +32,45 @@ const MIME: Record<string, string> = { ".webp": "image/webp", ".jpg": "image/jpe
 
 const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-export const seedTestimonials = async () => {
+const uploadPhoto = async (photo: string) => {
+  const file = path.join(DATA_DIR, photo);
+  const mime = MIME[path.extname(file).toLowerCase()];
+  if (!mime) throw new Error(`Format de photo non pris en charge : ${photo}`);
+  const dataUri = `data:${mime};base64,${fs.readFileSync(file).toString("base64")}`;
+  return uploadFromBase64(dataUri, { folder: "testimonials", resource_type: "image" });
+};
+
+/**
+ * options.updatePhotos (--update-photos) : pour les témoignages déjà
+ * présents, renvoie la photo du dossier seed-data et remplace l'avatar
+ * (le texte et les traductions restent inchangés). Avec options.only
+ * (--only="Nom complet"), limite à une personne.
+ */
+export const seedTestimonials = async (options: { updatePhotos?: boolean; only?: string } = {}) => {
   const entries: Entry[] = JSON.parse(fs.readFileSync(path.join(DATA_DIR, "testimonials.json"), "utf8"));
   let created = 0;
   let skipped = 0;
+  let photosUpdated = 0;
 
   for (const entry of entries) {
     const name = entry.nomComplet.trim();
-    const exists = await TestimonialModel.exists({ nomComplet: new RegExp(`^${escapeRegex(name)}$`, "i") });
+    if (options.only && name.toLowerCase() !== options.only.trim().toLowerCase()) continue;
+    const byName = { nomComplet: new RegExp(`^${escapeRegex(name)}$`, "i") };
+    const exists = await TestimonialModel.exists(byName);
     if (exists) {
-      console.log(`↷ déjà présent, inchangé : ${name}`);
+      if (options.updatePhotos) {
+        const uploaded = await uploadPhoto(entry.photo);
+        await TestimonialModel.updateOne(byName, { $set: { avatar: uploaded.secure_url } });
+        console.log(`🖼  photo mise à jour : ${name}`);
+        photosUpdated++;
+      } else {
+        console.log(`↷ déjà présent, inchangé : ${name}`);
+      }
       skipped++;
       continue;
     }
 
-    const file = path.join(DATA_DIR, entry.photo);
-    const mime = MIME[path.extname(file).toLowerCase()];
-    if (!mime) throw new Error(`Format de photo non pris en charge : ${entry.photo}`);
-    const dataUri = `data:${mime};base64,${fs.readFileSync(file).toString("base64")}`;
-    const uploaded = await uploadFromBase64(dataUri, { folder: "testimonials", resource_type: "image" });
+    const uploaded = await uploadPhoto(entry.photo);
 
     await TestimonialModel.create({
       nomComplet: name,
@@ -64,14 +84,18 @@ export const seedTestimonials = async () => {
     created++;
   }
 
-  return { created, skipped, total: entries.length };
+  return { created, skipped, photosUpdated, total: entries.length };
 };
 
 if (require.main === module) {
   (async () => {
     await connectMongo();
-    const result = await seedTestimonials();
-    console.log(`📦 Témoignages : ${result.created} ajouté(s), ${result.skipped} déjà présent(s), ${result.total} au total.`);
+    const args = process.argv.slice(2);
+    const only = args.find((a) => a.startsWith("--only="))?.slice("--only=".length);
+    const result = await seedTestimonials({ updatePhotos: args.includes("--update-photos"), only });
+    console.log(
+      `📦 Témoignages : ${result.created} ajouté(s), ${result.skipped} déjà présent(s) (dont ${result.photosUpdated} photo(s) mise(s) à jour), ${result.total} au total.`
+    );
     await mongoose.disconnect();
     process.exit(0);
   })().catch((err) => {
