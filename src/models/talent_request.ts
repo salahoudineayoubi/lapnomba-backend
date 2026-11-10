@@ -28,6 +28,7 @@ export interface ITalentRequest extends Document {
   startDate?: string;
   message?: string;
   language?: string;
+  profileSlug?: string;
   status: string;
   createdAt: Date;
   updatedAt: Date;
@@ -47,6 +48,7 @@ const TalentRequestSchema = new Schema<ITalentRequest>(
     startDate: { type: String, trim: true, maxlength: 60 },
     message: { type: String, trim: true, maxlength: 3000 },
     language: { type: String, trim: true, maxlength: 5 },
+    profileSlug: { type: String, trim: true, lowercase: true, maxlength: 80 },
     status: { type: String, enum: TALENT_REQUEST_STATUSES, default: "NEW", index: true },
   },
   { timestamps: true }

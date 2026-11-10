@@ -16,6 +16,7 @@ export const talentRequestTypeDefs = gql`
     startDate: String
     message: String
     language: String
+    profileSlug: String
     "NEW | CONTACTED | IN_PROGRESS | WON | CLOSED"
     status: String!
     createdAt: String!
@@ -38,6 +39,8 @@ export const talentRequestTypeDefs = gql`
     message: String
     "Langue du site (fr | en | tr | ar)"
     language: String
+    "Profil demandé depuis la vitrine (slug), facultatif"
+    profileSlug: String
   }
 
   type TalentRequestResponse {

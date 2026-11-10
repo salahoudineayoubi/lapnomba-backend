@@ -1,4 +1,5 @@
 import { requireAdmin, GraphQLContext } from "../../utils/auth";
+import { talentProfilePrivacy } from "./talentProfile/resolvers";
 
 /**
  * Contrôle d'accès centralisé de l'API GraphQL.
@@ -49,6 +50,7 @@ export const ADMIN_ONLY_OPERATIONS = {
     "projectSummit",
     "students",
     "talentRequests",
+    "adminTalentProfiles",
     "student",
   ],
   Mutation: [
@@ -91,6 +93,9 @@ export const ADMIN_ONLY_OPERATIONS = {
     "deleteStudent",
     "updateTalentRequestStatus",
     "deleteTalentRequest",
+    "createTalentProfile",
+    "updateTalentProfile",
+    "deleteTalentProfile",
   ],
 } as const;
 
@@ -153,6 +158,8 @@ const adminOr = <T>(context: GraphQLContext, value: T, masked: T): T =>
   context?.admin ? value : masked;
 
 export const privacyFieldResolvers: ResolverMap = {
+  // Profils de talents : coordonnées, liens personnels et notes réservés à l'équipe.
+  TalentProfile: talentProfilePrivacy(adminOr),
   // Avis publics : l'email du contributeur n'est visible que de l'admin.
   CommunityVoice: {
     email: (v: any, _: any, ctx: GraphQLContext) => adminOr(ctx, v.email ?? null, null),

@@ -49,6 +49,7 @@ const notifyTeam = (r: any) => {
     `Profils : ${(r.roles || []).join(", ") || "—"}`,
     `Niveau : ${r.seniority || "—"} · Taille d'équipe : ${r.teamSize ?? "—"} · Engagement : ${r.engagement || "—"}`,
     `Démarrage : ${r.startDate || "—"}`,
+    ...(r.profileSlug ? [`Profil demandé : https://talents.lapnomba.org/talents/${r.profileSlug}`] : []),
     "",
     r.message || "",
   ];
@@ -94,6 +95,7 @@ export const talentRequestResolvers = {
           startDate: optionalText(input?.startDate, 60),
           message: optionalText(input?.message, 3000),
           language,
+          profileSlug: optionalText(input?.profileSlug, 80)?.toLowerCase(),
         });
 
         const ack = ACK[language === "fr" ? "fr" : language ? "en" : "fr"];
