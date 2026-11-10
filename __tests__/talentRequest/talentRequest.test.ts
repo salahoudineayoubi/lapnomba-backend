@@ -10,7 +10,7 @@ import { TalentRequestModel } from "../../src/models/talent_request";
 const create = (input: any, ip = "10.0.0.1") =>
   talentRequestResolvers.Mutation.createTalentRequest(null, { input }, { ip } as any);
 
-describe("Demande de talents (talents.lapnomba.org)", () => {
+describe("Demande de talents (lapnomba.com)", () => {
   const valid = { companyName: "Acme", contactName: "Awa Diallo", email: "awa@acme.com", roles: ["web_mobile", "data_ai"], language: "en" };
 
   it("enregistre une demande valide et ignore les profils inconnus", async () => {

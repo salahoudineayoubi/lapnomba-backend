@@ -49,7 +49,7 @@ const notifyTeam = (r: any) => {
     `Profils : ${(r.roles || []).join(", ") || "—"}`,
     `Niveau : ${r.seniority || "—"} · Taille d'équipe : ${r.teamSize ?? "—"} · Engagement : ${r.engagement || "—"}`,
     `Démarrage : ${r.startDate || "—"}`,
-    ...(r.profileSlug ? [`Profil demandé : https://talents.lapnomba.org/talents/${r.profileSlug}`] : []),
+    ...(r.profileSlug ? [`Profil demandé : https://lapnomba.com/talents/${r.profileSlug}`] : []),
     "",
     r.message || "",
   ];

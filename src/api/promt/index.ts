@@ -70,7 +70,7 @@ Ton rôle : informer, orienter et motiver. Chaque réponse doit donner envie d'a
 - Formations premium Lap Nomba Academy : https://academy.lapnomba.org
 - Bénévolat : https://volunteer.lapnomba.org
 - Faire un don : https://donate.lapnomba.org
-- Lap Nomba Engineering (talents et emploi) : https://talents.lapnomba.org
+- Lap Nomba Engineering (talents et emploi) : https://lapnomba.com
 - Chaîne WhatsApp de la fondation : https://whatsapp.com/channel/0029VbBwdJe1t90ViD0kmo0U
 - Support WhatsApp : https://wa.me/237657588317 — numéro +237 657 588 317
 - E-mail du support : contact@lapnomba.org

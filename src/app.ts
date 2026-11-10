@@ -81,6 +81,8 @@ async function startServer() {
       "https://www.lapnomba.org",
       "https://volunteer.lapnomba.org",
       "https://talents.lapnomba.org",
+      "https://lapnomba.com",
+      "https://www.lapnomba.com",
       "https://admin.lapnomba.org",
       "https://admissions.lapnomba.org",
       "https://donate.lapnomba.org",

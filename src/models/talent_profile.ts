@@ -16,7 +16,7 @@ export const TALENT_AVAILABILITIES = ["available", "soon", "unavailable"] as con
 
 /**
  * Profil d'un talent formé par Lap Nomba, saisi depuis le back office et
- * affiché sur talents.lapnomba.org (vitrine type Andela).
+ * affiché sur lapnomba.com (vitrine type Andela).
  * Champs PUBLICS : displayName, photo, headline, bio, compétences, niveau…
  * Champs INTERNES (admin uniquement) : fullName, email, phone, links privés, notes.
  * Publication impossible sans consentement de la personne (consentObtained).

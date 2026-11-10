@@ -14,7 +14,7 @@ export const TALENT_SENIORITIES = ["junior", "intermediate", "senior", "mixed"] 
 export const TALENT_ENGAGEMENTS = ["full_time", "part_time", "project"] as const;
 export const TALENT_REQUEST_STATUSES = ["NEW", "CONTACTED", "IN_PROGRESS", "WON", "CLOSED"] as const;
 
-/** Demande d'une entreprise qui veut recruter des talents (talents.lapnomba.org). */
+/** Demande d'une entreprise qui veut recruter des talents (lapnomba.com). */
 export interface ITalentRequest extends Document {
   companyName: string;
   contactName: string;

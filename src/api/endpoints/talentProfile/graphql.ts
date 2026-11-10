@@ -8,7 +8,7 @@ export const talentProfileTypeDefs = gql`
     softSkills: Boolean!
   }
 
-  "Profil de talent affiché sur talents.lapnomba.org. fullName, email, phone, notes : admin uniquement."
+  "Profil de talent affiché sur lapnomba.com. fullName, email, phone, notes : admin uniquement."
   type TalentProfile {
     id: ID!
     slug: String!

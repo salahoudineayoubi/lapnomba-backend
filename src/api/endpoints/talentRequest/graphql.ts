@@ -1,7 +1,7 @@
 import { gql } from "apollo-server-express";
 
 export const talentRequestTypeDefs = gql`
-  "Demande de recrutement d'une entreprise (talents.lapnomba.org)."
+  "Demande de recrutement d'une entreprise (lapnomba.com)."
   type TalentRequest {
     id: ID!
     companyName: String!
