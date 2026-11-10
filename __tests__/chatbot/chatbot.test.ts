@@ -1,4 +1,4 @@
-import { chatbotResolvers, fallbackMessage } from "../../src/api/endpoints/chat_bot/resolvers";
+import { chatbotResolvers, fallbackMessage, toPlainText } from "../../src/api/endpoints/chat_bot/resolvers";
 import SYSTEM_PROMPT from "../../src/api/promt";
 
 describe("Pemi AI", () => {
@@ -31,5 +31,12 @@ describe("Pemi AI", () => {
     expect(SYSTEM_PROMPT).not.toMatch(/500\+|95%|150\+|occult/i);
     expect(SYSTEM_PROMPT).toContain("100 000 FCFA");
     expect(SYSTEM_PROMPT).toContain("https://admissions.lapnomba.org");
+  });
+
+  it("convertit le markdown du modèle en texte simple (liens bruts cliquables)", () => {
+    expect(toPlainText("Voir **ce guide** ([MDN](https://developer.mozilla.org/fr/?utm_source=openai)).")).toBe(
+      "Voir ce guide MDN : https://developer.mozilla.org/fr/."
+    );
+    expect(toPlainText("## Titre\nTexte")).toBe("Titre\nTexte");
   });
 });
