@@ -96,10 +96,21 @@ export const getDonateSiteUrl = (): string => {
   return /^https?:\/\//i.test(raw) ? stripTrailingSlash(raw) : DEFAULT_DONATE_SITE_URL;
 };
 
+/**
+ * Racine publique du backend pour og:url / canonical / images /uploads.
+ * Priorité à l'adresse RÉELLEMENT appelée par le robot (elle fonctionne
+ * forcément) : APP_BASE_URL peut pointer vers un domaine sans DNS
+ * (ex. api.lapnomba.org), ce qui cassait l'aperçu Facebook/WhatsApp.
+ */
 const getApiBaseUrl = (req?: Request): string => {
+  const host = req?.get?.("x-forwarded-host") || req?.get?.("host");
+  if (host && /^[a-z0-9.-]+(:\d+)?$/i.test(host)) {
+    const forwarded = (req?.get?.("x-forwarded-proto") || "").split(",")[0].trim();
+    const proto = forwarded || (/^(localhost|127\.)/.test(host) ? req?.protocol || "http" : "https");
+    return `${proto}://${host}`;
+  }
   const raw = (process.env.APP_BASE_URL || "").trim();
   if (/^https?:\/\//i.test(raw)) return stripTrailingSlash(raw);
-  if (req) return `${req.protocol}://${req.get("host")}`;
   return "https://lobster-app-vdl5o.ondigitalocean.app";
 };
 
@@ -116,8 +127,10 @@ export type ShareImage = { url: string; width?: number; height?: number; type?: 
 export const coverIdForTitle = (title?: string | null): string => {
   const t = (title || "").toLowerCase();
   if (/ordinateur|laptop|computer|\bpc\b|matériel|materiel|équipement|equipement|bilgisayar|حاسوب|كمبيوتر/.test(t)) return "laptop";
+  // Avant « zaguina » : « De Zaguina à Lap Nomba : construisez l'avenir… » ≠ « Sortir les jeunes du Zaguina… ».
+  if (/avenir|future|construi|codez|coder|\bcode\b|développeur|developpeur|developer|formation|former\b|training/.test(t)) return "coding";
   if (/zaguina|sensibilis|awareness|prévention|prevention|école|ecole|school|étudiant|etudiant|élève|eleve/.test(t)) return "students";
-  if (/code|coder|développeur|developpeur|developer|numérique|numerique|digital|tech/.test(t)) return "coding";
+  if (/numérique|numerique|digital|tech/.test(t)) return "coding";
   return "training";
 };
 

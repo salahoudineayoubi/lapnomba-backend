@@ -69,9 +69,9 @@ describe("aperçu de partage des collectes", () => {
     expect(meta(html, "og:image")).toBe("https://donate.lapnomba.org/og/collecte/equipment.jpg");
     expect(meta(html, "og:image:width")).toBe("1200");
     // og:url / canonical = l'aperçu lui-même (sinon Facebook irait lire la SPA générique).
-    expect(meta(html, "og:url")).toBe("https://api.example.org/share/collecte/ordinateurs-mvog-ada");
+    expect(meta(html, "og:url")).toMatch(/^https?:\/\/[^/]+\/share\/collecte\/ordinateurs\-mvog\-ada$/);
     expect(meta(html, "twitter:card")).toBe("summary_large_image");
-    expect(html).toContain('<link rel="canonical" href="https://api.example.org/share/collecte/ordinateurs-mvog-ada">');
+    expect(html).toMatch(/<link rel="canonical" href="https?:\/\/[^"]+\/share\/collecte\/ordinateurs-mvog-ada">/);
     // Robot : pas de meta refresh.
     expect(html).not.toContain('http-equiv="refresh"');
     expect(html).toContain('window.location.replace("https://donate.lapnomba.org/collecte/ordinateurs-mvog-ada")');
@@ -84,7 +84,7 @@ describe("aperçu de partage des collectes", () => {
     const html = await res.text();
     expect(res.status).toBe(200);
     expect(html).toContain('<meta http-equiv="refresh" content="0; url=https://donate.lapnomba.org/collecte/t">');
-    expect(meta(html, "og:url")).toBe("https://api.example.org/share/collecte/t?lang=en");
+    expect(meta(html, "og:url")).toMatch(/^https?:\/\/[^/]+\/share\/collecte\/t\?lang=en$/);
   });
 
   it.each(["WhatsApp/2.23.20.0", "Twitterbot/1.0", "LinkedInBot/1.0 (compatible; Mozilla/5.0)", "TelegramBot (like TwitterBot)"])(
@@ -172,7 +172,7 @@ describe("aperçu de partage des collectes", () => {
     const html = await res.text();
     expect(res.status).toBe(200);
     expect(res.headers.get("cache-control")).toBe("no-store");
-    expect(meta(html, "og:url")).toBe("https://api.example.org/share/collecte/ma-collecte");
+    expect(meta(html, "og:url")).toMatch(/^https?:\/\/[^/]+\/share\/collecte\/ma\-collecte$/);
     expect(html).toContain('window.location.replace("https://donate.lapnomba.org/collecte/ma-collecte")');
   });
 });
@@ -193,6 +193,7 @@ describe("helpers", () => {
   it("resolveShareImage", () => {
     process.env.APP_BASE_URL = "https://api.example.org";
     expect(resolveShareImage(undefined).url).toBe("https://donate.lapnomba.org/og/collecte/training.jpg");
+    expect(resolveShareImage(undefined, undefined, "De Zaguina à Lap Nomba : construisez l'avenir d'un jeune").url).toBe("https://donate.lapnomba.org/og/collecte/coding.jpg");
     expect(resolveShareImage(undefined, undefined, "Un ordinateur pour former un jeune").url).toBe("https://donate.lapnomba.org/og/collecte/laptop.jpg");
     expect(resolveShareImage("preset:awareness", undefined, "Sortir les jeunes du Zaguina").url).toBe("https://donate.lapnomba.org/og/collecte/students.jpg");
     expect(resolveShareImage("preset:unknown").url).toBe("https://donate.lapnomba.org/og-donate.jpg");
