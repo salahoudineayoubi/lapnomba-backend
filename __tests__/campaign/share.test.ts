@@ -195,7 +195,7 @@ describe("helpers", () => {
     expect(resolveShareImage(undefined).url).toBe("https://donate.lapnomba.org/og/collecte/training.jpg");
     expect(resolveShareImage(undefined, undefined, "De Zaguina à Lap Nomba : construisez l'avenir d'un jeune").url).toBe("https://donate.lapnomba.org/og/collecte/coding.jpg");
     expect(resolveShareImage(undefined, undefined, "Un ordinateur pour former un jeune").url).toBe("https://donate.lapnomba.org/og/collecte/laptop.jpg");
-    expect(resolveShareImage("preset:awareness", undefined, "Sortir les jeunes du Zaguina").url).toBe("https://donate.lapnomba.org/og/collecte/students.jpg");
+    expect(resolveShareImage("preset:awareness", undefined, "Sortir les jeunes du Zaguina").url).toBe("https://donate.lapnomba.org/og/collecte/despair.jpg");
     expect(resolveShareImage("preset:unknown").url).toBe("https://donate.lapnomba.org/og-donate.jpg");
     expect(resolveShareImage("/static/media/old.123.webp").url).toBe("https://donate.lapnomba.org/og/collecte/training.jpg");
     expect(resolveShareImage("http://insecure.example/x.jpg").url).toBe("https://donate.lapnomba.org/og-donate.jpg");
@@ -204,5 +204,27 @@ describe("helpers", () => {
     process.env.DONATE_SITE_URL = "https://staging-donate.example.org/";
     expect(resolveShareImage("preset:field").url).toBe("https://staging-donate.example.org/og/collecte/field.jpg");
     delete process.env.DONATE_SITE_URL;
+  });
+});
+
+describe("aperçu de partage des pages du site de dons", () => {
+  const { pageShareHandler } = require("../../src/api/routes/campaignShare.routes");
+  const run = (page: string, query: Record<string, string>, ua = "WhatsApp/2.23") => {
+    let body = "";
+    const res: any = { status: () => res, set: () => res, send: (h: string) => ((body = h), res) };
+    const req: any = { params: { page }, query, get: (h: string) => (h.toLowerCase() === "user-agent" ? ua : h === "host" ? "api.test" : undefined) };
+    pageShareHandler(req, res);
+    return body;
+  };
+
+  it("don matériel en arabe : titre traduit, image du matériel, page dans la langue choisie", () => {
+    const html = run("material", { lang: "ar" });
+    expect(html).toContain("تبرّع بحاسوب لشاب");
+    expect(html).toContain("https://donate.lapnomba.org/og/collecte/equipment.jpg");
+    expect(html).toContain("https://donate.lapnomba.org/material?lang=ar");
+  });
+
+  it("page inconnue → page de don", () => {
+    expect(run("xyz", { lang: "en" })).toContain("Donate — Lap Nomba Foundation");
   });
 });

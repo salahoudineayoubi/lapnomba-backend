@@ -23,7 +23,7 @@ const DESCRIPTION_MAX = 180;
 const SLUG_RE = /^[A-Za-z0-9_-]{1,160}$/;
 
 /** Couvertures proposées par le site (« preset:<id> ») → JPEG 1200×630 servis par le site de dons. */
-export const PRESET_COVER_IDS = ["laptop", "training", "students", "coding", "stopzaguina", "awareness", "field", "youth", "equipment"] as const;
+export const PRESET_COVER_IDS = ["laptop", "training", "students", "coding", "despair", "stopzaguina", "awareness", "field", "youth", "equipment"] as const;
 
 type Lang = "fr" | "en" | "tr" | "ar";
 
@@ -129,7 +129,8 @@ export const coverIdForTitle = (title?: string | null): string => {
   if (/ordinateur|laptop|computer|\bpc\b|matériel|materiel|équipement|equipement|bilgisayar|حاسوب|كمبيوتر/.test(t)) return "laptop";
   // Avant « zaguina » : « De Zaguina à Lap Nomba : construisez l'avenir… » ≠ « Sortir les jeunes du Zaguina… ».
   if (/avenir|future|construi|codez|coder|\bcode\b|développeur|developpeur|developer|formation|former\b|training/.test(t)) return "coding";
-  if (/zaguina|sensibilis|awareness|prévention|prevention|école|ecole|school|étudiant|etudiant|élève|eleve/.test(t)) return "students";
+  if (/zaguina|désespo|desespo|arnaque|scam/.test(t)) return "despair";
+  if (/sensibilis|awareness|prévention|prevention|école|ecole|school|étudiant|etudiant|élève|eleve/.test(t)) return "students";
   if (/numérique|numerique|digital|tech/.test(t)) return "coding";
   return "training";
 };
@@ -242,6 +243,8 @@ export const campaignShareHandler = async (req: Request, res: Response) => {
   const slug = typeof req.params.slug === "string" ? req.params.slug.trim() : "";
   const redirect = !isLinkPreviewBot(req.get("user-agent"));
   const langQuery = lang === "fr" ? "" : `?lang=${lang}`;
+  // Langue choisie par la personne qui partage : le site s'ouvre dans cette langue.
+  const explicitLang = typeof req.query.lang === "string" && req.query.lang ? `?lang=${lang}` : "";
   const shareUrlFor = (s: string) => `${getApiBaseUrl(req)}/share/collecte/${encodeURIComponent(s)}${langQuery}`;
 
   const notFound = () =>
@@ -290,7 +293,7 @@ export const campaignShareHandler = async (req: Request, res: Response) => {
         lang,
         title: `${title} — ${t.support}`,
         description,
-        pageUrl: `${donate}/collecte/${encodeURIComponent(campaign.slug)}`,
+        pageUrl: `${donate}/collecte/${encodeURIComponent(campaign.slug)}${explicitLang}`,
         shareUrl: shareUrlFor(campaign.slug),
         image: resolveShareImage(campaign.coverImage, req, campaign.title),
         imageAlt: title,
@@ -318,7 +321,66 @@ export const campaignShareHandler = async (req: Request, res: Response) => {
   }
 };
 
+type PageKey = "material" | "donate" | "collectes";
+const PAGES: Record<PageKey, { path: string; image: string; texts: Record<Lang, { title: string; description: string }> }> = {
+  material: {
+    path: "/material",
+    image: "equipment",
+    texts: {
+      fr: { title: "Donnez un ordinateur à un jeune — Lap Nomba Foundation", description: "Ordinateurs, tablettes, accessoires : votre matériel équipe des jeunes formés aux métiers du numérique au Cameroun." },
+      en: { title: "Give a computer to a young person — Lap Nomba Foundation", description: "Laptops, tablets, accessories: your equipment helps young people train for tech careers in Cameroon." },
+      tr: { title: "Bir gence bilgisayar bağışlayın — Lap Nomba Foundation", description: "Dizüstü bilgisayar, tablet, aksesuar: bağışladığınız ekipman Kamerun'da dijital mesleklere hazırlanan gençleri donatır." },
+      ar: { title: "تبرّع بحاسوب لشاب — Lap Nomba Foundation", description: "حواسيب، أجهزة لوحية، ملحقات: معداتك تجهّز شبابًا يتدربون على المهن الرقمية في الكاميرون." },
+    },
+  },
+  donate: {
+    path: "/",
+    image: "laptop",
+    texts: {
+      fr: { title: "Faites un don — Lap Nomba Foundation", description: "Aidez les jeunes à sortir du Zaguina : vos dons financent des formations gratuites aux métiers du numérique." },
+      en: { title: "Donate — Lap Nomba Foundation", description: "Help young people leave Zaguina: your donations fund free training for tech careers." },
+      tr: { title: "Bağış yapın — Lap Nomba Foundation", description: "Gençlerin Zaguina'dan çıkmasına yardım edin: bağışlarınız ücretsiz dijital meslek eğitimlerini finanse eder." },
+      ar: { title: "تبرّع — Lap Nomba Foundation", description: "ساعد الشباب على الخروج من الزاغينا: تبرعاتك تموّل تدريبات مجانية على المهن الرقمية." },
+    },
+  },
+  collectes: {
+    path: "/collecte",
+    image: "training",
+    texts: {
+      fr: { title: "Collectes solidaires — Lap Nomba Foundation", description: "Soutenez une collecte ou lancez la vôtre pour la formation des jeunes au Cameroun." },
+      en: { title: "Fundraisers — Lap Nomba Foundation", description: "Support a fundraiser or start your own for young people's training in Cameroon." },
+      tr: { title: "Bağış kampanyaları — Lap Nomba Foundation", description: "Kamerun'daki gençlerin eğitimi için bir kampanyayı destekleyin ya da kendi kampanyanızı başlatın." },
+      ar: { title: "حملات التبرع — Lap Nomba Foundation", description: "ادعم حملة أو أطلق حملتك الخاصة لتدريب الشباب في الكاميرون." },
+    },
+  },
+};
+
+export const pageShareHandler = (req: Request, res: Response) => {
+  const lang = pickLang(req.query.lang);
+  const key = (req.params.page || "") as PageKey;
+  const page = PAGES[key] ?? PAGES.donate;
+  const donate = getDonateSiteUrl();
+  const explicitLang = typeof req.query.lang === "string" && req.query.lang ? `?lang=${lang}` : "";
+  const langQuery = lang === "fr" ? "" : `?lang=${lang}`;
+  const { title, description } = page.texts[lang];
+  return sendHtml(
+    res,
+    200,
+    renderSharePage({
+      lang,
+      title,
+      description,
+      pageUrl: `${donate}${page.path}${explicitLang}`,
+      shareUrl: `${getApiBaseUrl(req)}/share/page/${PAGES[key] ? key : "donate"}${langQuery}`,
+      image: { url: `${donate}/og/collecte/${page.image}.jpg`, width: 1200, height: 630, type: "image/jpeg" },
+      imageAlt: title,
+      redirect: !isLinkPreviewBot(req.get("user-agent")),
+    })
+  );
+};
+
 const router = Router();
 router.get(["/share/collecte/:slug", "/s/c/:slug"], campaignShareHandler);
+router.get(["/share/page/:page", "/s/p/:page"], pageShareHandler);
 
 export default router;
