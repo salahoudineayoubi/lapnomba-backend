@@ -61,6 +61,7 @@ export const ADMIN_ONLY_OPERATIONS = {
     "updateCampaignTranslations",
     "retranslateCampaign",
     "updateCampaignCover",
+    "updateCampaignContent",
     // Newsletter
     "updateNewsletterSubscriber",
     "deleteNewsletterSubscriber",

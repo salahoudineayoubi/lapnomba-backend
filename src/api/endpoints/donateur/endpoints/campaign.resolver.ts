@@ -163,6 +163,33 @@ export const campaignResolvers = {
       return campaign;
     },
 
+    /**
+     * Modifie le titre / l'histoire d'une collecte (back office). L'adresse
+     * (slug) ne change pas : les liens déjà partagés restent valables.
+     * Le nouveau texte est retraduit automatiquement en arrière-plan.
+     */
+    updateCampaignContent: async (_: any, { id, title, story }: { id: string; title?: string; story?: string }) => {
+      const update: Record<string, unknown> = {};
+      if (title !== undefined) {
+        const t = (title || "").trim();
+        if (!t) throw new UserInputError("Le titre de la campagne est requis.");
+        if (t.length > 90) throw new UserInputError("Le titre ne doit pas dépasser 90 caractères.");
+        update.title = t;
+      }
+      if (story !== undefined) {
+        const st = (story || "").trim();
+        if (st.length > 3000) throw new UserInputError("L'histoire ne doit pas dépasser 3000 caractères.");
+        update.story = st;
+      }
+      if (!Object.keys(update).length) throw new UserInputError("Rien à modifier.");
+      update.translationPending = isTranslationEnabled();
+      update.translationError = null;
+      const campaign = await CrowdfundingCampaignModel.findByIdAndUpdate(id, update, { new: true });
+      if (!campaign) throw new Error("Campagne introuvable.");
+      scheduleCampaignTranslation(String(campaign._id));
+      return campaign;
+    },
+
     /** Change l'image de couverture d'une collecte (back office). */
     updateCampaignCover: async (_: any, { id, coverImage }: { id: string; coverImage: string }) => {
       const cover = await processCampaignCover(coverImage);
