@@ -48,6 +48,7 @@ export const ADMIN_ONLY_OPERATIONS = {
     "projectSummits",
     "projectSummit",
     "students",
+    "talentRequests",
     "student",
   ],
   Mutation: [
@@ -87,6 +88,8 @@ export const ADMIN_ONLY_OPERATIONS = {
     "updateProjectSummit",
     "deleteProjectSummit",
     "deleteStudent",
+    "updateTalentRequestStatus",
+    "deleteTalentRequest",
   ],
 } as const;
 

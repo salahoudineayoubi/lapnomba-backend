@@ -59,6 +59,9 @@ import { founderVideoResolvers } from "./founderVideo/resolvers";
 import { mentorTypeDefs } from "./mentor/graphql";
 import { mentorResolvers } from "./mentor/resolvers";
 
+import { talentRequestTypeDefs } from "./talentRequest/graphql";
+import { talentRequestResolvers } from "./talentRequest/resolvers";
+
 import { applyAdminGuards, privacyFieldResolvers } from "./accessControl";
 
 export const typeDefs = [
@@ -83,6 +86,7 @@ export const typeDefs = [
   mentorTypeDefs,
   joinTeamRequestTypeDefs,
   studentTypeDefs,
+  talentRequestTypeDefs,
 ];
 
 const rawResolvers = [
@@ -106,6 +110,7 @@ const rawResolvers = [
   projectSummitResolvers,
   joinTeamRequestResolvers,
   studentResolvers,
+  talentRequestResolvers,
 ];
 
 // Toutes les opérations listées dans accessControl.ts exigent un token admin ;
