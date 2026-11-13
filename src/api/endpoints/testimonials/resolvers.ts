@@ -1,5 +1,5 @@
 import { UserInputError } from "apollo-server-express";
-import { TestimonialModel, LocalizedText } from "../../../models/testimonial";
+import { TestimonialModel, LocalizedText, TESTIMONIAL_RUBRIQUES, TestimonialRubrique } from "../../../models/testimonial";
 import { uploadFromBase64 } from "../../../utils/cloudinary";
 import { validateUploadedFile, FileValidationError } from "../../../utils/fileValidation";
 import { hasAllLanguages, mergeTranslations, runTranslationInBackground, translateShortTexts } from "../../../services/textTranslation";
@@ -30,6 +30,19 @@ const requiredText = (value: any, label: string, max: number): string => {
   if (!text) throw new UserInputError(`${label} est requis.`);
   if (text.length > max) throw new UserInputError(`${label} ne doit pas dépasser ${max} caractères.`);
   return text;
+};
+
+const parseRubrique = (value: any): TestimonialRubrique => {
+  const v = typeof value === "string" && value.trim() ? value.trim() : "site";
+  if (!(TESTIMONIAL_RUBRIQUES as readonly string[]).includes(v)) throw new UserInputError("Rubrique inconnue.");
+  return v as TestimonialRubrique;
+};
+
+/** Filtre de la requête publique ; les anciennes fiches sans rubrique appartiennent au site principal. */
+const rubriqueFilter = (rubrique?: string | null) => {
+  if (rubrique === "tous") return {};
+  const r = parseRubrique(rubrique);
+  return r === "site" ? { rubrique: { $in: [null, "site"] } } : { rubrique: r };
 };
 
 /** Data URI → upload Cloudinary ; URL https existante → conservée telle quelle. */
@@ -71,13 +84,15 @@ export const translateTestimonial = async (
 
 export const testimonialResolvers = {
   Query: {
-    testimonials: async () => TestimonialModel.find().sort({ createdAt: -1 }).lean(),
+    testimonials: async (_: any, { rubrique }: { rubrique?: string | null }) =>
+      TestimonialModel.find(rubriqueFilter(rubrique)).sort({ createdAt: -1 }).lean(),
     testimonial: async (_: any, { id }: { id: string }) => TestimonialModel.findById(id).lean(),
   },
   Mutation: {
     // Admin uniquement (voir accessControl.ts)
-    createTestimonial: async (_: any, { nomComplet, poste, posteI18n, avatar, temoignage, temoignageI18n }: any) => {
+    createTestimonial: async (_: any, { rubrique, nomComplet, poste, posteI18n, avatar, temoignage, temoignageI18n }: any) => {
       const testimonial = new TestimonialModel({
+        rubrique: parseRubrique(rubrique),
         nomComplet: requiredText(nomComplet, "Le nom complet", 120),
         poste: optionalText(poste, "Le poste", 120),
         posteI18n: cleanLocalized(posteI18n),
@@ -94,6 +109,7 @@ export const testimonialResolvers = {
     updateTestimonial: async (_: any, { id, ...fields }: any) => {
       // Les champs vides envoyés par le formulaire admin n'écrasent rien.
       const update: Record<string, unknown> = {};
+      if (typeof fields.rubrique === "string" && fields.rubrique.trim()) update.rubrique = parseRubrique(fields.rubrique);
       if (typeof fields.nomComplet === "string" && fields.nomComplet.trim()) {
         update.nomComplet = requiredText(fields.nomComplet, "Le nom complet", 120);
       }
@@ -126,6 +142,7 @@ export const testimonialResolvers = {
   // Les requêtes utilisent .lean() : le document brut n'a que `_id`.
   Testimonial: {
     id: (t: any) => String(t.id ?? t._id),
+    rubrique: (t: any) => t.rubrique || "site",
     createdAt: (t: any) => (t.createdAt ? new Date(t.createdAt).toISOString() : null),
     updatedAt: (t: any) => (t.updatedAt ? new Date(t.updatedAt).toISOString() : null),
   },

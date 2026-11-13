@@ -12,7 +12,13 @@ const LocalizedTextSchema = new Schema<LocalizedText>(
   { _id: false }
 );
 
+/** Page où le témoignage est affiché : site principal (lapnomba.org) ou une page du site bénévoles. */
+export const TESTIMONIAL_RUBRIQUES = ["site", "ambassadeur", "mentor", "developpeur", "agent"] as const;
+export type TestimonialRubrique = (typeof TESTIMONIAL_RUBRIQUES)[number];
+
 export interface ITestimonial extends Document {
+  /** Absent sur les anciens enregistrements = "site". */
+  rubrique?: TestimonialRubrique;
   /** Format actuel : témoignage écrit avec photo, géré depuis l'admin. */
   nomComplet?: string;
   /** Poste / situation actuelle, ex. « Développeur web full-stack ». */
@@ -36,6 +42,7 @@ export interface ITestimonial extends Document {
 
 const TestimonialSchema = new Schema<ITestimonial>(
   {
+    rubrique: { type: String, enum: TESTIMONIAL_RUBRIQUES, default: "site", index: true },
     nomComplet: { type: String, trim: true },
     poste: { type: String, trim: true },
     posteI18n: { type: LocalizedTextSchema, required: false },

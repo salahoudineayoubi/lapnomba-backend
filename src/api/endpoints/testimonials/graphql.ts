@@ -23,6 +23,8 @@ export const testimonialTypeDefs = gql`
   """
   type Testimonial {
     id: ID!
+    "site | ambassadeur | mentor | developpeur | agent"
+    rubrique: String
     nomComplet: String
     poste: String
     posteI18n: LocalizedText
@@ -40,13 +42,18 @@ export const testimonialTypeDefs = gql`
   }
 
   type Query {
-    testimonials: [Testimonial!]!
+    """
+    Sans argument : témoignages du site principal (rubrique « site » ou ancienne fiche sans rubrique).
+    rubrique = ambassadeur | mentor | developpeur | agent pour le site bénévoles ; « tous » pour l'admin.
+    """
+    testimonials(rubrique: String): [Testimonial!]!
     testimonial(id: ID!): Testimonial
   }
 
   type Mutation {
     "avatar : data URI (image JPEG/PNG/WebP, 2 Mo max) envoyée sur Cloudinary, ou URL https existante."
     createTestimonial(
+      rubrique: String
       nomComplet: String!
       poste: String
       posteI18n: LocalizedTextInput
@@ -57,6 +64,7 @@ export const testimonialTypeDefs = gql`
 
     updateTestimonial(
       id: ID!
+      rubrique: String
       nomComplet: String
       poste: String
       posteI18n: LocalizedTextInput
