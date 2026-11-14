@@ -3,6 +3,7 @@ import smobilpayConfig from "../../config/smobilpay";
 import { DonationModel, IDonation } from "../../models/donor";
 import logger from "../../utils/logger";
 import { smobilpayGet, smobilpayPost } from "./smobilpay.client";
+import { extractPaymentFailureReason } from "./paymentFailure";
 
 export interface SmobilpayOrderItem {
   itemId: string;
@@ -470,12 +471,15 @@ export const verifyAndSyncDonationWithSmobilpay = async (
   if (providerStatus === "REFUNDED") {
     donation.status = "REFUNDED";
   }
+  donation.failureReason =
+    extractPaymentFailureReason(statusResponse, donation.status) || undefined;
 
   logger.info("✅ Statut Smobilpay du don", {
     donationId: donation.id,
     rawStatus,
     providerStatus,
     currentStatus: donation.status,
+    failureReason: donation.failureReason,
   });
 
   await donation.save();

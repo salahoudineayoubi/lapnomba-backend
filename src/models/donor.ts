@@ -68,6 +68,8 @@ export interface IDonation extends Document {
 
   paidAt?: Date;
   failedAt?: Date;
+  /** Motif d'échec Mobile Money (WRONG_PIN, INSUFFICIENT_FUNDS…), voir services/smobilpay/paymentFailure.ts */
+  failureReason?: string;
 
   createdAt: Date;
   updatedAt: Date;
@@ -176,6 +178,7 @@ const DonationSchema = new Schema<IDonation>(
 
     paidAt: { type: Date },
     failedAt: { type: Date },
+    failureReason: { type: String },
   },
   {
     timestamps: true,

@@ -28,6 +28,8 @@ export interface IAcademyPayment extends Document {
 
   paidAt?: Date;
   note?: string;
+  /** Motif d'échec Mobile Money, voir services/smobilpay/paymentFailure.ts */
+  failureReason?: string;
 }
 
 const AcademyPaymentSchema = new Schema<IAcademyPayment>(
@@ -80,6 +82,7 @@ const AcademyPaymentSchema = new Schema<IAcademyPayment>(
 
     paidAt: { type: Date },
     note: { type: String },
+    failureReason: { type: String },
   },
   { timestamps: true }
 );

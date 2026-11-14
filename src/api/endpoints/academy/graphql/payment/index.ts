@@ -22,6 +22,8 @@ export const academyPaymentTypeDefs = gql`
 
     paidAt: String
     note: String
+    "WRONG_PIN, INSUFFICIENT_FUNDS, LIMIT_EXCEEDED, INVALID_ACCOUNT, EXPIRED, REJECTED ou UNKNOWN"
+    failureReason: String
 
     createdAt: String
     updatedAt: String

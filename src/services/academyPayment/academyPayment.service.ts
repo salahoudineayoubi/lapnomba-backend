@@ -5,6 +5,7 @@ import { smobilpayPost, smobilpayGet } from "../smobilpay/smobilpay.client";
 
 import AcademyPayment from "../../models/acdemy/payment";
 import AcademyEnrollment from "../../models/acdemy/enrollment";
+import { extractPaymentFailureReason } from "../smobilpay/paymentFailure";
 
 type AcademyPaymentMethod =
   | "momo"
@@ -361,6 +362,15 @@ export const confirmAcademyPaymentWithProvider = async (paymentId: string) => {
       payment.paidAt = new Date();
     }
     payment.status = status;
+  }
+  payment.failureReason =
+    extractPaymentFailureReason(statusResponse, payment.status) || undefined;
+  if (payment.failureReason) {
+    logger.info("Paiement Academy refusé", {
+      academyPaymentId: String(payment._id),
+      failureReason: payment.failureReason,
+      providerResponse: statusResponse,
+    });
   }
 
   await payment.save();

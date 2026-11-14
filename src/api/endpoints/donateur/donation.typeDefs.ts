@@ -60,6 +60,8 @@ export const donateurTypeDefs = gql`
     updatedAt: String!
     paidAt: String
     failedAt: String
+    "WRONG_PIN, INSUFFICIENT_FUNDS, LIMIT_EXCEEDED, INVALID_ACCOUNT, EXPIRED, REJECTED ou UNKNOWN"
+    failureReason: String
   }
 
   type CrowdfundingCampaign {
