@@ -43,6 +43,8 @@ export const ADMIN_ONLY_OPERATIONS = {
     "getAllVoicesForAdmin",
     // Mentors bénévoles
     "mentorApplications",
+    // Organisateurs d'événements bénévoles
+    "eventOrganizerApplications",
     // Formulaires du site principal
     "joinTeamRequests",
     "joinTeamRequest",
@@ -85,6 +87,9 @@ export const ADMIN_ONLY_OPERATIONS = {
     "deleteVoice",
     // Mentors bénévoles
     "updateMentorApplicationStatus",
+    // Organisateurs d'événements bénévoles
+    "updateEventOrganizerApplicationStatus",
+    "deleteEventOrganizerApplication",
     // Formulaires du site principal
     "updateJoinTeamRequest",
     "deleteJoinTeamRequest",

@@ -59,6 +59,9 @@ import { founderVideoResolvers } from "./founderVideo/resolvers";
 import { mentorTypeDefs } from "./mentor/graphql";
 import { mentorResolvers } from "./mentor/resolvers";
 
+import { eventOrganizerTypeDefs } from "./eventOrganizer/graphql";
+import { eventOrganizerResolvers } from "./eventOrganizer/resolvers";
+
 import { talentRequestTypeDefs } from "./talentRequest/graphql";
 import { talentRequestResolvers } from "./talentRequest/resolvers";
 
@@ -87,6 +90,7 @@ export const typeDefs = [
   eventTypeDefs,
   founderVideoTypeDefs,
   mentorTypeDefs,
+  eventOrganizerTypeDefs,
   joinTeamRequestTypeDefs,
   studentTypeDefs,
   talentRequestTypeDefs,
@@ -111,6 +115,7 @@ const rawResolvers = [
   eventResolvers,
   founderVideoResolvers,
   mentorResolvers,
+  eventOrganizerResolvers,
   projectSummitResolvers,
   joinTeamRequestResolvers,
   studentResolvers,
