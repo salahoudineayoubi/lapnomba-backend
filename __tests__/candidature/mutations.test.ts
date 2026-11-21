@@ -188,6 +188,9 @@ describe("createCandidature (public)", () => {
     expect(internalCall).toBeDefined();
     expect(internalCall![0].subject).toContain("Jean Dupont");
     expect(internalCall![0].subject).toMatch(/^\[Admissions\]/);
+    // Bouton « Ouvrir la candidature dans l'admin », filtré sur l'email du candidat
+    expect(internalCall![0].html).toContain("https://admin.lapnomba.org/admin/students?search=");
+    expect(internalCall![0].text).toContain("https://admin.lapnomba.org/admin/students?search=");
   });
 
   describe("éligibilité par âge (règle métier : FREE_TRAINING_MAX_AGE = 25)", () => {
