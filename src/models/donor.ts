@@ -40,6 +40,8 @@ export interface IDonation extends Document {
   donorEmail: string;
   donorPhone?: string;
   anonymous?: boolean;
+  /** Langue du site au moment du don (e-mails au donateur). */
+  language?: string;
 
   category: DonationCategory;
   amount: number;
@@ -103,6 +105,8 @@ const DonationSchema = new Schema<IDonation>(
     donorPhone: { type: String, trim: true },
 
     anonymous: { type: Boolean, default: false },
+
+    language: { type: String, enum: ["fr", "en", "ar", "tr"], default: "fr" },
 
     category: {
       type: String,

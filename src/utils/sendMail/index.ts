@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import nodemailer, { Transporter } from "nodemailer";
 import SMTPTransport from "nodemailer/lib/smtp-transport";
 import type Mail from "nodemailer/lib/mailer";
@@ -120,17 +122,61 @@ export const verifySmtpConnection = async (): Promise<boolean> => {
  * utils/emailSupport.ts) mais reste surchargeable pour un besoin
  * opérationnel réel et explicite.
  */
+// --- Habillage commun : logo de la fondation en tête de chaque e-mail HTML ---------------
+export const LOGO_CID = "logo@lapnomba.org";
+let cachedLogo: Buffer | null | undefined;
+const getLogo = (): Buffer | null => {
+  if (cachedLogo !== undefined) return cachedLogo;
+  try {
+    cachedLogo = fs.readFileSync(path.join(process.cwd(), "src", "assets", "logo_email.png"));
+  } catch {
+    cachedLogo = null; // pas de logo disponible : l'e-mail part quand même, sans en-tête image
+  }
+  return cachedLogo;
+};
+
+/**
+ * Place le contenu dans une carte blanche centrée, précédée du logo (image intégrée au
+ * message, « cid: » : elle s'affiche sans dépendre d'un site externe). Les e-mails
+ * qui sont déjà des documents complets (<html>) sont laissés tels quels.
+ */
+export const brandEmailHtml = (html: string, hasLogo = true): string => {
+  if (/<html[\s>]/i.test(html) || html.includes(`cid:${LOGO_CID}`)) return html;
+  const logo = hasLogo
+    ? `<tr><td align="center" style="padding:28px 24px 8px"><img src="cid:${LOGO_CID}" width="96" height="96" alt="Lap Nomba Foundation" style="display:block;border:0;width:96px;height:96px" /></td></tr>`
+    : "";
+  return `<div style="background:#f3f4f8;padding:24px 12px;margin:0">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;border-top:4px solid #4143B7">
+${logo}<tr><td style="padding:8px 28px 28px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.55;color:#1f2937">
+${html}
+</td></tr></table></div>`;
+};
+
+const textToHtml = (text: string): string =>
+  `<div style="white-space:normal">${text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\n/g, "<br />")}</div>`;
+
 export const sendMail = async ({ to, subject, text, html, replyTo, attachments }: SendMailParams) => {
   const { fromName, fromEmail } = getMailConfig();
   const transporter = getTransporter();
+  // E-mail « texte seul » : on fabrique aussi une version HTML pour qu'il porte le logo.
+  const sourceHtml = html ?? (text ? textToHtml(text) : undefined);
+  const logo = sourceHtml ? getLogo() : null;
+  const finalHtml = sourceHtml ? brandEmailHtml(sourceHtml, !!logo) : undefined;
+  const usesLogo = !!(logo && finalHtml && finalHtml.includes(`cid:${LOGO_CID}`));
 
   return await transporter.sendMail({
     from: `"${fromName}" <${fromEmail}>`,
     to,
     subject,
     text,
-    html,
+    html: finalHtml,
     replyTo: replyTo || getDefaultReplyTo(),
-    attachments,
+    attachments: usesLogo
+      ? [...(attachments || []), { filename: "lapnomba-logo.png", content: logo as Buffer, cid: LOGO_CID, contentType: "image/png", contentDisposition: "inline" }]
+      : attachments,
   });
 };

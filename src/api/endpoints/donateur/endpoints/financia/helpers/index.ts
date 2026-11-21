@@ -1,3 +1,4 @@
+import { normalizeDonorLanguage } from "../notifications/thankYou.i18n";
 import {
   DonationModel,
   providerFromPaymentMethod,
@@ -116,6 +117,7 @@ export const createFinancialDonationRecord = async (input: any) => {
     donorEmail: input.donorEmail.trim().toLowerCase(),
     donorPhone: normalizePhone(input.donorPhone),
     anonymous: input.anonymous ?? false,
+    language: normalizeDonorLanguage(input.language),
 
     category: "FINANCIAL",
     amount: Number(input.amount),
@@ -137,6 +139,7 @@ export const createBankTransferDonationRecord = async (input: any) => {
     donorEmail: input.donorEmail.trim().toLowerCase(),
     donorPhone: normalizePhone(input.donorPhone),
     anonymous: input.anonymous ?? false,
+    language: normalizeDonorLanguage(input.language),
 
     category: "FINANCIAL",
     amount: Number(input.amount),

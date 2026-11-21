@@ -145,6 +145,8 @@ type DonationStats {
     futureContact: Boolean
     anonymous: Boolean
     campaignId: ID
+    "Langue du site au moment du don (fr, en, ar, tr) : e-mail de remerciement dans cette langue."
+    language: String
   }
 
   input CreateMaterialDonationInput {
@@ -194,6 +196,8 @@ type DonationStats {
     sentAt: String
     proofUrl: String
     campaignId: ID
+    "Langue du site au moment du don (fr, en, ar, tr) : e-mail de remerciement dans cette langue."
+    language: String
   }
 
   input DonateToCampaignInput {
@@ -207,6 +211,8 @@ type DonationStats {
     message: String
     futureContact: Boolean
     anonymous: Boolean
+    "Langue du site au moment du don (fr, en, ar, tr) : e-mail de remerciement dans cette langue."
+    language: String
   }
 
   type Query {

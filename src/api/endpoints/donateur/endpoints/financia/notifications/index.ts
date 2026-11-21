@@ -1,59 +1,8 @@
 import logger from "../../../../../../utils/logger";
 import { generateAndSendReceipt } from "../../../../../../utils/receipt";
 import { sendMail } from "../../../../../../utils/sendMail";
-import { buildSupportFooterHtml, buildSupportFooterText } from "../../../../../../utils/emailSupport";
-import { donationMessages } from "../message";
+import { buildThankYouEmail } from "./thankYou.i18n";
 import { notifyTeamDonationCompleted } from "./team";
-
-const buildThankYouEmailHtml = (donation: any): string => {
-  return `
-    <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.6; color: #111827;">
-      <h2 style="margin-bottom: 16px;">Merci pour votre soutien</h2>
-
-      <p>Bonjour ${donation?.donorName || "Cher donateur"},</p>
-
-      <p>
-        Nous vous remercions sincèrement pour votre contribution de
-        <strong>${donation?.amount} ${donation?.currency}</strong>
-        à Lap Nomba Foundation.
-      </p>
-
-      <p>
-        Votre geste contribue directement à notre mission de sensibilisation,
-        de formation et d’intégration des jeunes vers des opportunités
-        numériques éthiques et durables.
-      </p>
-
-      <p>
-        Votre paiement a bien été confirmé. Un reçu vous sera également transmis.
-      </p>
-
-      <p>
-        Avec toute notre gratitude,<br />
-        <strong>Lap Nomba Foundation</strong>
-      </p>${buildSupportFooterHtml()}
-    </div>
-  `;
-};
-
-const buildThankYouEmailText = (donation: any): string => {
-  return `
-Merci pour votre soutien
-
-Bonjour ${donation?.donorName || "Cher donateur"},
-
-Nous vous remercions sincèrement pour votre contribution de ${
-    donation?.amount
-  } ${donation?.currency} à Lap Nomba Foundation.
-
-Votre geste contribue directement à notre mission de sensibilisation, de formation et d’intégration des jeunes vers des opportunités numériques éthiques et durables.
-
-Votre paiement a bien été confirmé. Un reçu vous sera également transmis.
-
-Avec toute notre gratitude,
-Lap Nomba Foundation
-  `.trim() + buildSupportFooterText();
-};
 
 export const sendReceiptSilently = (donation: any) => {
   generateAndSendReceipt(donation).catch((err) => {
@@ -64,11 +13,12 @@ export const sendReceiptSilently = (donation: any) => {
 export const sendThankYouMailSilently = (donation: any) => {
   if (!donation?.donorEmail) return;
 
+  const mail = buildThankYouEmail(donation);
   sendMail({
     to: donation.donorEmail,
-    subject: donationMessages.thankYouSubject,
-    text: buildThankYouEmailText(donation),
-    html: buildThankYouEmailHtml(donation),
+    subject: mail.subject,
+    text: mail.text,
+    html: mail.html,
   }).catch((err) => {
     logger.error("Échec de l'envoi du mail de remerciement :", err);
   });

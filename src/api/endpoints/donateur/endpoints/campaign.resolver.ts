@@ -1,3 +1,4 @@
+import { normalizeDonorLanguage } from "./financia/notifications/thankYou.i18n";
 import { DonationModel, providerFromPaymentMethod } from "../../../../models/donor";
 import { CrowdfundingCampaignModel } from "../../../../models/crowdfunding_campaign";
 import { ensureValidDonationAmount, ensureValidMobileMoneyPhone } from "./financia/helpers";
@@ -261,6 +262,7 @@ export const campaignResolvers = {
         donorEmail: input.donorEmail.trim().toLowerCase(),
         donorPhone: input.donorPhone?.trim(),
         anonymous: input.anonymous ?? false,
+        language: normalizeDonorLanguage(input.language),
 
         category: "CROWDFUNDING",
         amount: input.amount,
