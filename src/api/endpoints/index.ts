@@ -27,6 +27,8 @@ import { chatbotResolvers } from "./chat_bot/resolvers";
 
 import { candidatureTypeDefs } from "./candidature/graphql";
 import { candidatureResolvers } from "./candidature/resolvers";
+import { admissionTypeDefs } from "./admission/graphql";
+import { admissionResolvers } from "./admission/resolvers";
 
 import { ambassadorTypeDefs } from "./ambassador/graphql";
 import { ambassadorResolvers } from "./ambassador/resolvers";
@@ -80,6 +82,7 @@ export const typeDefs = [
   testimonialTypeDefs,
   chatbotTypeDefs,
   candidatureTypeDefs,
+  admissionTypeDefs,
   ambassadorTypeDefs,
   PsychosocialTypeDefs,
   awarenessTypeDefs,
@@ -105,6 +108,7 @@ const rawResolvers = [
   testimonialResolvers,
   chatbotResolvers,
   candidatureResolvers,
+  admissionResolvers,
   ambassadorResolvers,
   psychosocialResolvers,
   awarenessResolvers,

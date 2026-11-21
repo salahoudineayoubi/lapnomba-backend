@@ -14,6 +14,7 @@ import campaignShareRouter from "./api/routes/campaignShare.routes";
 import { getAdminFromAuthHeader, assertJwtSecretConfigured } from "./utils/auth";
 import { translateUntranslatedCampaigns } from "./services/campaignTranslation";
 import { verifySmtpConnection } from "./utils/sendMail";
+import { purgeIdentityDocuments } from "./scripts/purgeIdentityDocuments";
 
 async function startServer() {
   try {
@@ -41,6 +42,14 @@ async function startServer() {
       .catch(() => {
         logger.warn("⚠️ SMTP indisponible au démarrage (les emails échoueront jusqu'à résolution)");
       });
+
+    // Minimisation des données : purge quotidienne des pièces d'identité (voir scripts/purgeIdentityDocuments.ts).
+    const runIdentityPurge = () =>
+      purgeIdentityDocuments()
+        .then((r) => (r.candidatures || r.sessions) && logger.info("Purge des pièces d'identité", r))
+        .catch((err) => logger.error("Échec de la purge des pièces d'identité", { error: err instanceof Error ? err.message : err }));
+    setTimeout(runIdentityPurge, 5 * 60 * 1000).unref();
+    setInterval(runIdentityPurge, 24 * 3600 * 1000).unref();
 
     const app: Application = express();
 

@@ -55,13 +55,40 @@ export interface ICandidature extends Document {
   // pour conserver une trace des candidatures retirées.
   deletedAt?: Date;
   deletedBy?: string;
+
+  // ---- Admissions v2 (parcours de sélection) ----
+  applicationVersion?: number;
+  reference?: string;
+  quartier?: string;
+  nationalite?: string;
+  choixFormation2?: string;
+  motivationMetier?: string;
+  motivationProbleme?: string;
+  motivationEngagement?: string;
+  disponibiliteHeures?: number;
+  lienProfil?: string;
+  identite?: {
+    typePiece: string;
+    numeroHash?: string;
+    numeroFin?: string;
+    documents: { front?: string; back?: string; selfie?: string; guardian?: string; birth?: string };
+    statut: "a_verifier" | "verifiee" | "rejetee";
+    note?: string;
+    verifieePar?: string;
+    verifieeLe?: Date;
+    purgedAt?: Date;
+  };
+  aptitude?: { score: number; total: number; pourcentage: number; dureeSecondes?: number; termineLe?: Date };
+  charte?: { nomSaisi: string; signeeLe: Date };
+  scoreGlobal?: number;
 }
 
 const CandidatureSchema = new Schema<ICandidature>({
   nomComplet: { type: String, required: true },
   dateNaissance: { type: String, required: true },
   sexe: { type: String, required: true },
-  adresse: { type: String, required: true },
+  // Facultative en v2 (remplacée par ville + quartier : l'adresse exacte n'est pas demandée).
+  adresse: { type: String },
   ville: { type: String, required: true },
   pays: { type: String, required: true },
   numeroWhatsapp: { type: String, required: true },
@@ -122,6 +149,33 @@ const CandidatureSchema = new Schema<ICandidature>({
 
   deletedAt: { type: Date, default: null },
   deletedBy: { type: String, default: null },
+
+  // ---- Admissions v2 ----
+  applicationVersion: { type: Number },
+  reference: { type: String, index: { unique: true, sparse: true } },
+  quartier: { type: String, trim: true },
+  nationalite: { type: String, trim: true },
+  choixFormation2: { type: String, trim: true },
+  motivationMetier: { type: String, maxlength: 1500 },
+  motivationProbleme: { type: String, maxlength: 1500 },
+  motivationEngagement: { type: String, maxlength: 1500 },
+  disponibiliteHeures: { type: Number },
+  lienProfil: { type: String, trim: true },
+  identite: {
+    typePiece: String,
+    // Empreinte HMAC du numéro (dédoublonnage) + 4 derniers chiffres : le numéro complet n'est jamais stocké.
+    numeroHash: { type: String, index: true },
+    numeroFin: String,
+    documents: { front: String, back: String, selfie: String, guardian: String, birth: String },
+    statut: { type: String, enum: ["a_verifier", "verifiee", "rejetee"] },
+    note: { type: String, maxlength: 1000 },
+    verifieePar: String,
+    verifieeLe: Date,
+    purgedAt: Date,
+  },
+  aptitude: { score: Number, total: Number, pourcentage: Number, dureeSecondes: Number, termineLe: Date },
+  charte: { nomSaisi: String, signeeLe: Date },
+  scoreGlobal: { type: Number, index: true },
 }, { timestamps: true });
 
 // Filtrage fréquent par statut (liste admin, stats) et exclusion des

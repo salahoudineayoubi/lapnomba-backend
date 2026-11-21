@@ -344,7 +344,11 @@ Email : ${candidature.email}
 WhatsApp : ${candidature.numeroWhatsapp}
 Date de soumission : ${submittedAt}
 Statut : En attente
-Référence candidature : ${candidatureId}
+Référence candidature : ${candidatureId}${candidature.reference ? `
+Numéro de dossier : ${candidature.reference}
+Test d'aptitude : ${candidature.aptitude?.score}/${candidature.aptitude?.total} (${candidature.aptitude?.pourcentage} %)
+Score de présélection : ${candidature.scoreGlobal}/100
+Pièce d'identité : à vérifier dans l'admin` : ""}
 
 Ouvrir la candidature dans l'admin : ${adminUrl}`;
 
@@ -363,6 +367,11 @@ Ouvrir la candidature dans l'admin : ${adminUrl}`;
             <tr><td style="padding: 4px 12px 4px 0; color: #6B7280;">Date de soumission</td><td>${submittedAt}</td></tr>
             <tr><td style="padding: 4px 12px 4px 0; color: #6B7280;">Statut</td><td>En attente</td></tr>
             <tr><td style="padding: 4px 12px 4px 0; color: #6B7280;">Référence</td><td><code>${candidatureId}</code></td></tr>
+            ${candidature.reference ? `
+            <tr><td style="padding: 4px 12px 4px 0; color: #6B7280;">N° de dossier</td><td><strong>${escapeHtml(candidature.reference)}</strong></td></tr>
+            <tr><td style="padding: 4px 12px 4px 0; color: #6B7280;">Test d'aptitude</td><td><strong>${candidature.aptitude?.score}/${candidature.aptitude?.total}</strong> (${candidature.aptitude?.pourcentage} %)</td></tr>
+            <tr><td style="padding: 4px 12px 4px 0; color: #6B7280;">Score de présélection</td><td><strong>${candidature.scoreGlobal}/100</strong></td></tr>
+            <tr><td style="padding: 4px 12px 4px 0; color: #6B7280;">Pièce d'identité</td><td>À vérifier dans l'admin</td></tr>` : ""}
           </tbody>
         </table>
         <p style="margin: 24px 0 8px;">

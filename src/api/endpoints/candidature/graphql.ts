@@ -25,7 +25,7 @@ export const candidatureTypeDefs = gql`
     # validation stricte du format de date peuvent ne pas être calculables.
     age: Int
     sexe: String!
-    adresse: String!
+    adresse: String
     ville: String!
     pays: String!
     numeroWhatsapp: String!
@@ -65,7 +65,7 @@ export const candidatureTypeDefs = gql`
     nomComplet: String!
     dateNaissance: String!
     sexe: String!
-    adresse: String!
+    adresse: String
     ville: String!
     pays: String!
     numeroWhatsapp: String!
@@ -77,7 +77,7 @@ export const candidatureTypeDefs = gql`
     competences: String
     cv: String
     choixFormation: String!
-    pourquoiFormation: String!
+    pourquoiFormation: String
     ancienZaguina: String
     experienceZaguina: String
     typeFormation: String
@@ -88,6 +88,21 @@ export const candidatureTypeDefs = gql`
     frequenceUtilisation: String
     consentementDonnees: Boolean
     autorisationParentale: Boolean
+
+    # ---- Admissions v2 (présence de sessionToken = parcours de sélection complet)
+    sessionToken: String
+    website: String
+    quartier: String
+    nationalite: String
+    choixFormation2: String
+    motivationMetier: String
+    motivationProbleme: String
+    motivationEngagement: String
+    disponibiliteHeures: Int
+    lienProfil: String
+    typePiece: String
+    numeroPiece: String
+    charteNom: String
   }
 
   type Query {

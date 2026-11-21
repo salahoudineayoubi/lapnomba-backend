@@ -15,6 +15,8 @@ import {
   ADULT_AGE,
 } from "../../../../utils/ageEligibility";
 import { checkRateLimit, RateLimitExceededError } from "../../../../utils/rateLimiter";
+import { createCandidatureV2 } from "../../admission/submit";
+import { sendApplicationReceivedV2 } from "../../admission/notify";
 
 export const FREE_TRAINING_AGE_NOT_ELIGIBLE_CODE = "FREE_TRAINING_AGE_NOT_ELIGIBLE";
 export const MIN_AGE_NOT_MET_CODE = "MIN_AGE_NOT_MET";
@@ -62,6 +64,14 @@ export const createCandidature = async (_: any, { input }: any, context?: GraphQ
   try {
     if (context?.ip) {
       checkRateLimit(`createCandidature:${context.ip}`, CREATE_CANDIDATURE_RATE_LIMIT);
+    }
+
+    // Admissions v2 : parcours de sélection (e-mail vérifié, identité, test, charte).
+    if (input?.sessionToken) {
+      const { candidature, age } = await createCandidatureV2(input);
+      void sendApplicationReceivedV2(candidature);
+      void sendInternalNotification(candidature, age);
+      return candidature;
     }
 
     const validatedInput = validateCandidatureInput(input);
