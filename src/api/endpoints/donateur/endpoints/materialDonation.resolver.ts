@@ -1,4 +1,5 @@
 import { MaterialDonationModel } from "../../../../models/material";
+import { notifyTeamMaterialDonation } from "./financia/notifications/team";
 
 export const materialDonationResolvers = {
   Query: {
@@ -30,6 +31,8 @@ export const materialDonationResolvers = {
         description: input.description?.trim(),
         status: "PENDING",
       });
+
+      notifyTeamMaterialDonation(materialDonation);
 
       return materialDonation;
     },

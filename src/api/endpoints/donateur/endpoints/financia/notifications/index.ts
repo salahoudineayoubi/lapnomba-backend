@@ -3,6 +3,7 @@ import { generateAndSendReceipt } from "../../../../../../utils/receipt";
 import { sendMail } from "../../../../../../utils/sendMail";
 import { buildSupportFooterHtml, buildSupportFooterText } from "../../../../../../utils/emailSupport";
 import { donationMessages } from "../message";
+import { notifyTeamDonationCompleted } from "./team";
 
 const buildThankYouEmailHtml = (donation: any): string => {
   return `
@@ -76,4 +77,5 @@ export const sendThankYouMailSilently = (donation: any) => {
 export const sendCompletionNotificationsSilently = (donation: any) => {
   sendReceiptSilently(donation);
   sendThankYouMailSilently(donation);
+  void notifyTeamDonationCompleted(donation);
 };

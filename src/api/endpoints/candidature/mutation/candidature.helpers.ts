@@ -1,4 +1,5 @@
 import fs from "fs";
+import { adminLink } from "../../../../utils/internalNotifications";
 import path from "path";
 import crypto from "crypto";
 import { uploadFromBase64 } from "../../../../utils/cloudinary";
@@ -321,6 +322,8 @@ export const sendInternalNotification = async (candidature: any, age: number) =>
       candidature.createdAt ? new Date(candidature.createdAt) : new Date()
     );
     const candidatureId = String(candidature._id || candidature.id || "");
+    // Ouvre la liste « en attente » de l'admin, déjà filtrée sur l'email du candidat.
+    const adminUrl = adminLink("/admin/students", { search: candidature.email || undefined });
 
     // Sujet : nom complet non échappé HTML (texte brut) mais nettoyé des
     // sauts de ligne/retours chariot pour empêcher toute injection d'en-tête.
@@ -343,7 +346,7 @@ Date de soumission : ${submittedAt}
 Statut : En attente
 Référence candidature : ${candidatureId}
 
-Consultez le tableau de bord admin pour traiter cette candidature.`;
+Ouvrir la candidature dans l'admin : ${adminUrl}`;
 
     const html = `
       <div style="font-family: Arial, Helvetica, sans-serif; line-height: 1.7; color: #111827;">
@@ -362,8 +365,14 @@ Consultez le tableau de bord admin pour traiter cette candidature.`;
             <tr><td style="padding: 4px 12px 4px 0; color: #6B7280;">Référence</td><td><code>${candidatureId}</code></td></tr>
           </tbody>
         </table>
-        <p style="margin-top: 16px; color: #6B7280; font-size: 0.9em;">
-          Consultez le tableau de bord admin pour traiter cette candidature.
+        <p style="margin: 24px 0 8px;">
+          <a href="${escapeHtml(adminUrl)}"
+             style="display: inline-block; background: #2836C4; color: #FFFFFF; text-decoration: none; padding: 12px 22px; border-radius: 8px; font-weight: bold;">
+            Ouvrir la candidature dans l'admin
+          </a>
+        </p>
+        <p style="margin: 0; color: #6B7280; font-size: 12px;">
+          Lien direct : <a href="${escapeHtml(adminUrl)}" style="color: #2836C4;">${escapeHtml(adminUrl)}</a>
         </p>
       </div>
     `;

@@ -1,4 +1,5 @@
 import { SponsorshipModel } from "../../../../models/sponsorship";
+import { notifyTeamSponsorship } from "./financia/notifications/team";
 
 const normalizeCurrency = (currency?: string): string => {
   return (currency || "XAF").toUpperCase().trim();
@@ -31,6 +32,8 @@ export const sponsorshipResolvers = {
         message: input.message?.trim(),
         status: "PENDING",
       });
+
+      notifyTeamSponsorship(sponsorship);
 
       return sponsorship;
     },
