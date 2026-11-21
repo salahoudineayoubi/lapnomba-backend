@@ -15,6 +15,7 @@ import { getAdminFromAuthHeader, assertJwtSecretConfigured } from "./utils/auth"
 import { translateUntranslatedCampaigns } from "./services/campaignTranslation";
 import { verifySmtpConnection } from "./utils/sendMail";
 import { purgeIdentityDocuments } from "./scripts/purgeIdentityDocuments";
+import { servePrivateFile } from "./utils/privateFiles";
 
 async function startServer() {
   try {
@@ -117,6 +118,14 @@ async function startServer() {
         },
       })
     );
+    // Fichier absent (ex. ancien CV effacé lors d'un redéploiement) : 404 lisible depuis l'admin.
+    app.use("/uploads", (_req, res) => {
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.status(404).type("text/plain").send("Fichier introuvable.");
+    });
+
+    // Documents privés (CV, pièces d'identité) : liens signés à durée courte, émis pour l'admin.
+    app.get("/files/private/:token", servePrivateFile);
 
     // --- ROUTES API ---
     app.use("/api", exportExcelRouter);

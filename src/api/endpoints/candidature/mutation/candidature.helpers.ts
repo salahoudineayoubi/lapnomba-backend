@@ -3,6 +3,7 @@ import { adminLink } from "../../../../utils/internalNotifications";
 import path from "path";
 import crypto from "crypto";
 import { uploadFromBase64 } from "../../../../utils/cloudinary";
+import { isPrivateRef, uploadPrivateDataUri } from "../../../../utils/privateFiles";
 import { sendMail } from "../../../../utils/sendMail";
 import { validateUploadedFile } from "../../../../utils/fileValidation";
 import logger from "../../../../utils/logger";
@@ -57,21 +58,13 @@ export const handleFileUploads = async (input: any) => {
       label: "CV",
     });
 
-    const base64Data = cvUrl.split(";base64,").pop();
-    // Nom de fichier généré côté serveur (jamais dérivé d'une entrée client)
-    const fileName = `cv-${Date.now()}-${crypto.randomUUID()}.${detected.extension}`;
-
-    const uploadDir = path.join(process.cwd(), "public", "uploads", "cv");
-    const filePath = path.join(uploadDir, fileName);
-
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    fs.writeFileSync(filePath, base64Data!, { encoding: "base64" });
-
-    // ✅ URL complète du backend, sans /graphql
-    cvUrl = `${BASE_URL}/uploads/cv/${fileName}`;
+    // Stockage privé permanent (Cloudinary « authenticated ») : le disque du serveur
+    // est effacé à chaque redéploiement, les CV y étaient perdus.
+    cvUrl = await uploadPrivateDataUri(cvUrl, {
+      folder: "candidatures/cv",
+      resourceType: "raw",
+      format: detected.extension,
+    });
   }
 
   // Toute valeur restante qui n'est ni une data URI traitée, ni déjà une URL
@@ -80,7 +73,7 @@ export const handleFileUploads = async (input: any) => {
     photoUrl = null;
   }
 
-  if (cvUrl && !cvUrl.startsWith("http")) {
+  if (cvUrl && !cvUrl.startsWith("http") && !isPrivateRef(cvUrl)) {
     cvUrl = null;
   }
 
