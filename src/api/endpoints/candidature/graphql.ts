@@ -110,7 +110,7 @@ export const candidatureTypeDefs = gql`
     candidatures: [Candidature!]!
 
     # Admin only — pagination + filtre statut/recherche.
-    candidaturesPaginated(page: Int, limit: Int, statut: String, search: String): CandidaturePage!
+    candidaturesPaginated(page: Int, limit: Int, statut: String, search: String, sort: String): CandidaturePage!
 
     candidatureById(id: ID!): Candidature
 

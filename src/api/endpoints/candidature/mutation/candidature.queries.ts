@@ -21,7 +21,7 @@ const DEFAULT_PAGE_LIMIT = 20;
 
 export const candidaturesPaginated = async (
   _: any,
-  { page, limit, statut, search }: { page?: number; limit?: number; statut?: string; search?: string },
+  { page, limit, statut, search, sort }: { page?: number; limit?: number; statut?: string; search?: string; sort?: string },
   context: GraphQLContext
 ) => {
   requireAdmin(context);
@@ -38,12 +38,13 @@ export const candidaturesPaginated = async (
   if (search?.trim()) {
     const term = search.trim();
     const regex = new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
-    filter.$or = [{ nomComplet: regex }, { email: regex }];
+    filter.$or = [{ nomComplet: regex }, { email: regex }, { reference: regex }];
   }
 
   const [items, total] = await Promise.all([
     Candidature.find(filter)
-      .sort({ createdAt: -1 })
+      // « score » : meilleurs dossiers v2 d'abord (score de présélection), puis les plus récents.
+      .sort(sort === "score" ? { scoreGlobal: -1, createdAt: -1 } : { createdAt: -1 })
       .skip((safePage - 1) * safeLimit)
       .limit(safeLimit),
     Candidature.countDocuments(filter),
