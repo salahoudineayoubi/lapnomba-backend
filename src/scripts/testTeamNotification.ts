@@ -4,6 +4,7 @@
  *
  * Usage : npm run test:notify            (donate@ par défaut)
  *         npm run test:notify -- training (training@)
+ *         npm run test:notify -- vous@gmail.com   (n'importe quelle adresse : test de délivrabilité Gmail, Yahoo…)
  */
 import dotenv from "dotenv";
 dotenv.config();
@@ -12,7 +13,14 @@ import { sendMail } from "../utils/sendMail";
 import { adminLink, buildInternalMail, formatAmount, formatDateFr, getDonationNotificationEmail } from "../utils/internalNotifications";
 
 (async () => {
-  const target = process.argv[2] === "training" ? process.env.TRAINING_NOTIFICATION_EMAIL || "training@lapnomba.org" : getDonationNotificationEmail();
+  const arg = process.argv[2];
+  const target =
+    arg === "training"
+      ? process.env.TRAINING_NOTIFICATION_EMAIL || "training@lapnomba.org"
+      : arg && arg.includes("@")
+        ? arg
+        : getDonationNotificationEmail();
+  console.log(`Expéditeur : ${process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER} via ${process.env.SMTP_HOST}:${process.env.SMTP_PORT || 465}`);
   const body = buildInternalMail({
     title: "TEST — notification de don",
     rows: [
