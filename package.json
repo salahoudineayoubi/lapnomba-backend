@@ -11,7 +11,8 @@
     "translate:campaigns": "ts-node src/scripts/translateCampaigns.ts",
     "seed:testimonials": "ts-node src/scripts/seedTestimonials.ts",
     "translate:community": "ts-node src/scripts/translateCommunityContent.ts",
-    "purge:identity": "ts-node src/scripts/purgeIdentityDocuments.ts"
+    "purge:identity": "ts-node src/scripts/purgeIdentityDocuments.ts",
+    "test:notify": "ts-node src/scripts/testTeamNotification.ts"
   },
   "keywords": [],
   "author": "",
