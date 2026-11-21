@@ -81,7 +81,10 @@ export const requestApplicationCode = async (
   context?: { ip?: string }
 ) => {
   // Champ piège invisible : un humain ne le remplit jamais. On répond « OK » sans rien faire.
-  if (website && website.trim()) return true;
+  if (website && website.trim()) {
+    logger.warn("Code de candidature non envoyé : champ piège rempli (robot ou auto-remplissage)", { ip: context?.ip });
+    return true;
+  }
 
   let normalized: string;
   try {
@@ -128,7 +131,14 @@ export const requestApplicationCode = async (
 
   const mail = codeEmail(code);
   try {
-    await sendMail({ to: normalized, ...mail });
+    const info: any = await sendMail({ to: normalized, ...mail });
+    logger.info("Code de candidature envoyé", {
+      domain: normalized.split("@")[1],
+      from: process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER,
+      host: process.env.SMTP_HOST,
+      messageId: info?.messageId,
+      response: info?.response,
+    });
   } catch (err) {
     logger.error("Échec d'envoi du code de vérification", { error: err instanceof Error ? err.message : err });
     throw new ApolloError("L'e-mail n'a pas pu être envoyé. Réessayez dans un instant.", "EMAIL_SEND_FAILED");
