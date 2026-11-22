@@ -17,6 +17,8 @@ import { translateUntranslatedCampaigns } from "./services/campaignTranslation";
 import { verifySmtpConnection } from "./utils/sendMail";
 import { purgeIdentityDocuments } from "./scripts/purgeIdentityDocuments";
 import { servePrivateFile } from "./utils/privateFiles";
+import { serveMedia } from "./services/mediaFallback";
+import { startFallbackMigrationLoop } from "./services/mediaFallback/migrate";
 
 async function startServer() {
   try {
@@ -36,6 +38,9 @@ async function startServer() {
     // Paramètres du site (numéro WhatsApp support) : cache chargé avant la
     // première requête ; en cas d'échec, valeur de secours (env / défaut).
     await refreshSiteSettingsCache();
+
+    // Fichiers gardés pendant une panne Cloudinary : renvoyés vers Cloudinary dès son retour.
+    startFallbackMigrationLoop();
 
     // Diagnostic non bloquant : vérifie la connexion SMTP au démarrage sans
     // jamais empêcher le serveur de démarrer si l'email est temporairement
@@ -131,6 +136,8 @@ async function startServer() {
 
     // Documents privés (CV, pièces d'identité) : liens signés à durée courte, émis pour l'admin.
     app.get("/files/private/:token", servePrivateFile);
+    // Images gardées dans notre base pendant une panne Cloudinary (redirigent vers Cloudinary après transfert).
+    app.get("/media/:file", serveMedia);
 
     // --- ROUTES API ---
     app.use("/api", exportExcelRouter);

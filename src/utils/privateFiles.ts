@@ -10,6 +10,17 @@ import axios from "axios";
 import type { Request, Response } from "express";
 import cloudinary from "cloudinary";
 import "./cloudinary"; // configure le SDK (variables d'environnement)
+import {
+  cloudinaryLikelyDown,
+  isCloudinaryUnavailable,
+  isLocalPublicId,
+  localIdOf,
+  markCloudinaryDown,
+  markCloudinaryUp,
+  removeLocal,
+  storeLocally,
+} from "../services/mediaFallback";
+import { StoredFileModel } from "../models/storedFile";
 
 const PREFIX = "private:";
 
@@ -23,19 +34,34 @@ const parseRef = (ref: string) => {
   return { resourceType: resourceType as PrivateResourceType, format, publicId: rest.join(":") };
 };
 
+/**
+ * Si Cloudinary est indisponible, le fichier est gardé dans notre base (référence
+ * « private:<type>:<format>:local/<id> ») et transféré vers Cloudinary à son retour.
+ */
 export const uploadPrivateDataUri = async (
   dataUri: string,
   { folder, resourceType, format }: { folder: string; resourceType: PrivateResourceType; format: string }
 ): Promise<string> => {
-  const res = await cloudinary.v2.uploader.upload(dataUri, {
-    type: "authenticated",
-    resource_type: resourceType,
-    folder,
-    // Les images sont ré-encodées (métadonnées EXIF/GPS supprimées) ; un PDF reste tel quel.
-    ...(resourceType === "image" ? { format, quality: "auto:good" } : {}),
-    overwrite: false,
-  });
-  return `${PREFIX}${resourceType}:${format}:${res.public_id}`;
+  if (!cloudinaryLikelyDown()) {
+    try {
+      const res = await cloudinary.v2.uploader.upload(dataUri, {
+        type: "authenticated",
+        resource_type: resourceType,
+        folder,
+        // Les images sont ré-encodées (métadonnées EXIF/GPS supprimées) ; un PDF reste tel quel.
+        ...(resourceType === "image" ? { format, quality: "auto:good" } : {}),
+        overwrite: false,
+      });
+      markCloudinaryUp();
+      return `${PREFIX}${resourceType}:${format}:${res.public_id}`;
+    } catch (err) {
+      if (!isCloudinaryUnavailable(err)) throw err;
+      console.error("[cloudinary] envoi privé refusé, passage au stockage de secours :", (err as any)?.message || err);
+      markCloudinaryDown();
+    }
+  }
+  const stored = await storeLocally(dataUri, { visibility: "private", resourceType, folder, format });
+  return `${PREFIX}${resourceType}:${format}:${stored.publicId}`;
 };
 
 const cloudinaryDownloadUrl = (ref: string, ttlSeconds: number) => {
@@ -81,7 +107,24 @@ export const servePrivateFile = async (req: Request, res: Response) => {
     return res.status(410).type("text/plain").send("Lien expiré : rouvrez le document depuis l'admin.");
   }
   try {
-    const upstream = await axios.get<NodeJS.ReadableStream>(cloudinaryDownloadUrl(data.r, 120), { responseType: "stream", timeout: 20000 });
+    const { format: fmt, publicId } = parseRef(data.r);
+    let upstreamRef = data.r;
+    if (isLocalPublicId(publicId)) {
+      // Fichier du stockage de secours : servi depuis la base, ou depuis Cloudinary s'il y a été transféré.
+      const doc = await StoredFileModel.findById(localIdOf(publicId));
+      if (!doc || doc.visibility !== "private") return res.status(404).type("text/plain").send("Fichier introuvable.");
+      if (!doc.migratedPublicId) {
+        if (!doc.data) return res.status(404).type("text/plain").send("Fichier introuvable.");
+        res.setHeader("Content-Type", MIME[fmt] || "application/octet-stream");
+        res.setHeader("Content-Disposition", `inline; filename="document.${fmt}"`);
+        res.setHeader("Cache-Control", "private, no-store");
+        res.setHeader("X-Content-Type-Options", "nosniff");
+        res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+        return res.send(doc.data);
+      }
+      upstreamRef = `${PREFIX}${doc.resourceType}:${fmt}:${doc.migratedPublicId}`;
+    }
+    const upstream = await axios.get<NodeJS.ReadableStream>(cloudinaryDownloadUrl(upstreamRef, 120), { responseType: "stream", timeout: 20000 });
     const { format } = parseRef(data.r);
     res.setHeader("Content-Type", MIME[format] || "application/octet-stream");
     res.setHeader("Content-Disposition", `inline; filename="document.${format}"`);
@@ -96,6 +139,12 @@ export const servePrivateFile = async (req: Request, res: Response) => {
 
 export const deletePrivateFile = async (ref?: string | null): Promise<void> => {
   if (!isPrivateRef(ref)) return;
-  const { resourceType, publicId } = parseRef(ref);
+  const { resourceType, publicId: parsedId } = parseRef(ref);
+  let publicId = parsedId;
+  if (isLocalPublicId(parsedId)) {
+    const doc = await removeLocal(parsedId);
+    if (!doc?.migratedPublicId) return;
+    publicId = doc.migratedPublicId;
+  }
   await cloudinary.v2.uploader.destroy(publicId, { type: "authenticated", resource_type: resourceType, invalidate: true });
 };
