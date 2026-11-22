@@ -12,7 +12,8 @@
     "seed:testimonials": "ts-node src/scripts/seedTestimonials.ts",
     "translate:community": "ts-node src/scripts/translateCommunityContent.ts",
     "purge:identity": "ts-node src/scripts/purgeIdentityDocuments.ts",
-    "test:notify": "ts-node src/scripts/testTeamNotification.ts"
+    "test:notify": "ts-node src/scripts/testTeamNotification.ts",
+    "migrate:legacy-candidatures": "ts-node src/scripts/migrateLegacyCandidatures.ts"
   },
   "keywords": [],
   "author": "",
