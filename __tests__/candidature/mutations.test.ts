@@ -354,6 +354,21 @@ describe("approuverCandidature (admin only)", () => {
     expect(result.statut).toBe("approuvée");
   });
 
+  it("répond à l'admin sans attendre le serveur SMTP (e-mail en arrière-plan)", async () => {
+    MockedCandidature.findOneAndUpdate.mockResolvedValueOnce({
+      _id: pendingId,
+      email: "jean@example.com",
+      nomComplet: "Jean Dupont",
+      statut: "approuvée",
+    });
+    // Envoi qui ne se termine jamais : la mutation doit quand même répondre.
+    mockedSendMail.mockImplementationOnce(() => new Promise(() => {}));
+
+    const result = await approuverCandidature(null, { id: pendingId }, adminContext as any);
+    expect(result.statut).toBe("approuvée");
+    expect(mockedSendMail).toHaveBeenCalledTimes(1);
+  });
+
   it("refuse un accès non authentifié", async () => {
     await expect(
       approuverCandidature(null, { id: pendingId }, anonymousContext as any)

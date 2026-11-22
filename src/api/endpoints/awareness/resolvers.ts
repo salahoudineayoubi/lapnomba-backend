@@ -1,5 +1,5 @@
 import AwarenessAgent from "../../../models/awarenessAgent";
-import { sendMail } from "../../../utils/sendMail";
+import { isApprovedStatut, isRefusedStatut, sendMailInBackground } from "../backgroundMail";
 import { buildSupportFooterHtml, buildSupportFooterText } from "../../../utils/emailSupport";
 
 const buildAwarenessMail = (
@@ -148,12 +148,7 @@ export const awarenessResolvers = {
             agent.zoneIntervention
           );
 
-          await sendMail({
-            to: agent.email,
-            subject,
-            text,
-            html,
-          });
+          void sendMailInBackground("Awareness", { to: agent.email, subject, text, html });
         }
 
         return agent;
@@ -173,32 +168,22 @@ export const awarenessResolvers = {
       );
 
       if (agent?.email && agent?.nomComplet) {
-        if (statut === "approuvée") {
+        if (isApprovedStatut(statut)) {
           const { subject, text, html } = buildAwarenessMail(
             "APPROBATION",
             agent.nomComplet,
             agent.zoneIntervention
           );
 
-          await sendMail({
-            to: agent.email,
-            subject,
-            text,
-            html,
-          });
-        } else if (statut === "refusée") {
+          void sendMailInBackground("Awareness", { to: agent.email, subject, text, html });
+        } else if (isRefusedStatut(statut)) {
           const { subject, text, html } = buildAwarenessMail(
             "REFUS",
             agent.nomComplet,
             agent.zoneIntervention
           );
 
-          await sendMail({
-            to: agent.email,
-            subject,
-            text,
-            html,
-          });
+          void sendMailInBackground("Awareness", { to: agent.email, subject, text, html });
         }
       }
 

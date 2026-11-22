@@ -1,4 +1,4 @@
-import { sendMail } from "../../../utils/sendMail";
+import { sendMailInBackground } from "../backgroundMail";
 import { CommunityVoiceModel } from "../../../models/communityvoice";
 import { cleanLocalized } from "../testimonials/resolvers";
 import { hasAllLanguages, mergeTranslations, runTranslationInBackground, translateShortTexts } from "../../../services/textTranslation";
@@ -165,24 +165,10 @@ export const communityVoiceResolvers = {
         });
 
         if (email) {
-          try {
-            const { subject, text, html } = buildCommunityVoiceMail(
-              "CONFIRMATION",
-              name
-            );
-
-            await sendMail({
-              to: email,
-              subject,
-              text,
-              html,
-            });
-          } catch (mailError) {
-            console.error(
-              "[CommunityVoice] Erreur envoi mail confirmation :",
-              mailError
-            );
-          }
+          void sendMailInBackground("CommunityVoice confirmation", {
+            to: email,
+            ...buildCommunityVoiceMail("CONFIRMATION", name),
+          });
         }
 
         return {
@@ -243,12 +229,12 @@ export const communityVoiceResolvers = {
       if (publish) voice.isApproved = true;
       await voice.save();
       if (voice.isApproved) runTranslationInBackground(`avis ${id}`, (client) => translateVoice(id, client));
+      // E-mail envoyé en arrière-plan : l'admin a sa réponse sans attendre le serveur SMTP.
       if (publish && !wasApproved && voice.email) {
-        try {
-          await sendMail({ to: voice.email, ...buildCommunityVoiceMail("APPROVAL", voice.name) });
-        } catch (mailError) {
-          console.error("[CommunityVoice] Erreur envoi mail approbation :", mailError);
-        }
+        void sendMailInBackground("CommunityVoice approbation", {
+          to: voice.email,
+          ...buildCommunityVoiceMail("APPROVAL", voice.name),
+        });
       }
       return { success: true, message: publish ? "Avis corrigé et publié." : "Avis corrigé." };
     },
@@ -272,24 +258,10 @@ export const communityVoiceResolvers = {
         runTranslationInBackground(`avis ${id}`, (client) => translateVoice(id, client));
 
         if (voice.email) {
-          try {
-            const { subject, text, html } = buildCommunityVoiceMail(
-              "APPROVAL",
-              voice.name
-            );
-
-            await sendMail({
-              to: voice.email,
-              subject,
-              text,
-              html,
-            });
-          } catch (mailError) {
-            console.error(
-              "[CommunityVoice] Erreur envoi mail approbation :",
-              mailError
-            );
-          }
+          void sendMailInBackground("CommunityVoice approbation", {
+            to: voice.email,
+            ...buildCommunityVoiceMail("APPROVAL", voice.name),
+          });
         }
 
         return {
@@ -319,24 +291,10 @@ export const communityVoiceResolvers = {
         await CommunityVoiceModel.findByIdAndDelete(id);
 
         if (voice.email) {
-          try {
-            const { subject, text, html } = buildCommunityVoiceMail(
-              "REJECTION",
-              voice.name
-            );
-
-            await sendMail({
-              to: voice.email,
-              subject,
-              text,
-              html,
-            });
-          } catch (mailError) {
-            console.error(
-              "[CommunityVoice] Erreur envoi mail suppression :",
-              mailError
-            );
-          }
+          void sendMailInBackground("CommunityVoice suppression", {
+            to: voice.email,
+            ...buildCommunityVoiceMail("REJECTION", voice.name),
+          });
         }
 
         return {

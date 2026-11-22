@@ -233,7 +233,9 @@ export const approuverCandidature = async (
 
   // La transition en base a réussi de façon atomique : un seul appel peut
   // arriver jusqu'ici pour un même id → un seul email envoyé.
-  await sendStatusEmail(candidature.email, candidature.nomComplet, "APPROBATION");
+  // Envoi en arrière-plan (sendStatusEmail ne rejette jamais, il journalise) :
+  // l'admin obtient sa réponse sans attendre le serveur SMTP.
+  void sendStatusEmail(candidature.email, candidature.nomComplet, "APPROBATION");
 
   return candidature;
 };
@@ -253,7 +255,8 @@ export const refuserCandidature = async (
   const trimmedMotif = motifRefus?.trim() || undefined;
   const candidature = await applyStatusTransition(id, "refusée", admin, { motifRefus: trimmedMotif });
 
-  await sendStatusEmail(candidature.email, candidature.nomComplet, "REFUS", trimmedMotif);
+  // Envoi en arrière-plan, comme pour l'approbation.
+  void sendStatusEmail(candidature.email, candidature.nomComplet, "REFUS", trimmedMotif);
 
   return candidature;
 };

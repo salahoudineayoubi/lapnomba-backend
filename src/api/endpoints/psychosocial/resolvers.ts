@@ -1,5 +1,5 @@
 import Psychosocial from "../../../models/psychosocial";
-import { sendMail } from "../../../utils/sendMail";
+import { isApprovedStatut, isRefusedStatut, sendMailInBackground } from "../backgroundMail";
 import { buildSupportFooterHtml, buildSupportFooterText } from "../../../utils/emailSupport";
 
 const buildPsychosocialMail = (
@@ -138,12 +138,7 @@ export const psychosocialResolvers = {
           res.nomComplet
         );
 
-        await sendMail({
-          to: res.email,
-          subject,
-          text,
-          html,
-        });
+        void sendMailInBackground("Psychosocial", { to: res.email, subject, text, html });
       }
 
       return res;
@@ -157,30 +152,20 @@ export const psychosocialResolvers = {
       );
 
       if (res && res.email && res.nomComplet) {
-        if (statut === "approuvée") {
+        if (isApprovedStatut(statut)) {
           const { subject, text, html } = buildPsychosocialMail(
             "APPROVAL",
             res.nomComplet
           );
 
-          await sendMail({
-            to: res.email,
-            subject,
-            text,
-            html,
-          });
-        } else if (statut === "refusée") {
+          void sendMailInBackground("Psychosocial", { to: res.email, subject, text, html });
+        } else if (isRefusedStatut(statut)) {
           const { subject, text, html } = buildPsychosocialMail(
             "REJECTION",
             res.nomComplet
           );
 
-          await sendMail({
-            to: res.email,
-            subject,
-            text,
-            html,
-          });
+          void sendMailInBackground("Psychosocial", { to: res.email, subject, text, html });
         }
       }
 
