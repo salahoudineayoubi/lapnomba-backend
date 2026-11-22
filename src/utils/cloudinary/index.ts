@@ -64,3 +64,9 @@ export function generateSignature(paramsToSign: Record<string, any> = {}) {
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   };
 }
+
+/** Supprime une image publique (upload standard) ; sans effet si publicId est vide. */
+export async function deleteImage(publicId?: string | null) {
+  if (!publicId) return;
+  await cloudinary.v2.uploader.destroy(publicId, { resource_type: "image", invalidate: true });
+}

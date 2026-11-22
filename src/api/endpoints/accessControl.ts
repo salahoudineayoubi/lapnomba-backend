@@ -54,6 +54,8 @@ export const ADMIN_ONLY_OPERATIONS = {
     "talentRequests",
     "adminTalentProfiles",
     "student",
+    // Leaders (liste complète, fiches masquées comprises)
+    "adminLeaders",
   ],
   Mutation: [
     // Dons
@@ -101,6 +103,11 @@ export const ADMIN_ONLY_OPERATIONS = {
     "createTalentProfile",
     "updateTalentProfile",
     "deleteTalentProfile",
+    // Leaders (page « Nos leaders »)
+    "createLeader",
+    "updateLeader",
+    "deleteLeader",
+    "reorderLeaders",
   ],
 } as const;
 
