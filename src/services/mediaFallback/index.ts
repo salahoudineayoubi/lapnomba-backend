@@ -63,8 +63,16 @@ export const parseDataUri = (dataUri: string): { mime: string; buffer: Buffer } 
   return { mime, buffer };
 };
 
-const publicBase = () =>
-  (process.env.APP_BASE_URL || "https://lobster-app-vdl5o.ondigitalocean.app").trim().replace(/\/+$/, "");
+/**
+ * Adresse publique des fichiers de secours. Volontairement PAS APP_BASE_URL :
+ * en production elle vaut https://api.lapnomba.org, domaine sans DNS, et les images
+ * ne s'affichaient pas. MEDIA_BASE_URL permet de la changer quand le domaine existera.
+ */
+const DEFAULT_MEDIA_BASE = "https://lobster-app-vdl5o.ondigitalocean.app";
+export const publicBase = () => {
+  const raw = (process.env.MEDIA_BASE_URL || "").trim();
+  return (/^https?:\/\//i.test(raw) ? raw : DEFAULT_MEDIA_BASE).replace(/\/+$/, "");
+};
 
 export const publicMediaUrl = (id: string, ext: string) => `${publicBase()}/media/${id}.${ext}`;
 

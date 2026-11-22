@@ -17,6 +17,7 @@ import {
   localIdOf,
   markCloudinaryDown,
   markCloudinaryUp,
+  publicBase,
   removeLocal,
   storeLocally,
 } from "../services/mediaFallback";
@@ -74,7 +75,8 @@ const cloudinaryDownloadUrl = (ref: string, ttlSeconds: number) => {
 };
 
 const relaySecret = () => process.env.ADMISSIONS_SECRET || process.env.JWT_SECRET || "lapnomba-files";
-const relayBase = () => (process.env.APP_BASE_URL || "https://lobster-app-vdl5o.ondigitalocean.app").replace(/\/+$/, "");
+// Même adresse que les images de secours (APP_BASE_URL pointe vers un domaine sans DNS).
+const relayBase = () => publicBase();
 const sign = (payload: string) => crypto.createHmac("sha256", relaySecret()).update(`file:${payload}`).digest("base64url");
 
 /**

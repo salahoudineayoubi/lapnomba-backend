@@ -17,7 +17,7 @@ jest.mock("cloudinary", () => ({
 process.env.CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || "x";
 process.env.CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY || "x";
 process.env.CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET || "x";
-process.env.APP_BASE_URL = "https://api.example.org";
+process.env.MEDIA_BASE_URL = "https://api.example.org";
 
 import { uploadFromBase64, deleteImage } from "../../src/utils/cloudinary";
 import { uploadPrivateDataUri, deletePrivateFile } from "../../src/utils/privateFiles";
