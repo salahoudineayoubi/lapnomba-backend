@@ -64,12 +64,14 @@ export const admissionResolvers = {
     cv: (p: any, _: any, ctx: GraphQLContext) => (isPrivateRef(p.cv) ? signedIfAdmin(p.cv, ctx) : p.cv ?? null),
     charteSigneeLe: (p: any) => (p.charte?.signeeLe ? new Date(p.charte.signeeLe).toISOString() : null),
     identite: (p: any, _: any, ctx: GraphQLContext) => {
-      if (!p.identite || !ctx?.admin) return null;
+      // Anciennes candidatures (formulaire v1) : Mongoose renvoie un objet « identite » vide
+      // (sous-documents imbriqués) sans pièce d'identité → pas de bloc identité.
+      if (!p.identite?.typePiece || !ctx?.admin) return null;
       const d = p.identite.documents || {};
       return {
         typePiece: p.identite.typePiece,
         numeroFin: p.identite.numeroFin,
-        statut: p.identite.statut,
+        statut: p.identite.statut || "a_verifier",
         note: p.identite.note,
         verifieePar: p.identite.verifieePar,
         verifieeLe: p.identite.verifieeLe ? new Date(p.identite.verifieeLe).toISOString() : null,
