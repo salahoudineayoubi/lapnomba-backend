@@ -74,6 +74,17 @@ export const publicBase = () => {
   return (/^https?:\/\//i.test(raw) ? raw : DEFAULT_MEDIA_BASE).replace(/\/+$/, "");
 };
 
+/**
+ * Répare une adresse de secours enregistrée avec un autre domaine (ex. api.lapnomba.org,
+ * sans DNS) : le fichier est servi par ce backend, à l'adresse qui répond.
+ * Toute autre adresse (Cloudinary, site…) est renvoyée telle quelle.
+ */
+export const normalizeMediaUrl = (url?: string | null): string | null | undefined => {
+  if (typeof url !== "string") return url;
+  const m = /^https?:\/\/[^/]+(\/media\/[a-f0-9]{24}\.[a-z0-9]{1,5})$/i.exec(url.trim());
+  return m ? `${publicBase()}${m[1]}` : url;
+};
+
 export const publicMediaUrl = (id: string, ext: string) => `${publicBase()}/media/${id}.${ext}`;
 
 export const isLocalPublicId = (publicId?: string | null): publicId is string =>

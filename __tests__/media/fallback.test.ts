@@ -25,6 +25,7 @@ import {
   cloudinaryLikelyDown,
   isCloudinaryUnavailable,
   markCloudinaryUp,
+  normalizeMediaUrl,
   parseDataUri,
   serveMedia,
 } from "../../src/services/mediaFallback";
@@ -99,6 +100,15 @@ describe("images publiques", () => {
     await deleteImage(`local/${ID}`);
     expect(storedModel.findByIdAndDelete).toHaveBeenCalledWith(ID);
     expect(destroy).toHaveBeenCalledWith("leaders/zz", expect.anything());
+  });
+});
+
+describe("adresses enregistrées avec un domaine sans DNS", () => {
+  it("api.lapnomba.org/media/… est réécrite vers l'adresse qui répond ; le reste ne bouge pas", () => {
+    expect(normalizeMediaUrl(`https://api.lapnomba.org/media/${ID}.webp`)).toBe(`https://api.example.org/media/${ID}.webp`);
+    const cdn = "https://res.cloudinary.com/x/image/upload/a.jpg";
+    expect(normalizeMediaUrl(cdn)).toBe(cdn);
+    expect(normalizeMediaUrl(null)).toBeNull();
   });
 });
 

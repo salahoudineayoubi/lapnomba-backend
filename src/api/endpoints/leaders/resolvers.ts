@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { UserInputError } from "apollo-server-express";
 import { LeaderModel } from "../../../models/leader";
 import { deleteImage, uploadFromBase64 } from "../../../utils/cloudinary";
+import { normalizeMediaUrl } from "../../../services/mediaFallback";
 import { FileValidationError, validateUploadedFile } from "../../../utils/fileValidation";
 import {
   AVATAR_MIMES,
@@ -178,6 +179,7 @@ export const leaderResolvers = {
   // Les requêtes utilisent .lean() : le document brut n'a que `_id`.
   Leader: {
     id: (l: any) => String(l._id ?? l.id),
+    avatar: (l: any) => normalizeMediaUrl(l.avatar) ?? null,
     title: (l: any) => l.title ?? {},
     bio: (l: any) => l.bio ?? {},
     order: (l: any) => (typeof l.order === "number" ? l.order : 0),
