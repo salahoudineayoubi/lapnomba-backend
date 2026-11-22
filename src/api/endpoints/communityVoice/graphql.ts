@@ -12,7 +12,16 @@ export const communityVoiceTypeDefs = gql`
     language: String
     "Traductions du commentaire saisies depuis l'admin."
     commentI18n: LocalizedText
+    "Texte d'origine, conservé quand une reformulation a été appliquée (admin)."
+    originalComment: String
     createdAt: String
+  }
+
+  type VoiceRewrite {
+    success: Boolean!
+    message: String
+    original: String
+    suggestion: String
   }
 
   type VoiceResponse {
@@ -36,5 +45,9 @@ export const communityVoiceTypeDefs = gql`
     approveVoice(id: ID!): VoiceResponse!
     updateVoiceTranslations(id: ID!, language: String, commentI18n: LocalizedTextInput): VoiceResponse!
     deleteVoice(id: ID!): VoiceResponse!
+    "Propose une version corrigée (IA) de l'avis, sans rien enregistrer."
+    suggestVoiceRewrite(id: ID!): VoiceRewrite!
+    "Remplace le texte publié (le texte d'origine est conservé) ; publie l'avis si publish = true."
+    applyVoiceRewrite(id: ID!, comment: String!, publish: Boolean): VoiceResponse!
   }
 `;

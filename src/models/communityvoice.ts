@@ -10,6 +10,9 @@ export interface ICommunityVoice extends Document {
   language?: string;
   /** Traductions du commentaire saisies par l'équipe depuis l'admin. */
   commentI18n?: { fr?: string; en?: string; tr?: string; ar?: string };
+  /** Texte d'origine du contributeur, conservé quand l'équipe applique une reformulation. */
+  originalComment?: string;
+  polishedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -22,6 +25,8 @@ const CommunityVoiceSchema = new Schema<ICommunityVoice>(
     comment: { type: String, required: true },
     isApproved: { type: Boolean, default: false },
     language: { type: String, enum: ["fr", "en", "tr", "ar"], required: false },
+    originalComment: { type: String, required: false },
+    polishedAt: { type: Date, required: false },
     commentI18n: {
       fr: { type: String, trim: true },
       en: { type: String, trim: true },

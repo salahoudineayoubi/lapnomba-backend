@@ -86,6 +86,8 @@ export const ADMIN_ONLY_OPERATIONS = {
     // Voix de la communauté
     "approveVoice",
     "updateVoiceTranslations",
+    "suggestVoiceRewrite",
+    "applyVoiceRewrite",
     "deleteVoice",
     // Mentors bénévoles
     "updateMentorApplicationStatus",

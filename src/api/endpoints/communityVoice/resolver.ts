@@ -2,6 +2,8 @@ import { sendMail } from "../../../utils/sendMail";
 import { CommunityVoiceModel } from "../../../models/communityvoice";
 import { cleanLocalized } from "../testimonials/resolvers";
 import { hasAllLanguages, mergeTranslations, runTranslationInBackground, translateShortTexts } from "../../../services/textTranslation";
+import { getTranslationClient } from "../../../services/campaignTranslation";
+import { MAX_VOICE_CHARS, polishVoiceText } from "../../../services/voicePolish";
 
 /**
  * Traduction IA d'un avis dans les 4 langues (langues vides seulement :
@@ -137,9 +139,10 @@ Lap Nomba Foundation${footerText}`,
 export const communityVoiceResolvers = {
   Query: {
     getApprovedVoices: async () => {
-      return await CommunityVoiceModel.find({ isApproved: true }).sort({
-        createdAt: -1,
-      });
+      // Public : ni l'e-mail ni le texte d'origine (avant correction) ne sont exposés.
+      return await CommunityVoiceModel.find({ isApproved: true })
+        .select("-originalComment -email")
+        .sort({ createdAt: -1 });
     },
 
     getAllVoicesForAdmin: async () => {
@@ -207,6 +210,47 @@ export const communityVoiceResolvers = {
       const voice = await CommunityVoiceModel.findByIdAndUpdate(id, update, { new: true });
       if (!voice) return { success: false, message: "Avis introuvable." };
       return { success: true, message: "Traductions enregistrées." };
+    },
+
+    suggestVoiceRewrite: async (_: any, { id }: { id: string }) => {
+      const voice = await CommunityVoiceModel.findById(id);
+      if (!voice) return { success: false, message: "Avis introuvable." };
+      const client = getTranslationClient();
+      if (!client) return { success: false, message: "Reformulation IA indisponible (clé OpenAI absente sur le serveur)." };
+      try {
+        const suggestion = await polishVoiceText(client, voice.comment);
+        return { success: true, original: voice.comment, suggestion };
+      } catch (err) {
+        return { success: false, original: voice.comment, message: err instanceof Error ? err.message : "Reformulation impossible." };
+      }
+    },
+
+    applyVoiceRewrite: async (_: any, { id, comment, publish }: { id: string; comment: string; publish?: boolean }) => {
+      const text = (comment || "").trim();
+      if (!text) return { success: false, message: "Le texte ne peut pas être vide." };
+      if (text.length > MAX_VOICE_CHARS) return { success: false, message: `Texte trop long (${MAX_VOICE_CHARS} caractères maximum).` };
+      const voice = await CommunityVoiceModel.findById(id);
+      if (!voice) return { success: false, message: "Avis introuvable." };
+      if (text !== voice.comment) {
+        if (!voice.originalComment) voice.originalComment = voice.comment;
+        voice.comment = text;
+        voice.polishedAt = new Date();
+        // Le texte a changé : les traductions sont refaites à partir de la nouvelle version.
+        voice.commentI18n = {};
+        voice.markModified("commentI18n");
+      }
+      const wasApproved = voice.isApproved;
+      if (publish) voice.isApproved = true;
+      await voice.save();
+      if (voice.isApproved) runTranslationInBackground(`avis ${id}`, (client) => translateVoice(id, client));
+      if (publish && !wasApproved && voice.email) {
+        try {
+          await sendMail({ to: voice.email, ...buildCommunityVoiceMail("APPROVAL", voice.name) });
+        } catch (mailError) {
+          console.error("[CommunityVoice] Erreur envoi mail approbation :", mailError);
+        }
+      }
+      return { success: true, message: publish ? "Avis corrigé et publié." : "Avis corrigé." };
     },
 
     approveVoice: async (_: any, { id }: { id: string }) => {
