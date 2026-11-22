@@ -1,5 +1,6 @@
 import OpenAI from "openai";
-import SYSTEM_PROMPT from "../../promt";
+import { buildSystemPrompt } from "../../promt";
+import { getSupportContact } from "../../../utils/emailSupport";
 import { GraphQLContext } from "../../../utils/auth";
 import { checkRateLimit, RateLimitExceededError } from "../../../utils/rateLimiter";
 import logger from "../../../utils/logger";
@@ -58,7 +59,8 @@ const LANGUAGE_NAMES: Record<Lang, string> = { fr: "French", en: "English", tr: 
 
 /** Message de secours (jamais d'écran vide côté site). */
 export const fallbackMessage = (lang: Lang, reason: "unavailable" | "rate_limited"): string => {
-  const contact = "https://wa.me/237657588317\ncontact@lapnomba.org";
+  const { whatsappLink, email } = getSupportContact();
+  const contact = `${whatsappLink}\n${email}`;
   const messages: Record<Lang, Record<typeof reason, string>> = {
     fr: {
       unavailable: `Je ne peux pas répondre pour le moment 🙏 Notre équipe reste disponible :\n${contact}`,
@@ -115,6 +117,7 @@ export const chatbotResolvers = {
       }
 
       const config = chatbotConfig();
+      const systemPrompt = buildSystemPrompt();
       const languageHint = `The website is currently displayed in ${LANGUAGE_NAMES[lang]}. Answer in the language of the user's message; if unclear, use ${LANGUAGE_NAMES[lang]}.`;
       const turns = [...cleanHistory(history), { role: "user" as const, content: text }];
 
@@ -122,7 +125,7 @@ export const chatbotResolvers = {
       try {
         const response = await openai.responses.create({
           model: config.model,
-          instructions: `${SYSTEM_PROMPT}\n\n${languageHint}`,
+          instructions: `${systemPrompt}\n\n${languageHint}`,
           input: turns,
           reasoning: { effort: config.effort },
           ...(config.webSearch ? { tools: [{ type: "web_search" as const }] } : {}),
@@ -141,7 +144,7 @@ export const chatbotResolvers = {
         const completion = await openai.chat.completions.create({
           model: config.fallbackModel,
           messages: [
-            { role: "system", content: SYSTEM_PROMPT },
+            { role: "system", content: systemPrompt },
             { role: "system", content: languageHint },
             ...turns,
           ],

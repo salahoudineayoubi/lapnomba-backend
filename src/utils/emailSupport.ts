@@ -12,10 +12,18 @@
  *  - +237 657 588 317 : numéro WhatsApp support officiel (affichage), même
  *    numéro en format machine (237657588317) pour les liens wa.me.
  *
- * Un seul format canonique est lu depuis l'environnement (SUPPORT_WHATSAPP,
- * avec ou sans "+"/espaces) ; l'affichage et le lien wa.me sont dérivés ici,
- * pas dupliqués ailleurs.
+ * Numéro WhatsApp, par ordre de priorité :
+ *  1. valeur enregistrée depuis l'admin (« Paramètres du site », document
+ *     SiteSettings) — lue dans le cache mémoire de services/siteSettings.ts ;
+ *  2. variable d'environnement SUPPORT_WHATSAPP (avec ou sans "+"/espaces) ;
+ *  3. numéro par défaut ci-dessous.
+ * L'affichage et le lien wa.me sont dérivés ici (utils/supportWhatsapp.ts),
+ * pas dupliqués ailleurs. getSupportContact reste synchrone : il ne fait
+ * jamais attendre un e-mail sur la base.
  */
+
+import { buildWhatsappLink, formatWhatsappDisplay, tryNormalizeSupportWhatsapp } from "./supportWhatsapp";
+import { getCachedSupportWhatsapp, refreshSiteSettingsInBackground } from "../services/siteSettings";
 
 const DEFAULT_SUPPORT_EMAIL = "contact@lapnomba.org";
 const DEFAULT_SUPPORT_WHATSAPP = "+237657588317";
@@ -30,27 +38,21 @@ export interface SupportContact {
   whatsappLink: string;
 }
 
-/**
- * Formate un numéro en "+CCC XXX XXX XXX" à partir de ses seuls chiffres.
- * Ne suppose pas un format d'entrée particulier — ne conserve que les
- * chiffres puis regroupe par 3, ce qui fonctionne pour le format Cameroun
- * (237 + 9 chiffres = 12 chiffres) utilisé ici.
- */
-const formatWhatsappDisplay = (digits: string): string => {
-  const groups = digits.match(/.{1,3}/g) || [digits];
-  return `+${groups.join(" ")}`;
-};
+/** Numéro hors admin : SUPPORT_WHATSAPP s'il est valide, sinon le défaut. */
+export const getFallbackSupportWhatsapp = (): string =>
+  tryNormalizeSupportWhatsapp(process.env.SUPPORT_WHATSAPP) || DEFAULT_SUPPORT_WHATSAPP.replace(/\D/g, "");
 
 export const getSupportContact = (): SupportContact => {
   const email = (process.env.SUPPORT_EMAIL || DEFAULT_SUPPORT_EMAIL).trim();
-  const rawWhatsapp = process.env.SUPPORT_WHATSAPP || DEFAULT_SUPPORT_WHATSAPP;
-  const whatsappDigits = rawWhatsapp.replace(/[^\d]/g, "");
+  // Cache périmé : rechargé en arrière-plan pour les prochains appels.
+  refreshSiteSettingsInBackground();
+  const whatsappDigits = getCachedSupportWhatsapp() || getFallbackSupportWhatsapp();
 
   return {
     email,
     whatsappDigits,
     whatsappDisplay: formatWhatsappDisplay(whatsappDigits),
-    whatsappLink: `https://wa.me/${whatsappDigits}`,
+    whatsappLink: buildWhatsappLink(whatsappDigits),
   };
 };
 

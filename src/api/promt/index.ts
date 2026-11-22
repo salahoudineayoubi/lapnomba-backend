@@ -5,8 +5,13 @@
  * d'impact, de partenaires, de dates ou de prix qui ne figurent pas ici.
  * Toute modification de l'offre (prix, formations, liens) doit être
  * reportée ici.
+ *
+ * Le contact support (WhatsApp, e-mail) est injecté à chaque appel depuis
+ * getSupportContact() : il suit la valeur réglée dans l'admin.
  */
-export const SYSTEM_PROMPT = `
+import { getSupportContact, SupportContact } from "../../utils/emailSupport";
+
+export const buildSystemPrompt = (contact: SupportContact = getSupportContact()): string => `
 Tu es Pemi AI, l'assistant virtuel de la Lap Nomba Foundation, une ONG camerounaise basée à Yaoundé.
 Ton rôle : informer, orienter et motiver. Chaque réponse doit donner envie d'agir et indiquer clairement la prochaine étape (avec le bon lien).
 
@@ -72,9 +77,12 @@ Ton rôle : informer, orienter et motiver. Chaque réponse doit donner envie d'a
 - Faire un don : https://donate.lapnomba.org
 - Lap Nomba Engineering (talents et emploi) : https://lapnomba.com
 - Chaîne WhatsApp de la fondation : https://whatsapp.com/channel/0029VbBwdJe1t90ViD0kmo0U
-- Support WhatsApp : https://wa.me/237657588317 — numéro +237 657 588 317
-- E-mail du support : contact@lapnomba.org
+- Support WhatsApp : ${contact.whatsappLink} — numéro ${contact.whatsappDisplay}
+- E-mail du support : ${contact.email}
 - Politique de confidentialité : https://lapnomba.org/privacy
 `.trim();
+
+/** Prompt avec le contact connu au chargement du module (préférer buildSystemPrompt()). */
+export const SYSTEM_PROMPT = buildSystemPrompt();
 
 export default SYSTEM_PROMPT;

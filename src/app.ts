@@ -5,6 +5,7 @@ import path from "path";
 import fs from "fs";
 import logger from "./utils/logger";
 import { connectMongo } from "./data-source";
+import { refreshSiteSettingsCache } from "./services/siteSettings";
 import { ApolloServer } from "apollo-server-express";
 import { typeDefs, resolvers } from "./api/endpoints";
 import exportExcelRouter from "./api/endpoints/candidature/exportExcel";
@@ -31,6 +32,10 @@ async function startServer() {
 
     await connectMongo();
     logger.info("✅ Connecté à MongoDB");
+
+    // Paramètres du site (numéro WhatsApp support) : cache chargé avant la
+    // première requête ; en cas d'échec, valeur de secours (env / défaut).
+    await refreshSiteSettingsCache();
 
     // Diagnostic non bloquant : vérifie la connexion SMTP au démarrage sans
     // jamais empêcher le serveur de démarrer si l'email est temporairement

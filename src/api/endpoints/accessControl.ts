@@ -110,6 +110,8 @@ export const ADMIN_ONLY_OPERATIONS = {
     "updateLeader",
     "deleteLeader",
     "reorderLeaders",
+    // Paramètres du site (numéro WhatsApp support)
+    "updateSiteSettings",
   ],
 } as const;
 

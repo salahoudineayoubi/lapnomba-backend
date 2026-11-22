@@ -73,6 +73,9 @@ import { talentProfileResolvers } from "./talentProfile/resolvers";
 import { leaderTypeDefs } from "./leaders/graphql";
 import { leaderResolvers } from "./leaders/resolvers";
 
+import { siteSettingsTypeDefs } from "./siteSettings/graphql";
+import { siteSettingsResolvers } from "./siteSettings/resolvers";
+
 import { applyAdminGuards, privacyFieldResolvers } from "./accessControl";
 
 export const typeDefs = [
@@ -102,6 +105,7 @@ export const typeDefs = [
   talentRequestTypeDefs,
   talentProfileTypeDefs,
   leaderTypeDefs,
+  siteSettingsTypeDefs,
 ];
 
 const rawResolvers = [
@@ -130,6 +134,7 @@ const rawResolvers = [
   talentRequestResolvers,
   talentProfileResolvers,
   leaderResolvers,
+  siteSettingsResolvers,
 ];
 
 // Toutes les opérations listées dans accessControl.ts exigent un token admin ;
